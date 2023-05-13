@@ -33,12 +33,12 @@ public class MyScrabbleModel implements ScrabbleModelFacade {
         out.println("SubmitWord:" + word + ":" + row + ":" + col + ":" + isVertical);
         out.flush();
         String response = in.next();
-        // true:32
-        // 32 += score in database and store it
+        // true
+
         // return true
         in.close();
         out.close();
-        return response.equals("T");
+        return response.startsWith("true");
     }
 
     @Override
@@ -50,15 +50,18 @@ public class MyScrabbleModel implements ScrabbleModelFacade {
         StringBuilder sb = new StringBuilder();
         while(in.hasNext()){
             sb.append(in.nextLine());
+            if(in.hasNext())
+                sb.append("\n");
         }
         String res = sb.toString();
         in.close();
         out.close();
         return res;
         /*
-        Michal : 104
-        Tal : 98
-        Roie : 57
+            Michal : 104
+            Tal : 98
+            Roie : 57
+            Michal:104\nTal:98
          */
     }
 

@@ -41,6 +41,9 @@ public class Tile {
             maxAmount=amount.clone();
 
         }
+        public Tile[] getLetters(){
+            return letters;
+        }
         public Tile getRand(){
             if(size==0)
                 return null;
