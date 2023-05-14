@@ -1,19 +1,19 @@
 package test;
 
 
+import Model.InGameData;
+
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 
 public class BookScrabbleHandler implements ClientHandler {
     private final DictionaryManager dm;
-    private Board board;
 
+    private final InGameData db;
 
     public BookScrabbleHandler() {
         dm = DictionaryManager.get();
-        board = Board.getBoard();
+        db = new InGameData();
     }
 
     public void handleClient(InputStream inFromclient, OutputStream outToClient) throws IOException {
@@ -25,7 +25,7 @@ public class BookScrabbleHandler implements ClientHandler {
         ObjectOutputStream out = new ObjectOutputStream(outToClient);
         switch (requestSplitted[0]) {
             case "GetBoard":
-                out.writeObject(getBoard());
+                out.writeObject(db.getBoard());
                 out.flush();
                 break;
             case "GetNewTiles": // GetNewTiles:{amount}
@@ -33,13 +33,14 @@ public class BookScrabbleHandler implements ClientHandler {
                 out.flush();
                 break;
             case "GetScore":
-                // fetch from DB
+                bw.write(db.getScore());
+                bw.flush();
                 break;
             case "SubmitWord":
                 bw.write(submitWord(requestSplitted));
                 bw.flush();
                 break;
-            default:
+            case "Connect":
                 break;
         }
         bw.close();
@@ -52,50 +53,21 @@ public class BookScrabbleHandler implements ClientHandler {
     }
 
     private String submitWord(String[] requestSplitted) {
+        String answer = "false";
         if (dm.query(requestSplitted[1]) || dm.challenge(requestSplitted[1])) {
-            // requestSplitted = "SubmitWord:CAT:4:3:true"
-            int score = board.tryPlaceWord(
-                    stringToWord(requestSplitted[1],
-                            Integer.parseInt(requestSplitted[2]),
-                            Integer.parseInt(requestSplitted[3]),
-                            Boolean.parseBoolean(requestSplitted[4])));
-            // DB.store() ***** NEED TO ADD *****
-            // true/false
-            return "true";
+            answer = db.submitWord(requestSplitted);
         }
-        return "false";
+        return answer;
     }
 
-    public Character[][] getBoard(){
-        Character[][] updatedBoard = new Character[15][15];
-        Tile[][] boardTiles = board.getTiles();
-        for(int i = 0 ; i < boardTiles.length ; i++){
-            for(int j=0;j<boardTiles[i].length;j++){
-                updatedBoard[i][j] = boardTiles[i][j].letter;
-            }
-        }
-        return updatedBoard;
-    }
-
-    public ArrayList<Character> getNewTiles(int amount)
-    {
-        ArrayList<Character> newTiles= new ArrayList<>();
+    public ArrayList<Character> getNewTiles(int amount) {
+        ArrayList<Character> newTiles = new ArrayList<>();
         Tile newTile;
-        for(int i=0; i<amount; i++)
-        {
+        for (int i = 0; i < amount; i++) {
             newTile = Tile.Bag.getBag().getRand();
             newTiles.add(newTile.letter);
         }
         return newTiles;
     }
-
-    public Word stringToWord(String word, int row, int col, boolean isVertical) {
-        Tile[] t = new Tile[word.length()];
-        for(int i=0; i< word.length(); i++)
-        {
-          t[i]= Tile.Bag.getBag().getLetters()[word.charAt(i)-'A'];
-        }
-        return new Word(t, row, col, isVertical);
-    }
-
+    
 }

@@ -15,27 +15,22 @@ import static java.lang.Integer.parseInt;
 public class MyScrabbleModel implements ScrabbleModelFacade {
 
     private Socket server;
+    private String playerName;
 
-
-    public MyScrabbleModel(String ip, int port) {
-        try {
-            server = new Socket(ip, port);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public MyScrabbleModel(String name, String ip, int port) throws IOException {
+        this.playerName = name;
+        server = new Socket(ip, port);
     }
+
 
     @Override
     public boolean submitWord(String word, int row, int col, boolean isVertical, String playerName) throws IOException {
         // user
         PrintWriter out = new PrintWriter(server.getOutputStream());
         Scanner in = new Scanner(server.getInputStream());
-        out.println("SubmitWord:" + word + ":" + row + ":" + col + ":" + isVertical);
+        out.println("SubmitWord:" + word + ":" + row + ":" + col + ":" + isVertical + ":" + playerName);
         out.flush();
         String response = in.next();
-        // true
-
-        // return true
         in.close();
         out.close();
         return response.startsWith("true");
@@ -48,9 +43,9 @@ public class MyScrabbleModel implements ScrabbleModelFacade {
         out.println("GetScore:");
         out.flush();
         StringBuilder sb = new StringBuilder();
-        while(in.hasNext()){
+        while (in.hasNext()) {
             sb.append(in.nextLine());
-            if(in.hasNext())
+            if (in.hasNext())
                 sb.append("\n");
         }
         String res = sb.toString();
@@ -91,7 +86,7 @@ public class MyScrabbleModel implements ScrabbleModelFacade {
         PrintWriter out = new PrintWriter(server.getOutputStream());
         BufferedInputStream bufferedInputStream = new BufferedInputStream(server.getInputStream());
         ObjectInputStream objectInputStream = new ObjectInputStream(bufferedInputStream);
-        ArrayList<Character> playerTiles = new ArrayList<>();
+        ArrayList<Character> playerTiles;
         out.println("GetNewTiles:" + amount);
         out.flush();
         playerTiles = (ArrayList<Character>) objectInputStream.readObject();

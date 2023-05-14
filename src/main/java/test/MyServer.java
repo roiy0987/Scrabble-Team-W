@@ -4,39 +4,57 @@ package test;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Collections;
+import java.util.List;
 
 public class MyServer {
     private ClientHandler ch;
     private int port;
-    boolean stop;
+    boolean gameStarted = false;
+    boolean gameFinished = false;
+
+    private List<Socket> players;
+
+    private int currentPlayerIndex = 0;
+
     public MyServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
     }
-    public void start(){
-        stop = false;
-        new Thread(()->startServer()).start();
+
+    public void start() {
+        gameStarted = false;
+        new Thread(() -> startServer()).start();
     }
-    private void startServer(){
-        try{
+
+    private void startServer() {
+        try {
             ServerSocket server = new ServerSocket(this.port);
             server.setSoTimeout(1000);
-            while(!stop){
-                try{
+            while (!gameStarted) {
+                try {
                     Socket client = server.accept();
-                    ch.handleClient(client.getInputStream(),client.getOutputStream());
-                    ch.close();
-                    client.close();
-                }catch(SocketTimeoutException e){}
+
+//                    ch.handleClient(client.getInputStream(),client.getOutputStream());
+//                    ch.close();
+//                    client.close();
+                } catch (SocketTimeoutException e) {
+                }
+            }
+            Collections.shuffle(players);
+            while (!gameFinished) {
+                ch.handleClient(players.get(currentPlayerIndex).getInputStream(), players.get(currentPlayerIndex).getOutputStream());
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+                ch.close();
             }
             server.close();
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void close(){
-        stop = true;
+
+    public void close() {
+        gameStarted = true;
     }
 }
