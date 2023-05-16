@@ -1,10 +1,14 @@
 package Model;
 
 
+import test.BookScrabbleHandler;
+import test.MyServer;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -14,7 +18,7 @@ import static java.lang.Integer.parseInt;
 //model
 public class MyScrabbleModel implements ScrabbleModelFacade {
 
-    private Socket server;
+    protected Socket server;
     private String playerName;
 
     public MyScrabbleModel(String name, String ip, int port) throws IOException {
@@ -96,5 +100,6 @@ public class MyScrabbleModel implements ScrabbleModelFacade {
         return playerTiles;
     }
 
+   public void startGame(){}
 
 }

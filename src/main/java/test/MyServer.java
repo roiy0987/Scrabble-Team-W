@@ -1,19 +1,20 @@
 package test;
 
 
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.List; 
 
 public class MyServer {
     private ClientHandler ch;
     private int port;
     boolean gameStarted = false;
     boolean gameFinished = false;
-
     private List<Socket> players;
 
     private int currentPlayerIndex = 0;
@@ -21,6 +22,7 @@ public class MyServer {
     public MyServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
+        this.players = new ArrayList<>();
     }
 
     public void start() {
@@ -35,7 +37,8 @@ public class MyServer {
             while (!gameStarted) {
                 try {
                     Socket client = server.accept();
-
+                    if(client!=null&&players.size()<=4)
+                        players.add(client);
 //                    ch.handleClient(client.getInputStream(),client.getOutputStream());
 //                    ch.close();
 //                    client.close();
@@ -44,7 +47,9 @@ public class MyServer {
             }
             Collections.shuffle(players);
             while (!gameFinished) {
-                ch.handleClient(players.get(currentPlayerIndex).getInputStream(), players.get(currentPlayerIndex).getOutputStream());
+                while(!ch.handleClient(players.get(currentPlayerIndex).getInputStream(), players.get(currentPlayerIndex).getOutputStream())){
+                    ch.close();
+                }
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
                 ch.close();
             }
@@ -54,7 +59,12 @@ public class MyServer {
         }
     }
 
-    public void close() {
-        gameStarted = true;
+    public void startGame(){
+        gameStarted=true;
     }
+    public void close() {
+        gameFinished = true;
+    }
+
+
 }

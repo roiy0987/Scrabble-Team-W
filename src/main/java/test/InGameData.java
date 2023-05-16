@@ -1,13 +1,8 @@
-package Model;
+package test;
 
-import test.Board;
-import test.Tile;
-import test.Word;
 
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class InGameData {
 

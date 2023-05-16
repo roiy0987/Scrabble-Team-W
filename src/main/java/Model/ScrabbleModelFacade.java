@@ -8,5 +8,6 @@ public interface ScrabbleModelFacade {
     String getScore() throws IOException;
     char[][] getBoard() throws IOException, ClassNotFoundException;
     ArrayList<Character> getNewPlayerTiles(int amount) throws IOException, ClassNotFoundException;
+    void startGame();
     
 }

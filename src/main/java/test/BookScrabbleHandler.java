@@ -1,8 +1,6 @@
 package test;
 
 
-import Model.InGameData;
-
 import java.io.*;
 import java.util.ArrayList;
 
@@ -16,13 +14,16 @@ public class BookScrabbleHandler implements ClientHandler {
         db = new InGameData();
     }
 
-    public void handleClient(InputStream inFromclient, OutputStream outToClient) throws IOException {
+    public boolean handleClient(InputStream inFromclient, OutputStream outToClient) throws IOException {
         //TODO
         BufferedReader bf = new BufferedReader(new InputStreamReader(inFromclient));
         String request = bf.readLine();
+        if(request==null)
+            return false;
         String[] requestSplitted = request.split(":");
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outToClient));
         ObjectOutputStream out = new ObjectOutputStream(outToClient);
+        boolean isSuccess=true;
         switch (requestSplitted[0]) {
             case "GetBoard":
                 out.writeObject(db.getBoard());
@@ -37,14 +38,18 @@ public class BookScrabbleHandler implements ClientHandler {
                 bw.flush();
                 break;
             case "SubmitWord":
-                bw.write(submitWord(requestSplitted));
+                String response = submitWord(requestSplitted);
+                bw.write(response);
                 bw.flush();
+                if(response.startsWith("false"))
+                    isSuccess=false;
                 break;
-            case "Connect":
+            default:
                 break;
         }
         bw.close();
         out.close();
+        return isSuccess;
     }
 
     @Override
