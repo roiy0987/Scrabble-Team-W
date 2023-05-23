@@ -37,24 +37,22 @@ public class MyServer {
             while (!gameStarted) {
                 try {
                     Socket client = server.accept();
-                    if(client!=null&&players.size()<=4)
-                        players.add(client);
-//                    ch.handleClient(client.getInputStream(),client.getOutputStream());
-//                    ch.close();
-//                    client.close();
+                    ch.handleClient(client);
+                    ch.close();
+                    //client.close();
                 } catch (SocketTimeoutException e) {
                 }
             }
-            Collections.shuffle(players);
-            while (!gameFinished) {
-                while(!ch.handleClient(players.get(currentPlayerIndex).getInputStream(), players.get(currentPlayerIndex).getOutputStream())){
-                    ch.close();
-                }
-                currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-                ch.close();
-            }
+//            Collections.shuffle(players);
+//            while (!gameFinished) {
+//                while(!ch.handleClient(players.get(currentPlayerIndex).getInputStream(), players.get(currentPlayerIndex).getOutputStream())){
+//                    ch.close();
+//                }
+//                currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+//                ch.close();
+//            }
             server.close();
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

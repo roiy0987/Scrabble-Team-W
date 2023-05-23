@@ -1,14 +1,10 @@
 package Model;
 
 
-import test.BookScrabbleHandler;
-import test.MyServer;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -16,19 +12,20 @@ import java.util.Scanner;
 import static java.lang.Integer.parseInt;
 
 //model
-public class MyScrabbleModel implements ScrabbleModelFacade {
+public class GuestModel implements ScrabbleModelFacade {
 
     protected Socket server;
     private String playerName;
 
-    public MyScrabbleModel(String name, String ip, int port) throws IOException {
+    public GuestModel(String name, String ip, int port) throws IOException {
         this.playerName = name;
         server = new Socket(ip, port);
+        // Connect to server with name and socket for blabla
     }
 
 
     @Override
-    public boolean submitWord(String word, int row, int col, boolean isVertical, String playerName) throws IOException {
+    public boolean submitWord(String word, int row, int col, boolean isVertical) throws IOException {
         // user
         PrintWriter out = new PrintWriter(server.getOutputStream());
         Scanner in = new Scanner(server.getInputStream());
@@ -57,9 +54,9 @@ public class MyScrabbleModel implements ScrabbleModelFacade {
         out.close();
         return res;
         /*
-            Michal : 104
-            Tal : 98
-            Roie : 57
+            Michal:104
+            Tal:98
+            Roie:57
             Michal:104\nTal:98
          */
     }
@@ -100,6 +97,11 @@ public class MyScrabbleModel implements ScrabbleModelFacade {
         return playerTiles;
     }
 
-   public void startGame(){}
+    @Override
+    public void nextTurn() {
+
+    }
+
+    public void startGame(){}
 
 }

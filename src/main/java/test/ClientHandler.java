@@ -3,8 +3,9 @@ package test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 
 public interface ClientHandler {
-	boolean handleClient(InputStream inFromclient, OutputStream outToClient) throws IOException;
+	boolean handleClient(Socket client) throws IOException, ClassNotFoundException;
 	void close();
 }

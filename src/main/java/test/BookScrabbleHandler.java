@@ -2,6 +2,7 @@ package test;
 
 
 import java.io.*;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class BookScrabbleHandler implements ClientHandler {
@@ -14,8 +15,10 @@ public class BookScrabbleHandler implements ClientHandler {
         db = new InGameData();
     }
 
-    public boolean handleClient(InputStream inFromclient, OutputStream outToClient) throws IOException {
+    public boolean handleClient(Socket client) throws IOException {
         //TODO
+        InputStream inFromclient = client.getInputStream();
+        OutputStream outToClient = client.getOutputStream();
         BufferedReader bf = new BufferedReader(new InputStreamReader(inFromclient));
         String request = bf.readLine();
         if(request==null)
