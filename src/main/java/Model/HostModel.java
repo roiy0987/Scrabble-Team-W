@@ -9,6 +9,7 @@ import java.util.*;
 public class HostModel extends Observable implements ScrabbleModelFacade {
     //MyServer dictionaryServer;
     private MyServer guestServer;
+    private HostHandler hh;
     private Socket hostClient;
     protected Board board;
     protected List<Player> players;
@@ -24,12 +25,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         bagIsEmpty=false;
         gameOver = false;
         hostClient = new Socket(ip,port);
-        guestServer = new MyServer(5555,new HostHandler(this));
+        hh = new HostHandler(this);
+        guestServer = new MyServer(5555,hh);
         new Thread(()->guestServer.start()).start();
         players = new ArrayList<>();
         turnCounter=0;
         numberOfPasses=0;
         round=0;
+
     }
 
     public List<Player> getPlayers() {
@@ -199,6 +202,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 this.sendMessage("GameOver",this.players.get(i));
             }
             //finishGame
+            hh.notify();
+            return;
         }
         if(this.players.get(this.turnCounter).name.equals(this.name)){
             myTurn = true;

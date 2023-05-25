@@ -13,20 +13,17 @@ import java.util.List;
 public class MyServer {
     private ClientHandler ch;
     private int port;
-    boolean gameStarted = false;
-    boolean gameFinished = false;
-    private List<Socket> players;
-
-    private int currentPlayerIndex = 0;
+    boolean gameStarted;
+    public boolean finishedGame;
 
     public MyServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
-        this.players = new ArrayList<>();
+        gameStarted=true;
+        finishedGame=false;
     }
 
     public void start() {
-        gameStarted = false;
         new Thread(() -> startServer()).start();
     }
 
@@ -37,31 +34,28 @@ public class MyServer {
             while (!gameStarted) {
                 try {
                     Socket client = server.accept();
-                    ch.handleClient(client);
+                    new Thread(()-> {
+                        try {
+                            ch.handleClient(client);
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).start();
                     ch.close();
                     //client.close();
                 } catch (SocketTimeoutException e) {
                 }
             }
-//            Collections.shuffle(players);
-//            while (!gameFinished) {
-//                while(!ch.handleClient(players.get(currentPlayerIndex).getInputStream(), players.get(currentPlayerIndex).getOutputStream())){
-//                    ch.close();
-//                }
-//                currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-//                ch.close();
-//            }
+            ch.wait();
             server.close();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
-
-    public void startGame(){
-        gameStarted=true;
-    }
     public void close() {
-        gameFinished = true;
+        gameStarted = true;
     }
 
 
