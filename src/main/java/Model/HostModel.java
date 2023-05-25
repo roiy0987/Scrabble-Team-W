@@ -13,12 +13,11 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     protected Board board;
     protected List<Player> players;
     protected String name;
-    protected Map<String,Integer> scores; // Michal --> 15
     private int round;
-    private List<Character> tiles;
     private boolean bagIsEmpty;
     private boolean gameOver;
     private int turnCounter;
+    private int numberOfPasses;
     protected boolean myTurn;
     public HostModel(String name, String ip, int port) throws IOException {
         this.name = name;
@@ -26,10 +25,10 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         gameOver = false;
         hostClient = new Socket(ip,port);
         guestServer = new MyServer(5555,new HostHandler(this));
+        new Thread(()->guestServer.start()).start();
         players = new ArrayList<>();
-        tiles = new ArrayList<>();
-        scores = new HashMap<>();
         turnCounter=0;
+        numberOfPasses=0;
         round=0;
     }
 
@@ -37,25 +36,18 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return players;
     }
 
-    public Map<String, Integer> getScores() {
-        return scores;
-    }
-
-
+    @Override
     public void startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
         for (Player player : this.players) {
-            if(player.name.equals(this.name)) {
-                tiles = getNewPlayerTiles(7);
+            if(player.name.equals(this.name))
                 continue;
-            }
             ObjectOutputStream stream = new ObjectOutputStream(player.socket.getOutputStream());
             stream.writeObject(this.getNewPlayerTiles(7));
             stream.flush();
             stream.close();
         }
-
         if(players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
             return;
@@ -92,11 +84,11 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             br.close();
             return false;
         }
-        // success
+        // success - word has been placed on board
 
         Player p = this.players.get(this.turnCounter);
         p.score+=score;
-        this.scores.replace(p.name,p.score);
+
         // remove tiles from player somehow
         this.notifyAllPlayers();
         // need maybe to add timer aswell, for sure
@@ -104,16 +96,22 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         br.close();
         bw.close();
         // ViewModel should demand new tiles and remove previous ones
-        // ViewModel should demand next turn
+        // ViewModel should demand next turn, getBoard, getScore
+        numberOfPasses=-1;
         return true;
     }
 
     private void notifyAllPlayers() throws IOException {
-        this.setChanged();
-        this.notifyObservers();
+
         for(Player player: this.players){
-            if(player.name.equals(this.name))
+            // SubmitWord will return true then viewModel should call getBoard, getScore and nextTurn
+            if(this.players.get(this.turnCounter).name.equals(player.name))
                 continue;
+            if(player.name.equals(this.name)) {
+                this.setChanged();
+                this.notifyObservers();
+                continue;
+            }
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.socket.getOutputStream()));
             bw.write("Update");
             bw.flush();
@@ -182,13 +180,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     @Override
     public void nextTurn() throws IOException {
         //TODO
+        numberOfPasses++;
         this.turnCounter++;
         if(this.turnCounter==this.players.size())
         {
             this.turnCounter=0;
             this.round++;
         }
-        if(round==10){//finish game
+        if(round==10||numberOfPasses==this.players.size()){//finish game
             //TODO
             for(int i=0;i<this.players.size();i++){
                 if(this.players.get(i).name.equals(this.name)){
