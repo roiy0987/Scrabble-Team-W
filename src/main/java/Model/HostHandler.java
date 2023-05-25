@@ -47,14 +47,11 @@ public class HostHandler implements ClientHandler {
                 if(response.startsWith("false"))
                     isSuccess=false;
                 break;
-            case "nextTurn": // nextTurn
+            case "NextTurn": // nextTurn
                 model.nextTurn();
-                bw.write("Ok"); // Need to handle - call function waitForNextTurn/waitForUpdate (busy wait)
-                bw.flush();
                 break;
             case "Connect": // Connect:Michal
                 model.players.add(new Player(requestSplitted[1],client,0));
-                model.scores.put(requestSplitted[1],0);
                 bw.write("Ok"); // Need to handle
                 bw.flush();
                 break;

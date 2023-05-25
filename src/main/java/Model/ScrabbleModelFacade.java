@@ -9,5 +9,6 @@ public interface ScrabbleModelFacade {
     char[][] getBoard() throws IOException, ClassNotFoundException;
     ArrayList<Character> getNewPlayerTiles(int amount) throws IOException, ClassNotFoundException;
     void nextTurn() throws IOException;
+    void startGame() throws IOException, ClassNotFoundException;
     
 }
