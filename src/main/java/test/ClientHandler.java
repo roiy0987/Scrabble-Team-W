@@ -6,6 +6,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public interface ClientHandler {
-	boolean handleClient(Socket client) throws IOException, ClassNotFoundException;
+	void handleClient(Socket client) throws IOException, ClassNotFoundException;
 	void close();
 }

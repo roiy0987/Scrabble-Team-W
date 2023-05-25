@@ -14,7 +14,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     protected Socket server;
     private String playerName;
-    private ArrayList<Character> tiles;
     private boolean myTurn;
     private boolean gameOver;
 
@@ -25,9 +24,8 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
 
         for(int i=0; i<5; i++){
-            bw.write("Connect:" + name);
+            bw.write("Connect:" + name + "\n");
             bw.flush();
-            bw.close();
             String st = br.readLine();
             if (st==null&&i==4)
                 throw new IOException("Failed to connect");
@@ -36,9 +34,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             if(st.equals("Ok"))
                 break;
         }
-        br.close();
 
-        tiles = new ArrayList<>();
         myTurn = false;
         gameOver=false;
         this.nextTurn();
@@ -88,8 +84,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         out.println("SubmitWord:" + word + ":" + row + ":" + col + ":" + isVertical);
         out.flush();
         String response = in.next(); //
-        in.close();
-        out.close();
+
         return response.startsWith("true");
     }
 
@@ -106,8 +101,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 sb.append("\n");
         }
         String res = sb.toString();
-        in.close();
-        out.close();
         return res;
         /*
             Michal:104
@@ -132,9 +125,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 responseToClient[i][j] = board[i][j];
             }
         }
-        objectInputStream.close();
-        bufferedInputStream.close();
-        out.close();
         return responseToClient;
     }
 
@@ -147,9 +137,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         out.println("GetNewTiles:" + amount);
         out.flush();
         playerTiles = (ArrayList<Character>) objectInputStream.readObject();
-        objectInputStream.close();
-        bufferedInputStream.close();
-        out.close();
         return playerTiles;
     }
 
@@ -159,7 +146,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         PrintWriter out = new PrintWriter(server.getOutputStream());
         out.println("NextTurn");
         out.flush();
-        out.close();
         Thread t = new Thread(()-> {
             try {
                 this.waitForTurn();

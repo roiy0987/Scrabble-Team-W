@@ -13,17 +13,17 @@ public class HostHandler implements ClientHandler {
         this.model = model;
     }
     @Override
-    public boolean handleClient(Socket client) throws IOException, ClassNotFoundException {
+    public void handleClient(Socket client) throws IOException, ClassNotFoundException {
         InputStream inFromclient = client.getInputStream();
         OutputStream outToClient = client.getOutputStream();
         BufferedReader bf = new BufferedReader(new InputStreamReader(inFromclient));
         String request = bf.readLine();
         if(request==null)
-            return false;
+            return;
         String[] requestSplitted = request.split(":");
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outToClient));
         ObjectOutputStream out = new ObjectOutputStream(outToClient);
-        boolean isSuccess=true;
+
         switch (requestSplitted[0]) {
             case "GetBoard": // GetBoard
                 out.writeObject(model.getBoardToCharacters());
@@ -34,7 +34,7 @@ public class HostHandler implements ClientHandler {
                 out.flush();
                 break;
             case "GetScore": // GetScore
-                bw.write(model.getScore());
+                bw.write(model.getScore()+"\n");
                 bw.flush();
                 break;
             case "SubmitWord": // SubmitWord:CAT:10:8
@@ -42,25 +42,20 @@ public class HostHandler implements ClientHandler {
                         Integer.parseInt(requestSplitted[2]),
                         Integer.parseInt(requestSplitted[3]),
                         Boolean.parseBoolean(requestSplitted[4])));
-                bw.write(response);
+                bw.write(response+"\n");
                 bw.flush();
-                if(response.startsWith("false"))
-                    isSuccess=false;
                 break;
             case "NextTurn": // nextTurn
                 model.nextTurn();
                 break;
             case "Connect": // Connect:Michal
                 model.players.add(new Player(requestSplitted[1],client,0));
-                bw.write("Ok"); // Need to handle
+                bw.write("Ok\n");
                 bw.flush();
                 break;
             default:
                 break;
         }
-        bw.close();
-        out.close();
-        return isSuccess;
     }
 
 

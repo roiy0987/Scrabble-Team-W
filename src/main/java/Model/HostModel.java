@@ -32,7 +32,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         turnCounter=0;
         numberOfPasses=0;
         round=0;
-
     }
 
     public List<Player> getPlayers() {
@@ -49,7 +48,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             ObjectOutputStream stream = new ObjectOutputStream(player.socket.getOutputStream());
             stream.writeObject(this.getNewPlayerTiles(7));
             stream.flush();
-            stream.close();
         }
         if(players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
@@ -60,9 +58,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
 
     private void sendMessage(String message,Player playerReceiver) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(playerReceiver.socket.getOutputStream()));
-        bw.write(message);
+        bw.write(message+"\n");
         bw.flush();
-        bw.close();
     }
 
 
@@ -73,31 +70,21 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             return false;
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(hostClient.getOutputStream()));
         BufferedReader br = new BufferedReader(new InputStreamReader(hostClient.getInputStream()));
-        bw.write(word);
+        bw.write(word+"\n");
         bw.flush();
         String res = br.readLine();
         if(res.equals("false")) {
-            bw.close();
-            br.close();
             return false;
         }
         int score = board.tryPlaceWord(submittedWord);
         if(score==0){
-            bw.close();
-            br.close();
             return false;
         }
         // success - word has been placed on board
-
         Player p = this.players.get(this.turnCounter);
         p.score+=score;
-
         // remove tiles from player somehow
         this.notifyAllPlayers();
-        // need maybe to add timer aswell, for sure
-        // maybe add end game function
-        br.close();
-        bw.close();
         // ViewModel should demand new tiles and remove previous ones
         // ViewModel should demand next turn, getBoard, getScore
         numberOfPasses=-1;
@@ -115,10 +102,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 this.notifyObservers();
                 continue;
             }
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(player.socket.getOutputStream()));
-            bw.write("Update");
-            bw.flush();
-            bw.close();
+            this.sendMessage("Update",player);
         }
     }
 

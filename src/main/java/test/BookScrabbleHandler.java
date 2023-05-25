@@ -12,7 +12,7 @@ public class BookScrabbleHandler implements ClientHandler{
     }
 
     @Override
-    public boolean handleClient(Socket client) throws IOException {
+    public void handleClient(Socket client) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
         PrintWriter out = new PrintWriter(client.getOutputStream(),true);
         String word;
@@ -20,13 +20,10 @@ public class BookScrabbleHandler implements ClientHandler{
         if(this.dm.query(word) || this.dm.challenge(word)){
             out.println("true");
             out.flush();
-            out.close();
-            return true;
+            return;
         }
         out.println("false");
         out.flush();
-        out.close();
-        return false;
     }
 
     @Override

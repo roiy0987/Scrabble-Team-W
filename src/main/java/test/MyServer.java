@@ -41,12 +41,12 @@ public class MyServer {
                             throw new RuntimeException(e);
                         }
                     }).start();
-                    ch.close();
                     //client.close();
                 } catch (SocketTimeoutException e) {
                 }
             }
             ch.wait();
+            ch.close();
             server.close();
         } catch (IOException e) {
             e.printStackTrace();
