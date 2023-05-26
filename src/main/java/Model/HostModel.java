@@ -27,7 +27,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         gameOver = false;
         hostClient = new Socket(ip, port);
         hh = new HostHandler(this);
-        guestServer = new MyServer(5555, hh);
+        guestServer = new MyServer(5556, hh);
         new Thread(() -> guestServer.start()).start();
         players = new ArrayList<>();
         players.add(new Player(name, null, 0));
@@ -40,8 +40,9 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return players;
     }
 
+    // returns hosts tiles for guest sends appropriate message
     @Override
-    public void startGame() throws IOException, ClassNotFoundException {
+    public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
         for (Player player : this.players) {
@@ -53,9 +54,10 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         if (players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
-            return;
+            return getNewPlayerTiles(7);
         }
         this.sendMessage("MyTurn", players.get(0)); // if it's a guest turn
+        return getNewPlayerTiles(7);
     }
 
     private void sendMessage(String message, Player playerReceiver) throws IOException {
@@ -153,7 +155,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         for (int i = 0; i < boardTiles.length; i++) {
             for (int j = 0; j < boardTiles[i].length; j++) {
                 if (boardTiles[i][j] == null) {
-                    updatedBoard[i][j] = null;
+                    updatedBoard[i][j] = '\u0000';
+                    continue;
                 }
                 updatedBoard[i][j] = boardTiles[i][j].letter;
             }
@@ -210,7 +213,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 this.sendMessage("GameOver", this.players.get(i));
             }
             //finishGame
-            hh.notify();
+            guestServer.close();
             return;
         }
         if (this.players.get(this.turnCounter).name.equals(this.name)) {

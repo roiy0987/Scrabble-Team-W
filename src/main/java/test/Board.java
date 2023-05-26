@@ -462,4 +462,17 @@ public class Board {
         }
         return score;
     }
+
+    public void printBoard() {
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                if (tiles[i][j] == null)
+                    System.out.print("_ ");
+                else
+                    System.out.print(tiles[i][j].letter + " ");
+            }
+            System.out.println();
+        }
+
+    }
 }

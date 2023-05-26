@@ -156,8 +156,8 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         t.start();
     }
     @Override
-    public void startGame()throws IOException, ClassNotFoundException{
-
+    public ArrayList<Character> startGame()throws IOException, ClassNotFoundException{
+        return null;
     }
 
 }
