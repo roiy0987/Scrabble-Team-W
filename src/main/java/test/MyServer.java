@@ -19,12 +19,15 @@ public class MyServer {
     public MyServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
-        gameStarted=true;
+        gameStarted=false;
         finishedGame=false;
     }
 
     public void start() {
         new Thread(() -> startServer()).start();
+    }
+    public void bla(){
+        gameStarted=true;
     }
 
     private void startServer() {
@@ -45,14 +48,15 @@ public class MyServer {
                 } catch (SocketTimeoutException e) {
                 }
             }
-            ch.wait();
+//            ch.wait();
             ch.close();
             server.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        } 
+//        catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
     }
     public void close() {
         gameStarted = true;

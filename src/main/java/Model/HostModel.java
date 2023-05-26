@@ -20,18 +20,20 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     private int turnCounter;
     private int numberOfPasses;
     protected boolean myTurn;
+
     public HostModel(String name, String ip, int port) throws IOException {
         this.name = name;
-        bagIsEmpty=false;
+        bagIsEmpty = false;
         gameOver = false;
-        hostClient = new Socket(ip,port);
+        hostClient = new Socket(ip, port);
         hh = new HostHandler(this);
-        guestServer = new MyServer(5555,hh);
-        new Thread(()->guestServer.start()).start();
+        guestServer = new MyServer(5555, hh);
+        new Thread(() -> guestServer.start()).start();
         players = new ArrayList<>();
-        turnCounter=0;
-        numberOfPasses=0;
-        round=0;
+        players.add(new Player(name, null, 0));
+        turnCounter = 0;
+        numberOfPasses = 0;
+        round = 0;
     }
 
     public List<Player> getPlayers() {
@@ -43,74 +45,88 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         board = Board.getBoard();
         Collections.shuffle(players);
         for (Player player : this.players) {
-            if(player.name.equals(this.name))
+            if (player.name.equals(this.name))
                 continue;
             ObjectOutputStream stream = new ObjectOutputStream(player.socket.getOutputStream());
             stream.writeObject(this.getNewPlayerTiles(7));
             stream.flush();
         }
-        if(players.get(0).name.equals(this.name)) { // if it's host turn
+        if (players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
             return;
         }
-        this.sendMessage("MyTurn",players.get(0)); // if it's a guest turn
+        this.sendMessage("MyTurn", players.get(0)); // if it's a guest turn
     }
 
-    private void sendMessage(String message,Player playerReceiver) throws IOException {
+    private void sendMessage(String message, Player playerReceiver) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(playerReceiver.socket.getOutputStream()));
-        bw.write(message+"\n");
+        bw.write(message + "\n");
         bw.flush();
     }
 
+    private String wordToHandler(String word, int row, int col, boolean isVertical){
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<word.length();i++){
+            if(word.charAt(i) == '_'){
+                if(isVertical)
+                    sb.append(board.getTiles()[row+i][col].letter);
+                else
+                    sb.append(board.getTiles()[row][col+i].letter);
+                continue;
+            }
+            sb.append(word.charAt(i));
+        }
+        return sb.toString();
+    }
 
     @Override
     public boolean submitWord(String word, int row, int col, boolean isVertical) throws IOException, ClassNotFoundException {
-        Word submittedWord = stringToWord(word,row,col,isVertical);
-        if(!board.boardLegal(submittedWord))
+        Word submittedWord = stringToWord(word, row, col, isVertical);
+        if (!board.boardLegal(submittedWord))
             return false;
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(hostClient.getOutputStream()));
         BufferedReader br = new BufferedReader(new InputStreamReader(hostClient.getInputStream()));
-        bw.write(word+"\n");
+        bw.write(wordToHandler(word, row, col, isVertical) + "\n");
         bw.flush();
         String res = br.readLine();
-        if(res.equals("false")) {
+        if (res.equals("false")) {
             return false;
         }
         int score = board.tryPlaceWord(submittedWord);
-        if(score==0){
+        if (score == 0) {
             return false;
         }
         // success - word has been placed on board
         Player p = this.players.get(this.turnCounter);
-        p.score+=score;
+        p.score += score;
         // remove tiles from player somehow
         this.notifyAllPlayers();
         // ViewModel should demand new tiles and remove previous ones
         // ViewModel should demand next turn, getBoard, getScore
-        numberOfPasses=-1;
+        numberOfPasses = -1;
         return true;
     }
 
     private void notifyAllPlayers() throws IOException {
 
-        for(Player player: this.players){
+        for (Player player : this.players) {
             // SubmitWord will return true then viewModel should call getBoard, getScore and nextTurn
-            if(this.players.get(this.turnCounter).name.equals(player.name))
+            if (this.players.get(this.turnCounter).name.equals(player.name))
                 continue;
-            if(player.name.equals(this.name)) {
+            if (player.name.equals(this.name)) {
                 this.setChanged();
                 this.notifyObservers();
                 continue;
             }
-            this.sendMessage("Update",player);
+            this.sendMessage("Update", player);
         }
     }
 
     @Override
     public String getScore() throws IOException {
         StringBuilder sb = new StringBuilder();
-        for(int i=0;i<this.players.size();i++){
-            if(i==this.players.size()-1) {
+        for (int i = 0; i < this.players.size(); i++) {
+            if (i == this.players.size() - 1) {
                 sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score);
                 break;
             }
@@ -130,19 +146,28 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         return b;
     }
+
     public Character[][] getBoardToCharacters() {
         Character[][] updatedBoard = new Character[15][15];
         Tile[][] boardTiles = board.getTiles();
         for (int i = 0; i < boardTiles.length; i++) {
             for (int j = 0; j < boardTiles[i].length; j++) {
+                if (boardTiles[i][j] == null) {
+                    updatedBoard[i][j] = null;
+                }
                 updatedBoard[i][j] = boardTiles[i][j].letter;
             }
         }
         return updatedBoard;
     }
+
     private Word stringToWord(String word, int row, int col, boolean isVertical) {
         Tile[] t = new Tile[word.length()];
         for (int i = 0; i < word.length(); i++) {
+            if (word.charAt(i) == '_') {
+                t[i] = null;
+                continue;
+            }
             t[i] = Tile.Bag.getBag().getLetters()[word.charAt(i) - 'A'];
         }
         return new Word(t, row, col, isVertical);
@@ -150,13 +175,13 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
 
     @Override
     public ArrayList<Character> getNewPlayerTiles(int amount) throws IOException, ClassNotFoundException {
-        if(bagIsEmpty)
+        if (bagIsEmpty)
             return null;
         ArrayList<Character> list = new ArrayList<>();
         for (int j = 0; j < amount && !bagIsEmpty; j++) {
             Tile t = Tile.Bag.getBag().getRand();
-            if(t==null) { // If no more tiles in the bag
-                bagIsEmpty=true;
+            if (t == null) { // If no more tiles in the bag
+                bagIsEmpty = true;
                 break;
             }
             list.add(t.letter);
@@ -169,34 +194,33 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         //TODO
         numberOfPasses++;
         this.turnCounter++;
-        if(this.turnCounter==this.players.size())
-        {
-            this.turnCounter=0;
+        if (this.turnCounter == this.players.size()) {
+            this.turnCounter = 0;
             this.round++;
         }
-        if(round==10||numberOfPasses==this.players.size()){//finish game
+        if (round == 10 || numberOfPasses == this.players.size()) {//finish game
             //TODO
-            for(int i=0;i<this.players.size();i++){
-                if(this.players.get(i).name.equals(this.name)){
-                    gameOver=true;
+            for (int i = 0; i < this.players.size(); i++) {
+                if (this.players.get(i).name.equals(this.name)) {
+                    gameOver = true;
                     this.setChanged();
                     this.notifyObservers();
                     continue;
                 }
-                this.sendMessage("GameOver",this.players.get(i));
+                this.sendMessage("GameOver", this.players.get(i));
             }
             //finishGame
             hh.notify();
             return;
         }
-        if(this.players.get(this.turnCounter).name.equals(this.name)){
+        if (this.players.get(this.turnCounter).name.equals(this.name)) {
             myTurn = true;
             this.setChanged();
             this.notifyObservers();
             return;
         }
         myTurn = false;
-        this.sendMessage("MyTurn",this.players.get(this.turnCounter));
+        this.sendMessage("MyTurn", this.players.get(this.turnCounter));
     }
 
 
