@@ -22,7 +22,7 @@ public class MyServer {
         this.port = port;
         this.ch = ch;
         gameStarted = false;
-        threadPool = Executors.newFixedThreadPool(1); // Set maximum of 3 threads in the pool
+        threadPool = Executors.newFixedThreadPool(3); // Set maximum of 3 threads in the pool
     }
 
     public void start() {

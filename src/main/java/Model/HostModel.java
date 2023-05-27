@@ -62,7 +62,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
 
     private void sendMessage(String message, Player playerReceiver) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(playerReceiver.socket.getOutputStream()));
-        bw.write(message + "\n");
+        message = message+"\n";
+        bw.write(message);
         bw.flush();
     }
 
@@ -132,7 +133,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score);
                 break;
             }
-            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append("\n");
+            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append(";");
         }
         return sb.toString(); // Arik:54'\n'Roie:45'\n'Tal:254
     }
