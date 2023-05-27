@@ -4,8 +4,11 @@ package Model;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import static java.lang.Integer.parseInt;
 
@@ -14,34 +17,23 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     protected Socket server;
     private String playerName;
-    private ArrayList<Character> tiles;
     private boolean myTurn;
     private boolean gameOver;
+    private boolean stop;
 
     public GuestModel(String name, String ip, int port) throws IOException {
         this.playerName = name;
         server = new Socket(ip, port);
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
-
-        for(int i=0; i<5; i++){
-            bw.write("Connect:" + name);
-            bw.flush();
-            bw.close();
-            String st = br.readLine();
-            if (st==null&&i==4)
-                throw new IOException("Failed to connect");
-            if(st==null)
-                continue;
-            if(st.equals("Ok"))
-                break;
-        }
-        br.close();
-
-        tiles = new ArrayList<>();
+        bw.write("Connect:" + name + "\n");
+        bw.flush();
+        String st = br.readLine();
+        System.out.println(st);
         myTurn = false;
         gameOver=false;
         this.nextTurn();
+        stop = false;
         // Connect to server with name and socket for blabla
     }
 
@@ -52,10 +44,8 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     public void waitForTurn() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
-        while(true){
+        while(!stop){
             String res = br.readLine(); // GameOver\Update\MyTurn
-            if(res==null)
-                continue;
             switch (res){
                 case "Update":
                     this.setChanged();
@@ -65,49 +55,60 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                     gameOver=true;
                     this.setChanged();
                     this.notifyObservers();
-                    return;
+                    stop = true;
+//                    return;
+                    break;
                 case "MyTurn":
                     myTurn=true;
                     this.setChanged();
                     this.notifyObservers();
-                    return;
+                    stop = true;
+//                    return;
+                    break;
                 default:
                     break;
             }
-
-
         }
     }
 
+    @Override
+    public void nextTurn() throws IOException {
+        myTurn=false;
+        PrintWriter out = new PrintWriter(server.getOutputStream());
+        out.println("NextTurn");
+        out.flush();
+        Thread t = new Thread(()-> {
+            try {
+                this.waitForTurn();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        t.start();
+        stop = false;
+    }
 
     @Override
     public boolean submitWord(String word, int row, int col, boolean isVertical) throws IOException {
         // user
-        PrintWriter out = new PrintWriter(server.getOutputStream());
-        Scanner in = new Scanner(server.getInputStream());
-        out.println("SubmitWord:" + word + ":" + row + ":" + col + ":" + isVertical);
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+        out.write("SubmitWord:" + word + ":" + row + ":" + col + ":" + isVertical +"\n");
         out.flush();
-        String response = in.next(); //
-        in.close();
-        out.close();
+        String response;
+        response= in.readLine();
+
         return response.startsWith("true");
     }
 
     @Override
     public String getScore() throws IOException {
-        PrintWriter out = new PrintWriter(server.getOutputStream());
-        Scanner in = new Scanner(server.getInputStream());
-        out.println("GetScore:");
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+        out.write("GetScore:\n");
         out.flush();
-        StringBuilder sb = new StringBuilder();
-        while (in.hasNext()) {
-            sb.append(in.nextLine());
-            if (in.hasNext())
-                sb.append("\n");
-        }
-        String res = sb.toString();
-        in.close();
-        out.close();
+
+        String res = in.readLine();
         return res;
         /*
             Michal:104
@@ -119,59 +120,47 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     @Override
     public char[][] getBoard() throws IOException, ClassNotFoundException {
-        PrintWriter out = new PrintWriter(server.getOutputStream());
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(server.getInputStream());
-        ObjectInputStream objectInputStream = new ObjectInputStream(bufferedInputStream);
-        out.println("GetBoard:");
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+        //BufferedReader bufferedInputStream = new BufferedReader(new BufferedInputStream(server.getInputStream()));
+        out.write("GetBoard\n");
         out.flush();
-        Character[][] board = null;
-        board = (Character[][]) objectInputStream.readObject();
+        String responseFromHandler = in.readLine();
+        String[] lines = responseFromHandler.split(";");
+
         char[][] responseToClient = new char[15][15];
         for (int i = 0; i < responseToClient.length; i++) {
+            String[] line = lines[i].split(":");
             for (int j = 0; j < responseToClient[i].length; j++) {
-                responseToClient[i][j] = board[i][j];
+                responseToClient[i][j] = line[j].charAt(0);
             }
         }
-        objectInputStream.close();
-        bufferedInputStream.close();
-        out.close();
         return responseToClient;
     }
 
     @Override
     public ArrayList<Character> getNewPlayerTiles(int amount) throws IOException, ClassNotFoundException {
         PrintWriter out = new PrintWriter(server.getOutputStream());
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(server.getInputStream());
-        ObjectInputStream objectInputStream = new ObjectInputStream(bufferedInputStream);
-        ArrayList<Character> playerTiles;
         out.println("GetNewTiles:" + amount);
         out.flush();
-        playerTiles = (ArrayList<Character>) objectInputStream.readObject();
-        objectInputStream.close();
-        bufferedInputStream.close();
-        out.close();
+        BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+
+        ArrayList<Character> playerTiles = new ArrayList<>();
+        String response = in.readLine();
+        for(int i=0;i<response.length();i++){
+            playerTiles.add(response.charAt(i));
+        }
         return playerTiles;
     }
 
-    @Override
-    public void nextTurn() throws IOException {
-        myTurn=false;
-        PrintWriter out = new PrintWriter(server.getOutputStream());
-        out.println("NextTurn");
-        out.flush();
-        out.close();
-        Thread t = new Thread(()-> {
-            try {
-                this.waitForTurn();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        t.start();
-    }
-    @Override
-    public void startGame()throws IOException, ClassNotFoundException{
 
+    @Override
+    public ArrayList<Character> startGame()throws IOException, ClassNotFoundException{
+        return null;
+    }
+
+    public boolean getGameOver(){
+        return this.gameOver;
     }
 
 }
