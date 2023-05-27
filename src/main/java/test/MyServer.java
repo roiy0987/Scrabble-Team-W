@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MyServer {
     private ClientHandler ch;
@@ -45,20 +47,26 @@ public class MyServer {
                 } catch (SocketTimeoutException e) {
                 }
             }
-            System.out.println("ShutDown");
-            threadPool.shutdown(); // Close the thread pool gracefully
+
+            //threadPool.shutdown(); // Close the thread pool gracefully
+            Thread.sleep(5000);
+            if(!threadPool.isTerminated()) {
+                System.out.println("there are some threads not closed");
+            }
             server.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void close() throws InterruptedException {
         gameStarted = true;
-        //Thread.sleep(3000);
-        System.out.println("close method");
+        Thread.sleep(3000);
         try {
-            threadPool.shutdownNow(); // Interrupt and stop all threads in the pool immediately
+            threadPool.shutdown();
+            System.out.println(threadPool.awaitTermination(3,TimeUnit.SECONDS));
         } catch (SecurityException e) {
             e.printStackTrace();
         }

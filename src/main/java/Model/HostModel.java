@@ -28,7 +28,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         hostClient = new Socket(ip, port);
         hh = new HostHandler(this);
         guestServer = new MyServer(5556, hh);
-        new Thread(() -> guestServer.start()).start();
+        guestServer.start();
         players = new ArrayList<>();
         players.add(new Player(name, null, 0));
         turnCounter = 0;
@@ -214,6 +214,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             }
             //finishGame
             guestServer.close();
+            
             return;
         }
         if (this.players.get(this.turnCounter).name.equals(this.name)) {
@@ -224,6 +225,9 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         myTurn = false;
         this.sendMessage("MyTurn", this.players.get(this.turnCounter));
+    }
+    public void closeClient() throws IOException {
+        hostClient.close();
     }
 
 
