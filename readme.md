@@ -46,6 +46,7 @@ This project supports the following features:
 * validate words against the Scrabble Dictionary.
 * Supports the english language.
 
+### _Gannt:_
 
 ![](images/Gannt_part_1.png "Gannt first Mile Stone")
 
