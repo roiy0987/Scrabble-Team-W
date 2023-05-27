@@ -13,9 +13,11 @@ public class HostModelTest {
 
     HostModel host;
     static MyServer s;
+    static BookScrabbleHandler bsh;
 
     public void init() throws IOException, InterruptedException, ClassNotFoundException {
-        s = new MyServer(8887,new BookScrabbleHandler());
+        bsh = new BookScrabbleHandler();
+        s = new MyServer(8887,bsh);
         s.start();
         Thread.sleep(4000);
         host = new HostModel("Host", "localhost", 8887);
@@ -96,7 +98,7 @@ public class HostModelTest {
             System.out.println("Error in getNewPlayerTiles");
     }
 
-    public void testNextTurn() throws IOException {
+    public void testNextTurn() throws IOException, InterruptedException {
         host.nextTurn();
         host.nextTurn();
 
@@ -112,6 +114,7 @@ public class HostModelTest {
         test.testGetBoard();
         test.testGetNewPlayerTiles();
         test.testNextTurn();
+        bsh.close();
         s.close();
 
 

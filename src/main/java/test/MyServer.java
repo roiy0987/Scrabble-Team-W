@@ -1,26 +1,26 @@
 package test;
 
-
+import test.ClientHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MyServer {
     private ClientHandler ch;
     private int port;
-    boolean gameStarted;
-    public boolean finishedGame;
+    private boolean gameStarted;
+    private ServerSocket server;
+    private ExecutorService threadPool;
 
     public MyServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
-        gameStarted=false;
-        finishedGame=false;
+        gameStarted = false;
+        threadPool = Executors.newFixedThreadPool(1); // Set maximum of 3 threads in the pool
     }
 
     public void start() {
@@ -29,35 +29,38 @@ public class MyServer {
 
     private void startServer() {
         try {
-            ServerSocket server = new ServerSocket(this.port);
+            server = new ServerSocket(this.port);
             server.setSoTimeout(1000);
             while (!gameStarted) {
                 try {
                     Socket client = server.accept();
-                    new Thread(()-> {
+                    threadPool.execute(() -> {
                         try {
                             ch.handleClient(client);
-                        } catch (IOException | ClassNotFoundException e) {
+                        } catch (IOException | ClassNotFoundException | InterruptedException e) {
                             throw new RuntimeException(e);
                         }
-                    }).start();
+                    });
                     //client.close();
                 } catch (SocketTimeoutException e) {
                 }
             }
-            ch.wait();
-            ch.close();
+            System.out.println("ShutDown");
+            threadPool.shutdown(); // Close the thread pool gracefully
             server.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        catch (InterruptedException e) {
-            throw new RuntimeException(e);
+    }
+
+    public void close() throws InterruptedException {
+        gameStarted = true;
+        //Thread.sleep(3000);
+        System.out.println("close method");
+        try {
+            threadPool.shutdownNow(); // Interrupt and stop all threads in the pool immediately
+        } catch (SecurityException e) {
+            e.printStackTrace();
         }
     }
-    public void close() {
-        gameStarted = true;
-    }
-
-
 }

@@ -46,6 +46,7 @@ public class BookScrabbleHandler implements ClientHandler{
 
     @Override
     public void close() {
+        System.out.println("Stop book scrabble handler");
         stop = true;
     }
 

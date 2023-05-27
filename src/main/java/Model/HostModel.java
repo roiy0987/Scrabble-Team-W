@@ -193,7 +193,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     }
 
     @Override
-    public void nextTurn() throws IOException {
+    public void nextTurn() throws IOException, InterruptedException {
         //TODO
         numberOfPasses++;
         this.turnCounter++;

@@ -13,7 +13,7 @@ public class HostHandler implements ClientHandler {
         this.model = model;
     }
     @Override
-    public void handleClient(Socket client) throws IOException, ClassNotFoundException {
+    public void handleClient(Socket client) throws IOException, ClassNotFoundException, InterruptedException {
         InputStream inFromclient = client.getInputStream();
         OutputStream outToClient = client.getOutputStream();
         BufferedReader bf = new BufferedReader(new InputStreamReader(inFromclient));
