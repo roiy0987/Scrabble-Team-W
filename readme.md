@@ -64,6 +64,6 @@ This project supports the following features:
 
 ![](images/Gannt_part_1.png "Gannt first Mile Stone")
 
-![](images/Gantt part 2 a.png "Gannt second Mile Stone")
+![](images/Gantt_part_2_a.png "Gannt second Mile Stone")
 
-![](images/Gannt part 3.png "Gannt third Mile Stone")
+![](images/Gannt_part_3.png "Gannt third Mile Stone")
