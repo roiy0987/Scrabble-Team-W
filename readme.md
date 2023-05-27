@@ -1,18 +1,3 @@
-# **BOOK SCRABBLE GAME**
-*****
-
-
-
-### _Team members:_
-
-* roiy0987@gmail.com            208716001
-* talteri95@gmail.com		    319123543
-* michal2792000@gmail.com		211990841
-* arik.leikin1998@gmail.com 	207009903
-
-### _GitHub link:_
-https://github.com/roiy0987/Scrabble-Team-W
-
 
 ### _About the game:_
 
