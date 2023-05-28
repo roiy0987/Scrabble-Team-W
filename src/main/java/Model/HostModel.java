@@ -28,7 +28,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         hostClient = new Socket(ip, port);
         hh = new HostHandler(this);
         guestServer = new MyServer(5556, hh);
-        new Thread(() -> guestServer.start()).start();
+        guestServer.start();
         players = new ArrayList<>();
         players.add(new Player(name, null, 0));
         turnCounter = 0;
@@ -196,9 +196,10 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     @Override
     public void nextTurn() throws IOException, InterruptedException {
         //TODO
+        Thread.sleep(3000);
         numberOfPasses++;
         this.turnCounter++;
-        if (this.turnCounter == this.players.size()) {
+        if (this.turnCounter >= this.players.size()) {
             this.turnCounter = 0;
             this.round++;
         }
@@ -214,6 +215,9 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 this.sendMessage("GameOver", this.players.get(i));
             }
             //finishGame
+            Thread.sleep(4000);
+            hh.close();
+            Thread.sleep(2000);
             guestServer.close();
             return;
         }
@@ -225,6 +229,9 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         myTurn = false;
         this.sendMessage("MyTurn", this.players.get(this.turnCounter));
+    }
+    public void closeClient() throws IOException {
+        hostClient.close();
     }
 
 
