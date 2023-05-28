@@ -1,7 +1,6 @@
 package test;
 
 import test.ClientHandler;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -43,16 +42,10 @@ public class MyServer {
                             throw new RuntimeException(e);
                         }
                     });
-                    //client.close();
-                } catch (SocketTimeoutException e) {
-                }
+                } catch (SocketTimeoutException e) {}
             }
-
-            //threadPool.shutdown(); // Close the thread pool gracefully
-            Thread.sleep(5000);
-            if(!threadPool.isTerminated()) {
-                System.out.println("there are some threads not closed");
-            }
+            // Delay in order to guest to recieve the message
+            Thread.sleep(3000);
             server.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,7 +59,7 @@ public class MyServer {
         Thread.sleep(3000);
         try {
             threadPool.shutdown();
-            System.out.println(threadPool.awaitTermination(3,TimeUnit.SECONDS));
+            threadPool.awaitTermination(3,TimeUnit.SECONDS);
         } catch (SecurityException e) {
             e.printStackTrace();
         }

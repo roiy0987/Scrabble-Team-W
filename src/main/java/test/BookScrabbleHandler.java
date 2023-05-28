@@ -26,7 +26,6 @@ public class BookScrabbleHandler implements ClientHandler{
     @Override
     public void handleClient(Socket client) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        //Scanner in = new Scanner(client.getInputStream());
         PrintWriter out = new PrintWriter(client.getOutputStream(),true);
         while(!stop){
             String word;

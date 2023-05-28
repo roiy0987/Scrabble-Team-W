@@ -32,7 +32,15 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         System.out.println(st);
         myTurn = false;
         gameOver=false;
-        this.nextTurn();
+        new Thread(()-> {
+            try {
+                this.waitForTurn();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
         stop = false;
         // Connect to server with name and socket for blabla
     }
@@ -42,9 +50,9 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     }
 
 
-    public void waitForTurn() throws IOException {
+    public void waitForTurn() throws IOException, InterruptedException {
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
-        while(!stop){
+        while(!myTurn||!gameOver){
             String res = br.readLine(); // GameOver\Update\MyTurn
             switch (res){
                 case "Update":
@@ -55,16 +63,13 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                     gameOver=true;
                     this.setChanged();
                     this.notifyObservers();
-                    stop = true;
-//                    return;
-                    break;
+                    this.server.close();
+                    return;
                 case "MyTurn":
                     myTurn=true;
                     this.setChanged();
                     this.notifyObservers();
-                    stop = true;
-//                    return;
-                    break;
+                    return;
                 default:
                     break;
             }
@@ -80,7 +85,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         Thread t = new Thread(()-> {
             try {
                 this.waitForTurn();
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
