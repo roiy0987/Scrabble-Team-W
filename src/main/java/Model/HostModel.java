@@ -39,21 +39,31 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     public List<Player> getPlayers() {
         return players;
     }
+    @Override
+    public boolean isMyTurn() {
+        return myTurn;
+    }
+    @Override
+    public boolean isGameOver(){
+        return gameOver;
+    }
 
     // returns hosts tiles for guest sends appropriate message
     @Override
     public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
-        for (Player player : this.players) {
-            if (player.name.equals(this.name))
-                continue;
-            ObjectOutputStream stream = new ObjectOutputStream(player.socket.getOutputStream());
-            stream.writeObject(this.getNewPlayerTiles(7));
-            stream.flush();
-        }
+//        for (Player player : this.players) {
+//            if (player.name.equals(this.name))
+//                continue;
+//            ObjectOutputStream stream = new ObjectOutputStream(player.socket.getOutputStream());
+//            stream.writeObject(this.getNewPlayerTiles(7));
+//            stream.flush();
+//        }
         if (players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
+            this.setChanged();
+            this.notifyObservers();
             return getNewPlayerTiles(7);
         }
         this.sendMessage("MyTurn", players.get(0)); // if it's a guest turn

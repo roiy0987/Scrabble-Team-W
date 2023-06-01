@@ -44,9 +44,13 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         stop = false;
         // Connect to server with name and socket for blabla
     }
-
+    @Override
     public boolean isMyTurn() {
         return myTurn;
+    }
+    @Override
+    public boolean isGameOver(){
+        return gameOver;
     }
 
 
@@ -161,7 +165,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     @Override
     public ArrayList<Character> startGame()throws IOException, ClassNotFoundException{
-        return null;
+        return getNewPlayerTiles(7);
     }
 
     public boolean getGameOver(){
