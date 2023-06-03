@@ -18,7 +18,7 @@ https://github.com/roiy0987/Scrabble-Team-W
 
 Our project implements the Scrabble game in Java. It is based on the MVVM architectural pattern and enable clients to play using the server (that we created in the lase semester).
 The host player and the guest players use the Model to connect with the server in order to progress in the game.
-The Model comuunicates with the server and transfers the functionality of the game from the server to the ViewModel that transfers it to the View.
+The Model comuunicates with the server and transfers the functionality of the game from the server to the ViewModel that transfers it to the View.Main.
 
 ### _The roles in the game and it's flow:_
 
@@ -28,7 +28,7 @@ The Model comuunicates with the server and transfers the functionality of the ga
 
 
 * The Client Side - The client side is the part of the application that runs on the user's computer. It provides the user with a graphical interface to play the game.
-  The client side consist of the Model layer, the ViewModel layer and the View layer. It enables the players to transfer actions and commands to the server.
+  The client side consist of the Model layer, the ViewModel layer and the View.Main layer. It enables the players to transfer actions and commands to the server.
 
 
 * The Model - The model represents the state of the game. It contains the board, the tiles, the players, and the score.
@@ -38,11 +38,11 @@ The Model comuunicates with the server and transfers the functionality of the ga
 
 
 * The ViewModel - The view model is a mediator between the model and the view. It translates the model state into a format that the view can understand, and vice versa.
-  The ViewModel is an observer of the Model. It's also bound by using property data members to the View layer.
+  The ViewModel is an observer of the Model. It's also bound by using property data members to the View.Main layer.
 
 
-* The View - The view is responsible for displaying the game to the user. It renders the board, the tiles, the players, and the score.
-  The View is bound by using property data members to the ViewModel layer.
+* The View.Main - The view is responsible for displaying the game to the user. It renders the board, the tiles, the players, and the score.
+  The View.Main is bound by using property data members to the ViewModel layer.
 
 
 * Player - The Player class is responsible to save the data of the players that might change during the game. The database holds data members such as the Player's socket,

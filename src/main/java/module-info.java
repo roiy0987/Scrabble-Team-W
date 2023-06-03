@@ -5,4 +5,6 @@ module com.scrabble.bookscrabblegame {
 
     opens com.scrabble.bookscrabblegame to javafx.fxml;
     exports com.scrabble.bookscrabblegame;
+    opens View to javafx.fxml;
+    exports View;
 }
