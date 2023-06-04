@@ -20,6 +20,7 @@
 }
 
 #buttonHbox{
+    -fx-background-width: 500px;
     -fx-spacing: 25px;
 }
 
@@ -45,6 +46,8 @@
 }
 
 .gameButtons{
+    -fx-min-width: 100px;
+    -fx-max-width: 100px;
     -fx-font-family: stencil;
     -fx-font-size: 20px;
     -fx-background-radius: 10px;
@@ -55,13 +58,28 @@
 }
 
 
-#nickname {
+.nickname {
     -fx-font-family: "stencil";
-    -fx-font-size: 48px;
-    -fx-text-fill: white;
+    -fx-font-size: 36px;
+    -fx-text-fill: black;
     -fx-border-color: transparent;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-padding: 0;
+
+}
+
+.dialog-pane{
+    -fx-min-width: 500px;
+    -fx-max-width: 500px;
+    -fx-background-color: transparent;
+    -fx-padding: 5px;
+    -fx-alignment: center;
+}
+
+.label {
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, black, 2px, 2px, 0, 0);
+
 }
 
