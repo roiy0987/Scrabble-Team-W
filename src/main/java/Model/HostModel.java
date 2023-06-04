@@ -37,9 +37,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         round = 0;
     }
 
-    public List<Player> getPlayers() {
-        return players;
-    }
+ 
     @Override
     public boolean isMyTurn() {
         return myTurn;
@@ -231,6 +229,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 this.sendMessage("GameOver", this.players.get(i));
             }
             //finishGame
+            this.closeClient(); // need to test
             Thread.sleep(4000);
             hh.close();
             Thread.sleep(2000);

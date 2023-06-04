@@ -21,7 +21,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     private String playerName;
     private boolean myTurn;
     private boolean gameOver;
-    private boolean stop;
 
     public GuestModel(String name, String ip, int port) throws IOException {
         this.playerName = name;
@@ -43,7 +42,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 throw new RuntimeException(e);
             }
         }).start();
-        stop = false;
         // Connect to server with name and socket for blabla
     }
 
@@ -101,7 +99,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             }
         });
         t.start();
-        stop = false;
     }
 
     @Override

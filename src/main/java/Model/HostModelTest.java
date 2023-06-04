@@ -115,7 +115,7 @@ public class HostModelTest {
         test.testNextTurn();
         test.bsh.close();
         Thread.sleep(2000);
-        test.host.closeClient();
+        //test.host.closeClient();
         Thread.sleep(2000);
         test.s.close();
 
