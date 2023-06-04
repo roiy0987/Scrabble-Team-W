@@ -1,5 +1,7 @@
 package Model;
 
+import ViewModel.ScrabbleViewModel;
+
 import java.io.IOException;
 import java.util.ArrayList;
 //facade
@@ -12,5 +14,6 @@ public interface ScrabbleModelFacade {
     ArrayList<Character> startGame() throws IOException, ClassNotFoundException;
     boolean isMyTurn();
     boolean isGameOver();
+    void addObserver(ScrabbleViewModel vm);
     
 }

@@ -3,13 +3,13 @@ package ViewModel;
 import Model.GuestModel;
 import Model.HostModel;
 import Model.ScrabbleModelFacade;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.scene.control.ListView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -17,7 +17,8 @@ import java.util.Observer;
 //Controller
 public class ScrabbleViewModel implements Observer {
     private char[][] board; // data binding
-    private ArrayList<Character> tiles; // data binding
+    private ObjectProperty<char[][]> boardProperty;
+    private ListProperty<Character> tiles; // data binding
     public StringProperty score; //data binding
     private ScrabbleModelFacade model;
     public BooleanProperty myTurn;
@@ -25,25 +26,29 @@ public class ScrabbleViewModel implements Observer {
     /*
         TODO
         [ ] Data binding tiles and board.
-        [ ] addObserver - check another way to do.
         [ ] Submit word - understand how do we get the word.
      */
+
 
 
     public ScrabbleViewModel(ScrabbleModelFacade m) throws IOException {
         model = m;
         this.score = new SimpleStringProperty();
-        if(m instanceof HostModel){
-            ((HostModel) model).addObserver(this);
-        }
-        else{
-            ((GuestModel) model).addObserver(this);
-        }
+        m.addObserver(this);
+        tiles=new SimpleListProperty<>(FXCollections.observableArrayList());
         board =  new char[15][15];
+        boardProperty = new SimpleObjectProperty<>();
+    }
+    public ListProperty<Character> getTiles(){
+        return tiles;
+    }
+
+    public ObjectProperty<char[][]> getBoard(){
+        return boardProperty;
     }
     public void startGame() {
         try {
-            tiles = model.startGame();
+            tiles.setAll(model.startGame());
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -70,6 +75,7 @@ public class ScrabbleViewModel implements Observer {
                 score.set(model.getScore());
                 for(int i=0;i<word.length();i++){
                     this.tiles.remove(this.tiles.indexOf(word.charAt(i)));
+
                 }
                 model.getNewPlayerTiles(word.length());
                 myTurn.set(false);
@@ -91,7 +97,7 @@ public class ScrabbleViewModel implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            model.getBoard(); // data binding some how
+            boardProperty.set(model.getBoard());
             score.set(model.getScore());
             if(model.isMyTurn()){
                 myTurn.set(true);

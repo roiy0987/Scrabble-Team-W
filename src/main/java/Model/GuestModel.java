@@ -1,6 +1,8 @@
 package Model;
 
 
+import ViewModel.ScrabbleViewModel;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -43,6 +45,11 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         }).start();
         stop = false;
         // Connect to server with name and socket for blabla
+    }
+
+    @Override
+    public void addObserver(ScrabbleViewModel vm) {
+        addObserver(vm);
     }
     @Override
     public boolean isMyTurn() {

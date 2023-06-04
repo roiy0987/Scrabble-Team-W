@@ -1,5 +1,6 @@
 package Model;
 
+import ViewModel.ScrabbleViewModel;
 import test.*;
 
 import java.io.*;
@@ -46,6 +47,11 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     @Override
     public boolean isGameOver(){
         return gameOver;
+    }
+
+    @Override
+    public void addObserver(ScrabbleViewModel vm) {
+        addObserver(vm);
     }
 
     // returns hosts tiles for guest sends appropriate message
