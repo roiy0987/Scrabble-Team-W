@@ -44,5 +44,9 @@ public class ScrabbleViewModel implements Observer {
             return;
         }
     }
+
+    public ArrayList<Character> getTiles(){
+        return this.tiles;
+    }
 }
 
