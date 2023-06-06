@@ -1,6 +1,8 @@
 package Model;
 
 
+import ViewModel.ScrabbleViewModel;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -19,7 +21,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     private String playerName;
     private boolean myTurn;
     private boolean gameOver;
-    private boolean stop;
 
     public GuestModel(String name, String ip, int port) throws IOException {
         this.playerName = name;
@@ -41,12 +42,20 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 throw new RuntimeException(e);
             }
         }).start();
-        stop = false;
         // Connect to server with name and socket for blabla
     }
 
+    @Override
+    public void addObserver(ScrabbleViewModel vm) {
+        addObserver(vm);
+    }
+    @Override
     public boolean isMyTurn() {
         return myTurn;
+    }
+    @Override
+    public boolean isGameOver(){
+        return gameOver;
     }
 
 
@@ -90,7 +99,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             }
         });
         t.start();
-        stop = false;
     }
 
     @Override
@@ -161,7 +169,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     @Override
     public ArrayList<Character> startGame()throws IOException, ClassNotFoundException{
-        return null;
+        return getNewPlayerTiles(7);
     }
 
     public boolean getGameOver(){

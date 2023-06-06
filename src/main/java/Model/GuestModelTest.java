@@ -88,19 +88,43 @@ public class GuestModelTest {
         System.out.println("---------------End of test get tiles---------------");
     }
 
-    public void testWaitForTurn(){
-
-    }
+//     public void testWaitForTurn(){
+//        try {
+//            int countOfThreads = Thread.activeCount();
+//            Thread t = new Thread(()->{
+//                try {
+//                    g1.waitForTurn();
+//                } catch (IOException | InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            });
+//            t.start();
+//            Thread.sleep(2000);
+//            if(countOfThreads+1!=Thread.activeCount()){
+//                System.out.println("wait for turn - error");
+//            }
+//
+//            System.out.println("---------------End of test wait for turn---------------");
+//        } catch (InterruptedException e) {}
+//     }
 
     public void testNextTurn() throws IOException, InterruptedException {
+        int countOfThreads = Thread.activeCount();
         if(g1.isMyTurn()){
             System.out.println("g1 turn");
             g1.nextTurn();
+            Thread.sleep(2000);
+            if(countOfThreads+1!=Thread.activeCount()){
+               System.out.println("wait for turn - error");
+            }
         }
         if(g1.isMyTurn())
             System.out.println("Error in test next turn");
         host.nextTurn();
         Thread.sleep(2000);
+        if(countOfThreads!=Thread.activeCount()){
+            System.out.println("wait for turn - error");
+        }
         g1.nextTurn();
         Thread.sleep(5000);
         if(!g1.getGameOver())
@@ -116,7 +140,7 @@ public class GuestModelTest {
         test.testGetNewPlayerTiles();
         test.testGetBoard();
         test.testNextTurn();
-        test.host.closeClient();
+        //test.host.closeClient();
         bsh.close();
         s.close();
 
