@@ -51,15 +51,15 @@
          <children>
             <VBox prefHeight="100.0" prefWidth="63.0">
                <children>
-                  <Button mnemonicParsing="false" text="SHUFFLE" />
-                  <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="62.0" text="RESET" />
+                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="63.0" text="SHUFFLE" />
+                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="62.0" text="RESET" />
                </children>
             </VBox>
             <ListView fx:id="playerTiles" minHeight="0.0" minWidth="0.0" orientation="HORIZONTAL" prefHeight="100.0" prefWidth="386.0" />
             <VBox prefHeight="100.0" prefWidth="63.0">
                <children>
-                  <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="65.0" text="SUBMIT" />
-                  <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="68.0" text="SKIP" />
+                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="63.0" text="SUBMIT" />
+                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="63.0" text="SKIP" />
                </children>
             </VBox>
          </children>

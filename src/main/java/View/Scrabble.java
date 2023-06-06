@@ -124,13 +124,13 @@ public class Scrabble extends Application {
                         setTextMethod.invoke(targetNode, draggedItem);
 
                         success = true;
-                        tiles.remove(selectedIndex);
+                        listProperty.remove(selectedIndex);
                     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     }
                 }
             }
             event.setDropCompleted(success);
-            event.consume();
+//            event.consume();
         });
 
         ListView<Object> scoreboard = (ListView) fxmlLoader.getNamespace().get("score");
