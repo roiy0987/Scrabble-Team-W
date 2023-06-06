@@ -27,7 +27,11 @@ public class GuestModelTest {
     }
     
 
-    public void testSubmitWord() throws IOException {
+    public void testSubmitWord() throws IOException, InterruptedException {
+        if(!g1.isMyTurn()) {
+            host.nextTurn();
+            Thread.sleep(2000);
+        }
         if(!g1.submitWord("HORN",7,5, false))
             System.out.println("Error in submit word #1");
         if(g1.submitWord("SDF",7,7, false))
@@ -84,19 +88,45 @@ public class GuestModelTest {
         System.out.println("---------------End of test get tiles---------------");
     }
 
-    public void testWaitForTurn(){
-
-    }
+//     public void testWaitForTurn(){
+//        try {
+//            int countOfThreads = Thread.activeCount();
+//            Thread t = new Thread(()->{
+//                try {
+//                    g1.waitForTurn();
+//                } catch (IOException | InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            });
+//            t.start();
+//            Thread.sleep(2000);
+//            if(countOfThreads+1!=Thread.activeCount()){
+//                System.out.println("wait for turn - error");
+//            }
+//
+//            System.out.println("---------------End of test wait for turn---------------");
+//        } catch (InterruptedException e) {}
+//     }
 
     public void testNextTurn() throws IOException, InterruptedException {
+        int countOfThreads = Thread.activeCount();
         if(g1.isMyTurn()){
             System.out.println("g1 turn");
             g1.nextTurn();
+            Thread.sleep(2000);
+            if(countOfThreads+1!=Thread.activeCount()){
+               System.out.println("wait for turn - error");
+            }
         }
         if(g1.isMyTurn())
             System.out.println("Error in test next turn");
         host.nextTurn();
-        Thread.sleep(3000);
+        Thread.sleep(2000);
+        if(countOfThreads!=Thread.activeCount()){
+            System.out.println("wait for turn - error");
+        }
+        g1.nextTurn();
+        Thread.sleep(5000);
         if(!g1.getGameOver())
             System.out.println("Error in game over");
         System.out.println("---------------End of test next turn---------------");
@@ -110,7 +140,9 @@ public class GuestModelTest {
         test.testGetNewPlayerTiles();
         test.testGetBoard();
         test.testNextTurn();
-
+        //test.host.closeClient();
+        bsh.close();
+        s.close();
 
 
     }

@@ -1,6 +1,8 @@
 package Model;
 
 
+import ViewModel.ScrabbleViewModel;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -19,7 +21,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     private String playerName;
     private boolean myTurn;
     private boolean gameOver;
-    private boolean stop;
 
     public GuestModel(String name, String ip, int port) throws IOException {
         this.playerName = name;
@@ -32,19 +33,35 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         System.out.println(st);
         myTurn = false;
         gameOver=false;
-        this.nextTurn();
-        stop = false;
+        new Thread(()-> {
+            try {
+                this.waitForTurn();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
         // Connect to server with name and socket for blabla
     }
 
+    @Override
+    public void addObserver(ScrabbleViewModel vm) {
+        addObserver(vm);
+    }
+    @Override
     public boolean isMyTurn() {
         return myTurn;
     }
+    @Override
+    public boolean isGameOver(){
+        return gameOver;
+    }
 
 
-    public void waitForTurn() throws IOException {
+    public void waitForTurn() throws IOException, InterruptedException {
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
-        while(!stop){
+        while(!myTurn||!gameOver){
             String res = br.readLine(); // GameOver\Update\MyTurn
             switch (res){
                 case "Update":
@@ -55,16 +72,13 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                     gameOver=true;
                     this.setChanged();
                     this.notifyObservers();
-                    stop = true;
-//                    return;
-                    break;
+                    this.server.close();
+                    return;
                 case "MyTurn":
                     myTurn=true;
                     this.setChanged();
                     this.notifyObservers();
-                    stop = true;
-//                    return;
-                    break;
+                    return;
                 default:
                     break;
             }
@@ -80,12 +94,11 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         Thread t = new Thread(()-> {
             try {
                 this.waitForTurn();
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
         t.start();
-        stop = false;
     }
 
     @Override
@@ -156,7 +169,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     @Override
     public ArrayList<Character> startGame()throws IOException, ClassNotFoundException{
-        return null;
+        return getNewPlayerTiles(7);
     }
 
     public boolean getGameOver(){

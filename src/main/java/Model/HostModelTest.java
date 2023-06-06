@@ -8,12 +8,13 @@ import test.Tile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HostModelTest {
 
     HostModel host;
-    static MyServer s;
-    static BookScrabbleHandler bsh;
+    MyServer s;
+    BookScrabbleHandler bsh;
 
     public void init() throws IOException, InterruptedException, ClassNotFoundException {
         bsh = new BookScrabbleHandler();
@@ -103,8 +104,6 @@ public class HostModelTest {
         host.nextTurn();
 
     }
-
-
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         HostModelTest test = new HostModelTest();
         test.init();
@@ -114,9 +113,11 @@ public class HostModelTest {
         test.testGetBoard();
         test.testGetNewPlayerTiles();
         test.testNextTurn();
-        bsh.close();
-        s.close();
-
+        test.bsh.close();
+        Thread.sleep(2000);
+        //test.host.closeClient();
+        Thread.sleep(2000);
+        test.s.close();
 
     }
 

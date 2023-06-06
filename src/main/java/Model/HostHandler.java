@@ -31,6 +31,8 @@ public class HostHandler implements ClientHandler {
 
         while(!stop) {
             request = br.readLine();
+            if(request==null)
+                continue;
             String[] requestSplitted = request.split(":");
 
             switch (requestSplitted[0]) {
@@ -69,7 +71,7 @@ public class HostHandler implements ClientHandler {
                     String response = Boolean.toString(model.submitWord(requestSplitted[1],
                             Integer.parseInt(requestSplitted[2]),
                             Integer.parseInt(requestSplitted[3]),
-                            Boolean.parseBoolean(requestSplitted[4])))+ "\n";
+                            Boolean.parseBoolean(requestSplitted[4])));
                     bw.write(response+"\n");
                     bw.flush();
                     break;
