@@ -50,7 +50,9 @@ public class Scrabble extends Application {
                 // TileView is a custom class representing a tile on the game board.
                 // It would need to be implemented to include the necessary dragging logic.
 //                TileView tile = new TileView(' ', 0);
-                Label tile = new Label(i+" "+j);
+                Label tile = new Label();
+                tile.setMinWidth(40);
+                tile.setMinHeight(40);
 
                 board.add(tile,i,j);
                 GridPane.setHalignment(tile, HPos.CENTER);
@@ -77,6 +79,7 @@ public class Scrabble extends Application {
         tiles.add('b');
         tiles.add('c');
         System.out.println(listProperty);
+//        listProperty.remove(0);
         System.out.println(listProperty);
         System.out.println(tiles);
         playerTiles.setPrefHeight(tiles.size() * playerTiles.getFixedCellSize());
@@ -114,7 +117,7 @@ public class Scrabble extends Application {
                 Node targetNode = (Node) event.getTarget();
                 System.out.println(targetNode.getClass());
                 // Check if the target node is a Label
-                if (targetNode.getClass().getName().equals("com.sun.javafx.scene.control.LabeledText")) {
+                if (targetNode instanceof Label) {
                     try {
                         // Use reflection to access the setText() method of LabeledText
                         Method setTextMethod = targetNode.getClass().getMethod("setText", String.class);
@@ -164,5 +167,6 @@ public class Scrabble extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
 
 }
