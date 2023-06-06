@@ -6,6 +6,7 @@ import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -38,18 +39,11 @@ public class Scrabble extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-       ListProperty<Character> list = new SimpleListProperty<>();
-
-
-        primaryStage.setTitle("Scrabble Game");
-
         FXMLLoader fxmlLoader = null;
         String fxmlPath = "src/main/resources/ui/fxml/game-page.fxml";
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         Scene scene = new Scene(fxmlLoader.load(), Screen.getPrimary().getVisualBounds().getWidth(), Screen.getPrimary().getVisualBounds().getHeight());
         scene.getStylesheets().add(getClass().getResource("/ui/css/board-page.css").toExternalForm());
-
-        BorderPane root = new BorderPane();
 
         // Game Board
         GridPane board = (GridPane) fxmlLoader.getNamespace().get("grid");
@@ -63,29 +57,21 @@ public class Scrabble extends Application {
                 GridPane.setValignment(tile, VPos.CENTER);
             }
         }
-//        root.setCenter(board);
 
         // Player Tiles
         ListView<Character> playerTiles = (ListView) fxmlLoader.getNamespace().get("playerTiles");
         ObservableList<Character> tiles = FXCollections.observableArrayList();
+        // Create a ListProperty and bind it to the ObservableList
         ListProperty<Character> listProperty = new SimpleListProperty<>(tiles);
         playerTiles.itemsProperty().bindBidirectional(listProperty);
         tiles.add('a');
         tiles.add('b');
         tiles.add('c');
-
-
+        System.out.println(listProperty);
+//        listProperty.remove(0);
+        System.out.println(listProperty);
+        System.out.println(tiles);
         playerTiles.setPrefHeight(tiles.size() * playerTiles.getFixedCellSize());
-
-
-//        GridPane playerTiles = new GridPane();
-        for (int i = 0; i < 7; i++) {
-            // PlayerTile is a custom class representing a tile held by the player.
-//            PlayerTile tile = new PlayerTile();
-//            tiles.add((char) ('z'-i));
-
-        }
-//        playerTiles.setItems(tiles);
 
 
         ListView<Object> scoreboard = (ListView) fxmlLoader.getNamespace().get("score");
@@ -97,9 +83,6 @@ public class Scrabble extends Application {
         scores.add("Arik");
         scores.add(1);
         scoreboard.setItems(scores);
-
-
-//        root.setBottom(playerTiles);
 
         // Sidebar
         VBox sidebar = new VBox();
@@ -119,14 +102,7 @@ public class Scrabble extends Application {
         Label timerDisplay = new Label("00:00"); // Needs to be updated with a Timeline or similar
         sidebar.getChildren().addAll(timerLabel, timerDisplay);
 
-        // Submit and Skip buttons
-        Button submitButton = new Button("Submit");
-        Button skipButton = new Button("Skip");
-        sidebar.getChildren().addAll(submitButton, skipButton);
-
-        root.setRight(sidebar);
-
-
+        primaryStage.setTitle("Scrabble Game");
         primaryStage.setFullScreen(true);
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         primaryStage.setScene(scene);
