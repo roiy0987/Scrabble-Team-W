@@ -1,37 +1,35 @@
 package View;
 
-import ViewModel.ScrabbleViewModel;
 import javafx.application.Application;
-import javafx.beans.binding.Binding;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.input.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Scrabble extends Application {
 
     public static final int BOARD_SIZE = 15;
+
+    int selectedIndex;
 
     public static void main(String[] args) {
         launch(args);
@@ -51,10 +49,21 @@ public class Scrabble extends Application {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 // TileView is a custom class representing a tile on the game board.
                 // It would need to be implemented to include the necessary dragging logic.
-                TileView tile = new TileView(' ', 0);
-                board.add(tile, i, j);
+//                TileView tile = new TileView(' ', 0);
+                Label tile = new Label(i+" "+j);
+
+                board.add(tile,i,j);
                 GridPane.setHalignment(tile, HPos.CENTER);
                 GridPane.setValignment(tile, VPos.CENTER);
+            }
+        }
+
+        for (Node childNode : board.getChildren()) {
+            Integer columnIndex = GridPane.getColumnIndex(childNode);
+            Integer rowIndex = GridPane.getRowIndex(childNode);
+
+            if (columnIndex != null && rowIndex != null) {
+                System.out.println("Node: " + childNode + ", Column: " + columnIndex + ", Row: " + rowIndex);
             }
         }
 
@@ -68,11 +77,58 @@ public class Scrabble extends Application {
         tiles.add('b');
         tiles.add('c');
         System.out.println(listProperty);
-//        listProperty.remove(0);
         System.out.println(listProperty);
         System.out.println(tiles);
         playerTiles.setPrefHeight(tiles.size() * playerTiles.getFixedCellSize());
 
+
+
+        playerTiles.setOnDragDetected(event -> {
+            selectedIndex = playerTiles.getSelectionModel().getSelectedIndex();
+            if (playerTiles.getSelectionModel().getSelectedItem() != null) {
+                System.out.println(selectedIndex);
+                Dragboard dragboard = playerTiles.startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent content = new ClipboardContent();
+                content.putString(String.valueOf(playerTiles.getSelectionModel().getSelectedItem()));
+                dragboard.setContent(content);
+                System.out.println("#1");
+            }
+            event.consume();
+        });
+
+        board.setOnDragOver(event -> {
+            if (event.getGestureSource() != board && event.getDragboard().hasString()) {
+                event.acceptTransferModes(TransferMode.MOVE);
+                System.out.println("#2");
+            }
+            event.consume();
+        });
+
+        board.setOnDragDropped(event -> {
+            Dragboard dragboard = event.getDragboard();
+            boolean success = false;
+            if (dragboard.hasString()) {
+                String draggedItem = dragboard.getString();
+                System.out.println(draggedItem);
+                // Retrieve the target node
+                Node targetNode = (Node) event.getTarget();
+                System.out.println(targetNode.getClass());
+                // Check if the target node is a Label
+                if (targetNode.getClass().getName().equals("com.sun.javafx.scene.control.LabeledText")) {
+                    try {
+                        // Use reflection to access the setText() method of LabeledText
+                        Method setTextMethod = targetNode.getClass().getMethod("setText", String.class);
+                        setTextMethod.invoke(targetNode, draggedItem);
+
+                        success = true;
+                        tiles.remove(selectedIndex);
+                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    }
+                }
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
 
         ListView<Object> scoreboard = (ListView) fxmlLoader.getNamespace().get("score");
         ObservableList<Object> scores = FXCollections.observableArrayList();
@@ -108,55 +164,5 @@ public class Scrabble extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
-    @FXML
-    private ListView<String> playerTiles;
-
-    @FXML
-    private GridPane grid;
-
-    @FXML
-    public void handleDragDetected(MouseEvent event) {
-        // Start drag-and-drop operation
-        Dragboard dragboard = playerTiles.startDragAndDrop(TransferMode.MOVE);
-
-        // Put the dragged item's data on the dragboard
-        ClipboardContent content = new ClipboardContent();
-        content.putString(playerTiles.getSelectionModel().getSelectedItem());
-        dragboard.setContent(content);
-
-        event.consume();
-    }
-
-    @FXML
-    public void handleDragOver(DragEvent event) {
-        if (event.getGestureSource() != grid && event.getDragboard().hasString()) {
-            event.acceptTransferModes(TransferMode.MOVE);
-        }
-
-        event.consume();
-    }
-
-    @FXML
-    public void handleDragDropped(DragEvent event) {
-        Dragboard dragboard = event.getDragboard();
-        boolean success = false;
-
-        if (dragboard.hasString()) {
-            String draggedItem = dragboard.getString();
-            int columnIndex = GridPane.getColumnIndex((Button) event.getTarget());
-            int rowIndex = GridPane.getRowIndex((Button) event.getTarget());
-
-            // Append the dragged item to the specific cell in the grid
-            Button button = new Button(draggedItem);
-            grid.add(button, columnIndex, rowIndex);
-            success = true;
-        }
-
-        event.setDropCompleted(success);
-        event.consume();
-    }
-
-
 
 }
