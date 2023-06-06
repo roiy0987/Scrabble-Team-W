@@ -57,13 +57,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
-//        for (Player player : this.players) {
-//            if (player.name.equals(this.name))
-//                continue;
-//            ObjectOutputStream stream = new ObjectOutputStream(player.socket.getOutputStream());
-//            stream.writeObject(this.getNewPlayerTiles(7));
-//            stream.flush();
-//        }
         if (players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
             this.setChanged();
@@ -109,6 +102,17 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         if (res.equals("false")) {
             return false;
         }
+        ArrayList<Word> allWords = board.getWords(submittedWord);
+        String currentWord;
+        // To check all words that been created from the given word
+        for(int i=0;i<allWords.size();i++){
+            currentWord = wordToString(allWords.get(i));
+            bw.write(wordToHandler(currentWord, allWords.get(i).getRow(), allWords.get(i).getCol(), allWords.get(i).isVertical()) + "\n");
+            bw.flush();
+            res = br.readLine();
+            if(res.equals("false"))
+                return false;
+        }
         int score = board.tryPlaceWord(submittedWord);
         if (score == 0) {
             return false;
@@ -122,6 +126,15 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         // ViewModel should demand next turn, getBoard, getScore
         numberOfPasses = -1;
         return true;
+    }
+
+    private String wordToString(Word word){
+        StringBuilder sb = new StringBuilder();
+        for(int i =0; i< word.getTiles().length; i++)
+        {
+            sb.append(word.getTiles()[i].letter);
+        }
+        return sb.toString();
     }
 
     private void notifyAllPlayers() throws IOException {
