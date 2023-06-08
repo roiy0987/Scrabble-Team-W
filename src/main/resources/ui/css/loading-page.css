@@ -1,0 +1,45 @@
+
+#mainContainer{
+    -fx-background-image: url("../images/123.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+.label{
+    -fx-font-family: "stencil";
+    -fx-font-size: 48px;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, black, 2px, 2px, 0, 0);
+}
+
+.list-view{
+    -fx-background-color: transparent;
+}
+
+.list-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.list-cell {
+    -fx-font-family: "stencil";
+    -fx-font-size: 36px;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-alignment: center;
+}
+
+.list-cell:focused {
+    -fx-text-fill: black;
+}
+
+.gameButtons{
+    -fx-min-width: 100px;
+    -fx-max-width: 250px;
+    -fx-font-family: stencil;
+    -fx-font-size: 20px;
+    -fx-background-radius: 10px;
+}

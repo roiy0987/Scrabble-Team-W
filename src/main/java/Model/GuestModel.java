@@ -47,7 +47,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     @Override
     public void addObserver(ScrabbleViewModel vm) {
-        addObserver(vm);
+        super.addObserver(vm);
     }
     @Override
     public boolean isMyTurn() {

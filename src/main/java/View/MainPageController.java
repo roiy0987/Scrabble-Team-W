@@ -9,12 +9,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 public class MainPageController {
 
@@ -94,13 +93,15 @@ public class MainPageController {
         FXMLLoader fxmlLoader = null;
         String fxmlPath = "src/main/resources/ui/fxml/loading-page.fxml";
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
-        Scene scene = new Scene(fxmlLoader.load(), Screen.getPrimary().getVisualBounds().getWidth(), Screen.getPrimary().getVisualBounds().getHeight());
+        Scene scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(getClass().getResource("/ui/css/loading-page.css").toExternalForm());
         stage.setScene(scene);
+        stage.setFullScreen(true);
+        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         WaitingPageController wp = fxmlLoader.getController();
         wp.setIsHost(isHost);
         wp.setViewModel(vm);
         wp.setStage(stage);
-
     }
 
 

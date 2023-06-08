@@ -23,8 +23,7 @@ public class BoardController {
     public void setViewModel(ScrabbleViewModel vm){
         this.vm = vm;
         playerTiles.itemsProperty().bindBidirectional(vm.getTiles());
-        score.itemsProperty().bind(vm.getScores());
-
+        score.itemsProperty().bindBidirectional(vm.getScores());
     }
 
     public void submitWord(){

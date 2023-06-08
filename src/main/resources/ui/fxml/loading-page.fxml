@@ -6,10 +6,10 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.WaitingPageController">
+<AnchorPane fx:id="mainContainer" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.WaitingPageController">
    <children>
-      <ListView fx:id="playersList" layoutX="812.0" layoutY="228.0" prefHeight="312.0" prefWidth="294.0" />
-      <Label layoutX="812.0" layoutY="163.0" prefHeight="54.0" prefWidth="294.0" text="Waiting for players" />
-      <Button fx:id="startGame" layoutX="899.0" layoutY="570.0" mnemonicParsing="false" onAction="#startGame" prefHeight="54.0" prefWidth="122.0" text="Start Game" />
+      <ListView fx:id="playersList" layoutX="767.0" layoutY="373.0" prefHeight="312.0" prefWidth="385.0" />
+      <Label layoutX="606.0" layoutY="273.0" prefHeight="58.0" prefWidth="708.0" text="Waiting for players to join" />
+      <Button fx:id="startGame" layoutX="878.0" layoutY="716.0" maxWidth="163.0" mnemonicParsing="false" onAction="#startGame" prefHeight="54.0" prefWidth="163.0" styleClass="gameButtons" text="Start Game" />
    </children>
 </AnchorPane>

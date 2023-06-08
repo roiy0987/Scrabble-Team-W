@@ -37,7 +37,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         round = 0;
     }
 
- 
+
     @Override
     public boolean isMyTurn() {
         return myTurn;
@@ -49,7 +49,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
 
     @Override
     public void addObserver(ScrabbleViewModel vm) {
-        addObserver(vm);
+        super.addObserver(vm);
     }
 
     // returns hosts tiles for guest sends appropriate message
