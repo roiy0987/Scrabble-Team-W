@@ -1,11 +1,9 @@
 package ViewModel;
 
-import Model.GuestModel;
-import Model.HostModel;
+
 import Model.ScrabbleModelFacade;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ListView;
 
 import java.io.IOException;
 import java.util.*;
@@ -74,7 +72,7 @@ public class ScrabbleViewModel implements Observer {
             }
             col--;
         }
-        sb.append(col+":");
+        sb.append(col).append(":");
         while(col!=originalCol){
             sb.append(boardProperty.get()[row][col]);
             col++;
@@ -92,7 +90,7 @@ public class ScrabbleViewModel implements Observer {
             }
             row--;
         }
-        sb.append(row+":");
+        sb.append(row).append(":");
         while(row!=originalRow){
             sb.append(boardProperty.get()[row][col]);
             row++;
@@ -121,9 +119,7 @@ public class ScrabbleViewModel implements Observer {
         char[][] currentBoard;
         try {
             currentBoard = model.getBoard();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         StringBuilder sb = new StringBuilder();
@@ -153,7 +149,7 @@ public class ScrabbleViewModel implements Observer {
                 sb.append(getRightWord(firstTileSubmittedRow,firstTileSubmittedCol)).append(":")
                 .append(firstTileSubmittedRow).append(":")
                 .append(firstTileSubmittedCol).append(":")
-                .append("true");
+                .append("false");
                 break;
             case "left":
                 splittedAnswer = getLeftWord(firstTileSubmittedRow,firstTileSubmittedCol).split(":"); // Col:Word

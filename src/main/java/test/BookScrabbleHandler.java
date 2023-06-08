@@ -3,7 +3,6 @@ package test;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 
 public class BookScrabbleHandler implements ClientHandler{
@@ -13,7 +12,7 @@ public class BookScrabbleHandler implements ClientHandler{
 
     private boolean stop;
 
-    public BookScrabbleHandler(){
+    public BookScrabbleHandler(){ // Need to get names of books
         this.dm = DictionaryManager.get();
         fileNames = new String[books.getBooks().length+1];
         for(int i=0; i<books.getBooks().length;i++)

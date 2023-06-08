@@ -19,7 +19,7 @@ public class GuestModelTest {
         s = new MyServer(8887, bsh);
         s.start();
         Thread.sleep(3000);
-        host = new HostModel("Host", "localhost", 8887);
+        host = new HostModel("Host");
         host.startGame();
         // maybe guest needs a different ip ?
         g1 = new GuestModel("John","localhost", 5556);
@@ -88,26 +88,6 @@ public class GuestModelTest {
         System.out.println("---------------End of test get tiles---------------");
     }
 
-//     public void testWaitForTurn(){
-//        try {
-//            int countOfThreads = Thread.activeCount();
-//            Thread t = new Thread(()->{
-//                try {
-//                    g1.waitForTurn();
-//                } catch (IOException | InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            });
-//            t.start();
-//            Thread.sleep(2000);
-//            if(countOfThreads+1!=Thread.activeCount()){
-//                System.out.println("wait for turn - error");
-//            }
-//
-//            System.out.println("---------------End of test wait for turn---------------");
-//        } catch (InterruptedException e) {}
-//     }
-
     public void testNextTurn() throws IOException, InterruptedException {
         int countOfThreads = Thread.activeCount();
         if(g1.isMyTurn()){
@@ -140,7 +120,7 @@ public class GuestModelTest {
         test.testGetNewPlayerTiles();
         test.testGetBoard();
         test.testNextTurn();
-        //test.host.closeClient();
+        test.host.closeClient();
         bsh.close();
         s.close();
 

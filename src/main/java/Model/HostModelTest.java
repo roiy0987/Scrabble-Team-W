@@ -3,12 +3,9 @@ package Model;
 import test.Board;
 import test.BookScrabbleHandler;
 import test.MyServer;
-import test.Tile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HostModelTest {
 
@@ -21,7 +18,7 @@ public class HostModelTest {
         s = new MyServer(8887,bsh);
         s.start();
         Thread.sleep(4000);
-        host = new HostModel("Host", "localhost", 8887);
+        host = new HostModel("Host");
     }
 
     public void testStartGame() throws IOException, ClassNotFoundException {
@@ -115,7 +112,7 @@ public class HostModelTest {
         test.testNextTurn();
         test.bsh.close();
         Thread.sleep(2000);
-        //test.host.closeClient();
+        test.host.closeClient();
         Thread.sleep(2000);
         test.s.close();
 
