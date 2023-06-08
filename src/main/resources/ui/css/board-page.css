@@ -1,0 +1,37 @@
+
+.mainContainer{
+    -fx-background-image: url("../images/123.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+.list-view{
+    -fx-background-color: transparent;
+}
+
+.list-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.list-cell:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+.list-cell {
+    -fx-font-size: 25px;
+    -fx-text-fill: black; /* Set the text color to red */
+    -fx-background-color: transparent;
+    -fx-alignment: center;
+}
+
+.grid-pane {
+    -fx-background-color: lightblue;
+
+}
+
+

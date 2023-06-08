@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="mainContainer" maxHeight="1080.0" maxWidth="1920.0" minHeight="1080.0" minWidth="1920.0" prefHeight="1080.0" prefWidth="1920.0" styleClass="gameButtons" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainPageController">
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="560.0" prefHeight="1004.0" prefWidth="800.0">
+         <children>
+            <ImageView fitHeight="379.0" fitWidth="800.0">
+               <image>
+                  <Image url="@../images/Scrabble-Logo.png" />
+               </image>
+            </ImageView>
+            <HBox alignment="CENTER" prefHeight="157.0" prefWidth="800.0">
+               <children>
+                  <VBox prefHeight="158.0" prefWidth="196.0">
+                     <children>
+                        <Label styleClass="nickname" text="NICKNAME:" />
+                        <Label prefHeight="86.0" prefWidth="106.0" styleClass="nickname" text="IP:" />
+                        <Label styleClass="nickname" text="PORT:" />
+                     </children>
+                     <opaqueInsets>
+                        <Insets right="10.0" />
+                     </opaqueInsets>
+                     <HBox.margin>
+                        <Insets left="75.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox prefHeight="158.0" prefWidth="331.0" spacing="21.0">
+                     <children>
+                        <TextField fx:id="nickname" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="42.0" prefWidth="326.0" styleClass="nickname" text="NICKNAME">
+                           <font>
+                              <Font name="Stencil" size="48.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets bottom="20.0" />
+                           </opaqueInsets>
+                        </TextField>
+                        <TextField fx:id="ip" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="36.0" prefWidth="326.0" styleClass="nickname" text="localhost">
+                           <font>
+                              <Font name="Stencil" size="48.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets bottom="50.0" top="50.0" />
+                           </opaqueInsets>
+                        </TextField>
+                        <TextField fx:id="port" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="36.0" prefWidth="326.0" styleClass="nickname">
+                           <font>
+                              <Font name="Stencil" size="48.0" />
+                           </font>
+                        </TextField>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox fx:id="buttonHbox" alignment="CENTER" prefHeight="100.0" prefWidth="693.0">
+               <children>
+                  <Button fx:id="join" mnemonicParsing="false" onAction="#joinGame" prefHeight="47.0" prefWidth="142.0" styleClass="gameButtons" text="JOIN">
+                     <font>
+                        <Font name="Stencil" size="8.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="hostGAME" mnemonicParsing="false" onAction="#hostGame" prefHeight="46.0" prefWidth="145.0" styleClass="gameButtons" text="HOST" />
+                  <Button fx:id="editButton" mnemonicParsing="false" onAction="#editParameters" prefHeight="46.0" prefWidth="142.0" styleClass="gameButtons" text="EDIT">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></Button>
+               </children>
+            </HBox>
+            <DialogPane fx:id="dialog" />
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
