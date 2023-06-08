@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 
 public class View {
     boolean host;
@@ -71,7 +70,7 @@ public class View {
 
     private void buildBoardScene() throws IOException {
         FXMLLoader fxmlLoader = null;
-        String fxmlPath = "src/main/resources/ui/fxml/game-page.fxml";
+        String fxmlPath = "src/main/resources/ui/fxml/board-page.fxml";
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         fxmlLoader.setController(this);
       
@@ -165,7 +164,7 @@ public class View {
         FXMLLoader fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         fxmlLoader.setController(this);
         this.mainPage = new Scene(fxmlLoader.load());
-        this.mainPage.getStylesheets().add(getClass().getResource("/ui/css/main-page-style.css").toExternalForm());
+        this.mainPage.getStylesheets().add(getClass().getResource("/ui/css/main-page.css").toExternalForm());
     }
 
     public void hostGame() throws IOException {
@@ -194,6 +193,5 @@ public class View {
             port.setEditable(false);
             editButton.setText("EDIT");
         }
-
     }
 }

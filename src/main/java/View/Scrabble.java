@@ -38,7 +38,7 @@ public class Scrabble extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader fxmlLoader = null;
-        String fxmlPath = "src/main/resources/ui/fxml/game-page.fxml";
+        String fxmlPath = "src/main/resources/ui/fxml/board-page.fxml";
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         Scene scene = new Scene(fxmlLoader.load(), Screen.getPrimary().getVisualBounds().getWidth(), Screen.getPrimary().getVisualBounds().getHeight());
         scene.getStylesheets().add(getClass().getResource("/ui/css/board-page.css").toExternalForm());

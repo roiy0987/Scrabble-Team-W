@@ -212,6 +212,7 @@ public class ScrabbleViewModel implements Observer {
             String score= model.getScore();
             String[] scoreSplit = score.split("\n");
             scores.addAll(Arrays.asList(scoreSplit));
+            System.out.println(score);
             return scores;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -232,10 +233,6 @@ public class ScrabbleViewModel implements Observer {
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public ArrayList<Character> getTiles(){
-        return this.tiles;
     }
 }
 

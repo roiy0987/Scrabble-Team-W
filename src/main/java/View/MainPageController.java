@@ -4,10 +4,17 @@ import Model.GuestModel;
 import Model.HostModel;
 import ViewModel.ScrabbleViewModel;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 public class MainPageController {
 
@@ -25,31 +32,75 @@ public class MainPageController {
 
     private TextField textField;
 
+    private boolean isHost = false;
+
+    Stage stage;
 
 
     public void joinGame() throws IOException {
         System.out.println("Join clicked!");
         System.out.println(Integer.parseInt(port.getText()));
+        GuestModel guest = null;
         try{
-            GuestModel guest = new GuestModel(nickname.toString(), ip.getText(), Integer.parseInt(port.getText()));
+            guest = new GuestModel(nickname.getText(), ip.getText(), Integer.parseInt(port.getText()));
         }catch (IOException e){
             e.printStackTrace();
             dialog.setContentText("ERROR in connecting to server. Check ip and port! #!");
         }
-
-//        vm = new ScrabbleViewModel(nickname,ip, port, false);
-        // Perform your desired actions here
+        if(guest!=null){
+            vm = new ScrabbleViewModel(guest);
+            this.setNextScene();
+        }
     }
 
     public void hostGame() throws IOException {
         System.out.println("Host clicked!");
+        HostModel host = null;
         try{
-            HostModel host = new HostModel(nickname.toString(),"localhost",Integer.parseInt(port.getText()));
+            host = new HostModel(nickname.getText(),"localhost",Integer.parseInt(port.getText()));
         }catch (IOException e){
             e.printStackTrace();
             dialog.setContentText("ERROR in connecting to server. Check ip and port! #2");
         }
-//        vm = new ScrabbleViewModel(nickname,"localhost", 8889, true);
+        if(host!=null){
+            vm = new ScrabbleViewModel(host);
+            isHost = true;
+            this.setNextScene();
+        }
+    }
+
+    public void editParameters() {
+        dialog.setContentText("");
+        if(editButton.getText().equals("EDIT")){
+            System.out.println("Edit nickname clicked! "+ nickname.getText());
+            nickname.setEditable(true);
+            ip.setEditable(true);
+            port.setEditable(true);
+            editButton.setText("SAVE");
+        }else {
+            System.out.println("Save nickname clicked! "+ nickname.getText());
+            nickname.setEditable(false);
+            ip.setEditable(false);
+            port.setEditable(false);
+            editButton.setText("EDIT");
+        }
+    }
+
+    public void setPage(Stage stage){
+        this.stage = stage;
+    }
+
+    private void setNextScene() throws IOException {
+        FXMLLoader fxmlLoader = null;
+        String fxmlPath = "src/main/resources/ui/fxml/loading-page.fxml";
+        fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
+        Scene scene = new Scene(fxmlLoader.load(), Screen.getPrimary().getVisualBounds().getWidth(), Screen.getPrimary().getVisualBounds().getHeight());
+        stage.setScene(scene);
+        WaitingPageController wp = fxmlLoader.getController();
+        wp.setIsHost(isHost);
+        wp.setViewModel(vm);
+        wp.setStage(stage);
+
     }
 
 
