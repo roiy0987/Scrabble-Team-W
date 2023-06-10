@@ -13,15 +13,15 @@ import java.util.concurrent.TimeUnit;
 public class MyServer {
     private ClientHandler ch;
     private int port;
-    private boolean gameStarted;
+    private boolean stop;
     private ServerSocket server;
     private ExecutorService threadPool;
 
     public MyServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
-        gameStarted = false;
-        threadPool = Executors.newFixedThreadPool(3); // Set maximum of 3 threads in the pool
+        stop = false;
+        threadPool = Executors.newCachedThreadPool(); // Set maximum of 3 threads in the pool
     }
 
     public void start() {
@@ -32,7 +32,7 @@ public class MyServer {
         try {
             server = new ServerSocket(this.port);
             server.setSoTimeout(1000);
-            while (!gameStarted) {
+            while (!stop) {
                 try {
                     Socket client = server.accept();
                     threadPool.execute(() -> {
@@ -55,8 +55,8 @@ public class MyServer {
     }
 
     public void close() throws InterruptedException {
-        gameStarted = true;
-        Thread.sleep(3000);
+        stop = true;
+        //Thread.sleep(3000);
         try {
             threadPool.shutdown();
             threadPool.awaitTermination(3,TimeUnit.SECONDS);

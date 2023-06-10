@@ -177,7 +177,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     @Override
     public void nextTurn() throws IOException, InterruptedException {
         //TODO
-        Thread.sleep(3000);
+        //Thread.sleep(3000);
         numberOfPasses++;
         this.turnCounter++;
         if (this.turnCounter >= this.players.size()) {
@@ -197,9 +197,9 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             }
             //finishGame
             this.closeClient(); // need to test
-            Thread.sleep(4000);
+           // Thread.sleep(4000);
             hh.close();
-            Thread.sleep(2000);
+           // Thread.sleep(2000);
             guestServer.close();
             return;
         }

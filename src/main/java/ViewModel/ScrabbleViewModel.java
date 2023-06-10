@@ -26,6 +26,8 @@ public class ScrabbleViewModel implements Observer {
         scores = new SimpleListProperty<>(FXCollections.observableArrayList());
         tiles=new SimpleListProperty<>(FXCollections.observableArrayList());
         boardProperty = new SimpleObjectProperty<>();
+        myTurn= new SimpleBooleanProperty();
+        gameOver = new SimpleBooleanProperty();
     }
     public ListProperty<Character> getTiles(){
         return tiles;
