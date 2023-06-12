@@ -16,26 +16,34 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     private String playerName;
     private boolean myTurn;
     private boolean gameOver;
+    boolean gameStarted;
 
     public GuestModel(String name, String ip, int port) throws IOException {
         this.playerName = name;
+        gameStarted=false;
         server = new Socket(ip, port);
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
         bw.write("Connect:" + name + "\n");
         bw.flush();
         String st = br.readLine();
-        System.out.println(st);
+        System.out.println(name + " Connected!");
         myTurn = false;
         gameOver=false;
-        new Thread(()-> {
-            try {
-                this.waitForTurn();
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
+        new Thread(this::waitForGameStart).start();
         // Connect to server with name and socket for blabla
+    }
+    public void waitForGameStart(){
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
+            String res = br.readLine();// Wait for game to start
+            this.setChanged();
+            this.notifyObservers();
+            this.waitForTurn();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override

@@ -17,7 +17,6 @@ public class HostModelTest {
         bsh = new BookScrabbleHandler();
         s = new MyServer(8887,bsh);
         s.start();
-        Thread.sleep(4000);
         host = new HostModel("Host");
     }
 
@@ -111,9 +110,7 @@ public class HostModelTest {
         test.testGetNewPlayerTiles();
         test.testNextTurn();
         test.bsh.close();
-        Thread.sleep(2000);
         test.host.closeClient();
-        Thread.sleep(2000);
         test.s.close();
 
     }

@@ -54,6 +54,17 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
+        for(int i=0;i<this.players.size();i++){
+            if(players.get(i).name.equals(this.name))
+                continue;
+            this.sendMessage("GameStarted", players.get(i));
+        }
+        //Thread sleep
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         if (players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
             this.setChanged();
@@ -177,7 +188,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     @Override
     public void nextTurn() throws IOException, InterruptedException {
         //TODO
-        //Thread.sleep(3000);
         numberOfPasses++;
         this.turnCounter++;
         if (this.turnCounter >= this.players.size()) {
@@ -197,9 +207,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             }
             //finishGame
             this.closeClient(); // need to test
-           // Thread.sleep(4000);
             hh.close();
-           // Thread.sleep(2000);
             guestServer.close();
             return;
         }

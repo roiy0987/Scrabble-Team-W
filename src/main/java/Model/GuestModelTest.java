@@ -18,7 +18,7 @@ public class GuestModelTest {
         bsh = new BookScrabbleHandler();
         s = new MyServer(8887, bsh);
         s.start();
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         host = new HostModel("Host");
         host.startGame();
         // maybe guest needs a different ip ?
@@ -27,20 +27,23 @@ public class GuestModelTest {
     }
     
 
-    public void testSubmitWord() throws IOException, InterruptedException {
+    public void testSubmitWord() throws IOException, InterruptedException, ClassNotFoundException {
         if(!g1.isMyTurn()) {
             host.nextTurn();
             Thread.sleep(2000);
         }
+        if(!g1.isMyTurn()){
+            System.out.println("Error in nextTurn");
+        }
         if(!g1.submitWord("HORN",7,5, false))
             System.out.println("Error in submit word #1");
-        if(g1.submitWord("SDF",7,7, false))
+        if(host.submitWord("SDF",7,7, false))
             System.out.println("Error in submit word #2");
-        if(!g1.submitWord("FA_M",5,7, true))
+        if(!host.submitWord("FA_M",5,7, true))
             System.out.println("Error in submit word #3");
         if(!g1.submitWord("PASTE",9,5,false))
             System.out.println("Error in submit word #4");
-        if(!g1.submitWord("_OB",8,7, false))
+        if(!host.submitWord("_OB",8,7, false))
             System.out.println("Error in submit word #5");
         if(!g1.submitWord("BIT",10,4, false))
             System.out.println("Error in submit word #6");
@@ -93,7 +96,7 @@ public class GuestModelTest {
         if(g1.isMyTurn()){
             System.out.println("g1 turn");
             g1.nextTurn();
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             if(countOfThreads+1!=Thread.activeCount()){
                System.out.println("wait for turn - error");
             }
@@ -101,12 +104,12 @@ public class GuestModelTest {
         if(g1.isMyTurn())
             System.out.println("Error in test next turn");
         host.nextTurn();
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         if(countOfThreads!=Thread.activeCount()){
             System.out.println("wait for turn - error");
         }
         g1.nextTurn();
-        Thread.sleep(5000);
+        Thread.sleep(3000);
         if(!g1.getGameOver())
             System.out.println("Error in game over");
         System.out.println("---------------End of test next turn---------------");
@@ -115,6 +118,7 @@ public class GuestModelTest {
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         GuestModelTest test = new GuestModelTest();
         test.init();
+        test.host.startGame();
         test.testSubmitWord();
         test.testGetScore();
         test.testGetNewPlayerTiles();

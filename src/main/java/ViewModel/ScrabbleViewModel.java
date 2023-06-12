@@ -24,7 +24,7 @@ public class ScrabbleViewModel implements Observer {
         model = m;
         m.addObserver(this);
         scores = new SimpleListProperty<>(FXCollections.observableArrayList());
-        tiles=new SimpleListProperty<>(FXCollections.observableArrayList());
+        tiles=null;
         boardProperty = new SimpleObjectProperty<>();
         myTurn= new SimpleBooleanProperty();
         gameOver = new SimpleBooleanProperty();
@@ -38,6 +38,8 @@ public class ScrabbleViewModel implements Observer {
     }
     public void startGame() {
         try {
+            if(tiles==null)
+                tiles=new SimpleListProperty<>(FXCollections.observableArrayList());
             tiles.setAll(model.startGame());
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -100,8 +102,7 @@ public class ScrabbleViewModel implements Observer {
         sb.append(this.getDownWord(row,col));
         return sb.toString();
     }
-
-
+    
     private String getDirectionOfWord(int row,int col){
         if(row!=0&&boardProperty.get()[row-1][col]!='\u0000'){
             return "up";
@@ -221,6 +222,10 @@ public class ScrabbleViewModel implements Observer {
         try {
             boardProperty.set(model.getBoard());
             scores.set(getScores());
+            if(tiles==null){
+                tiles=new SimpleListProperty<>(FXCollections.observableArrayList());
+                this.startGame();
+            }
             if(model.isMyTurn()){
                 myTurn.set(true);
             }
