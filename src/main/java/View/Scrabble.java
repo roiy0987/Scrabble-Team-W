@@ -11,12 +11,15 @@ import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import java.io.File;
@@ -44,7 +47,7 @@ public class Scrabble extends Application {
         scene.getStylesheets().add(getClass().getResource("/ui/css/board-page.css").toExternalForm());
 
         // Game Board
-        GridPane board = (GridPane) fxmlLoader.getNamespace().get("grid");
+        GridPane board = (GridPane) fxmlLoader.getNamespace().get("board");
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 // TileView is a custom class representing a tile on the game board.
@@ -88,16 +91,30 @@ public class Scrabble extends Application {
 
         playerTiles.setOnDragDetected(event -> {
             selectedIndex = playerTiles.getSelectionModel().getSelectedIndex();
-            if (playerTiles.getSelectionModel().getSelectedItem() != null) {
+            Character selectedTile = playerTiles.getSelectionModel().getSelectedItem();
+            if (selectedTile != null) {
                 System.out.println(selectedIndex);
                 Dragboard dragboard = playerTiles.startDragAndDrop(TransferMode.MOVE);
                 ClipboardContent content = new ClipboardContent();
-                content.putString(String.valueOf(playerTiles.getSelectionModel().getSelectedItem()));
+                content.putString(String.valueOf(selectedTile));
                 dragboard.setContent(content);
                 System.out.println("#1");
+
+                // Create a new Label to hold the selected item only
+                Label tmpLabel = new Label(String.valueOf(selectedTile));
+                // Style your label here to match your ListView's cell, if necessary
+
+                // add a ghost image that moves with the mouse
+                SnapshotParameters snapshotParams = new SnapshotParameters();
+                snapshotParams.setFill(Color.TRANSPARENT);
+
+                // Take a snapshot of the temporary Label
+                ImageView imageView = new ImageView(tmpLabel.snapshot(snapshotParams, null));
+                dragboard.setDragView(imageView.getImage());
             }
             event.consume();
         });
+
 
         board.setOnDragOver(event -> {
             if (event.getGestureSource() != board && event.getDragboard().hasString()) {
@@ -130,8 +147,9 @@ public class Scrabble extends Application {
                 }
             }
             event.setDropCompleted(success);
-//            event.consume();
+            event.consume();
         });
+
 
         ListView<Object> scoreboard = (ListView) fxmlLoader.getNamespace().get("score");
         ObservableList<Object> scores = FXCollections.observableArrayList();
