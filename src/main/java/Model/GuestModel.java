@@ -6,13 +6,8 @@ import ViewModel.ScrabbleViewModel;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
-import java.util.Scanner;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
-import static java.lang.Integer.parseInt;
 
 //model
 public class GuestModel extends Observable implements ScrabbleModelFacade {
@@ -21,33 +16,39 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     private String playerName;
     private boolean myTurn;
     private boolean gameOver;
+    boolean gameStarted;
 
     public GuestModel(String name, String ip, int port) throws IOException {
         this.playerName = name;
+        gameStarted=false;
         server = new Socket(ip, port);
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
         bw.write("Connect:" + name + "\n");
         bw.flush();
         String st = br.readLine();
-        System.out.println(st);
+        System.out.println(name + " Connected!");
         myTurn = false;
         gameOver=false;
-        new Thread(()-> {
-            try {
-                this.waitForTurn();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
+        new Thread(this::waitForGameStart).start();
         // Connect to server with name and socket for blabla
+    }
+    public void waitForGameStart(){
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
+            String res = br.readLine();// Wait for game to start
+            this.setChanged();
+            this.notifyObservers();
+            this.waitForTurn();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public void addObserver(ScrabbleViewModel vm) {
-        addObserver(vm);
+        super.addObserver(vm);
     }
     @Override
     public boolean isMyTurn() {
@@ -57,8 +58,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     public boolean isGameOver(){
         return gameOver;
     }
-
-
     public void waitForTurn() throws IOException, InterruptedException {
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
         while(!myTurn||!gameOver){
@@ -110,7 +109,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         out.flush();
         String response;
         response= in.readLine();
-
         return response.startsWith("true");
     }
 
@@ -120,7 +118,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
         out.write("GetScore:\n");
         out.flush();
-
         String res = in.readLine();
         return res;
         /*
@@ -135,12 +132,10 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     public char[][] getBoard() throws IOException, ClassNotFoundException {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
         BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
-        //BufferedReader bufferedInputStream = new BufferedReader(new BufferedInputStream(server.getInputStream()));
         out.write("GetBoard\n");
         out.flush();
         String responseFromHandler = in.readLine();
         String[] lines = responseFromHandler.split(";");
-
         char[][] responseToClient = new char[15][15];
         for (int i = 0; i < responseToClient.length; i++) {
             String[] line = lines[i].split(":");
