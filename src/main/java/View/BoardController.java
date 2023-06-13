@@ -52,9 +52,12 @@ public class BoardController {
 
     public void setViewModel(ScrabbleViewModel vm) {
         this.vm = vm;
+    }
+    
+    public void initWindow(){
         score.itemsProperty().bind(vm.getScores());
         tiles = new SimpleListProperty<>(FXCollections.observableArrayList());
-        tiles.bindBidirectional(vm.getTiles());
+        tiles.bindBidirectional(vm.getTiles());// I think this should not be here
         bindingBoard = new SimpleObjectProperty<>();
         bindingBoard.bindBidirectional(vm.getBoard());
 
@@ -351,11 +354,6 @@ public class BoardController {
                 setEffect(null);
                 event.consume();
             });
-
-
-
-
-
         }
         public void setTargetCell(Cell cell) {
             this.targetCell = cell;

@@ -1,25 +1,25 @@
 package ViewModel;
 
-import Model.GuestModel;
+
 import Model.HostModel;
 import Model.ScrabbleModelFacade;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ListView;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.Observer;
 
 
 //Controller
-public class ScrabbleViewModel implements Observer {
+public class ScrabbleViewModel extends Observable implements Observer {
     private ObjectProperty<char[][]> boardProperty;// data binding
     private ListProperty<Character> tiles; // data binding
     private ListProperty<String> scores; // data binding
     private ScrabbleModelFacade model;
     public BooleanProperty myTurn; // data binding
     public BooleanProperty gameOver; // data binding
+    private boolean gameStarted;
+
 
 
     public ScrabbleViewModel(ScrabbleModelFacade m) throws IOException {
@@ -28,26 +28,9 @@ public class ScrabbleViewModel implements Observer {
         scores = new SimpleListProperty<>(FXCollections.observableArrayList());
         tiles=new SimpleListProperty<>(FXCollections.observableArrayList());
         boardProperty = new SimpleObjectProperty<>();
-        char[][] boardData = new char[15][15]; // Create a new board data array
-
-// Set the board data to null characters
-        for (int row = 0; row < 15; row++) {
-            for (int col = 0; col < 15; col++) {
-                boardData[row][col] = '\u0000';
-            }
-        }
-
-// Place the word "Scrabble" vertically starting at (7, 7)
-        String word = "Scrabble";
-        int wordLength = word.length();
-
-        for (int i = 0; i < wordLength; i++) {
-            boardData[3 + i][7] = word.charAt(i);
-        }
-
-// Set the boardProperty to the updated board data
-        boardProperty.set(boardData);
-
+        myTurn= new SimpleBooleanProperty();
+        gameOver = new SimpleBooleanProperty();
+        gameStarted=false;
     }
     public ListProperty<Character> getTiles(){
         return tiles;
@@ -58,6 +41,9 @@ public class ScrabbleViewModel implements Observer {
     }
     public void startGame() {
         try {
+            gameStarted=true;
+            if(tiles.size()==7)
+                return;
             tiles.setAll(model.startGame());
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -94,7 +80,7 @@ public class ScrabbleViewModel implements Observer {
             }
             col--;
         }
-        sb.append(col+":");
+        sb.append(col).append(":");
         while(col!=originalCol){
             sb.append(boardProperty.get()[row][col]);
             col++;
@@ -112,7 +98,7 @@ public class ScrabbleViewModel implements Observer {
             }
             row--;
         }
-        sb.append(row+":");
+        sb.append(row).append(":");
         while(row!=originalRow){
             sb.append(boardProperty.get()[row][col]);
             row++;
@@ -120,7 +106,6 @@ public class ScrabbleViewModel implements Observer {
         sb.append(this.getDownWord(row,col));
         return sb.toString();
     }
-
 
     private String getDirectionOfWord(int row,int col){
         if(row!=0&&boardProperty.get()[row-1][col]!='\u0000'){
@@ -141,9 +126,7 @@ public class ScrabbleViewModel implements Observer {
         char[][] currentBoard;
         try {
             currentBoard = model.getBoard();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         StringBuilder sb = new StringBuilder();
@@ -173,7 +156,7 @@ public class ScrabbleViewModel implements Observer {
                 sb.append(getRightWord(firstTileSubmittedRow,firstTileSubmittedCol)).append(":")
                         .append(firstTileSubmittedRow).append(":")
                         .append(firstTileSubmittedCol).append(":")
-                        .append("true");
+                        .append("false");
                 break;
             case "left":
                 splittedAnswer = getLeftWord(firstTileSubmittedRow,firstTileSubmittedCol).split(":"); // Col:Word
@@ -227,12 +210,15 @@ public class ScrabbleViewModel implements Observer {
         }
     }
 
+
     public ListProperty<String> getScores()  {
         try {
+            System.out.println("getScore invoked");
             String score= model.getScore();
             String[] scoreSplit = score.split("\n");
-            scores.addAll(Arrays.asList(scoreSplit));
             System.out.println(score);
+            scores.clear();
+            scores.addAll(Arrays.asList(scoreSplit));
             return scores;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -242,17 +228,38 @@ public class ScrabbleViewModel implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
+            // Before startGame WaitForPlayers -> player connected -> update ScoreList in host
+            // Guest -> startGame
+
+            if(!gameStarted&&!model.isGameStarted())
+            {
+                //Host
+                this.getScores();
+                return;
+            }
+            if(!gameStarted&&model.isGameStarted()){
+                //Guest
+                super.setChanged();
+                super.notifyObservers();
+                this.startGame();
+
+                boardProperty.set(model.getBoard());
+                this.getScores();
+
+                return;
+            }
             boardProperty.set(model.getBoard());
-            scores.set(getScores());
+            this.getScores();
             if(model.isMyTurn()){
                 myTurn.set(true);
             }
             if(model.isGameOver()){
-                gameOver.set(true);
+               gameOver.set(true);
             }
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
+
 }
 

@@ -33,12 +33,18 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         new Thread(this::waitForGameStart).start();
         // Connect to server with name and socket for blabla
     }
+    @Override
+    public boolean isGameStarted(){
+        return gameStarted;
+    }
     public void waitForGameStart(){
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
             String res = br.readLine();// Wait for game to start
+            gameStarted=true;
             this.setChanged();
             this.notifyObservers();
+            Thread.sleep(2000);
             this.waitForTurn();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);

@@ -19,10 +19,12 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     private int turnCounter;
     private int numberOfPasses;
     protected boolean myTurn;
+    public boolean gameStarted;
     //need to add the ability to play with more than 1 host
     public HostModel(String name) throws IOException {
         this.name = name;
         bagIsEmpty = false;
+        gameStarted=false;
         gameOver = false;
         hh = new HostHandler(this);
         guestServer = new MyServer(5556, hh);
@@ -33,7 +35,10 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         numberOfPasses = 0;
         round = 0;
     }
-
+    @Override
+    public boolean isGameStarted(){
+        return gameStarted;
+    }
 
     @Override
     public boolean isMyTurn() {
@@ -49,11 +54,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         super.addObserver(vm);
     }
 
+
+
     // returns hosts tiles for guest sends appropriate message
     @Override
     public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
+        gameStarted=true;
         for(int i=0;i<this.players.size();i++){
             if(players.get(i).name.equals(this.name))
                 continue;
@@ -98,6 +106,11 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         // ViewModel should demand next turn, getBoard, getScore
         numberOfPasses = -1;
         return true;
+    }
+
+    public void notifyObservers1(){
+        this.setChanged();
+        this.notifyObservers();
     }
 
     private void notifyAllPlayers() throws IOException {

@@ -16,8 +16,10 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
-public class WaitingPageController {
+public class WaitingPageController implements Observer {
 
     @FXML
     ListView playersList;
@@ -37,17 +39,10 @@ public class WaitingPageController {
 
     public void setViewModel(ScrabbleViewModel vm){
         this.vm = vm;
-        // Apply changes to the data in the list (e.g., split inner string and modify values)
-//        for (String item : originalList) {
-//            String[] parts = item.split(":"); // Split the inner string
-//            modifiedList.add(parts[0]);
-//        }
-        // Set the modified list to the items property of the ListView
+        vm.addObserver(this);
         playersList.getItems().clear();
         playersList.itemsProperty().bind(vm.getScores());
         System.out.println(vm.getScores());
-
-        System.out.println();
         if(!host){
             startGame.setStyle("-fx-opacity:0");
         }
@@ -59,16 +54,27 @@ public class WaitingPageController {
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         Scene scene = new Scene(fxmlLoader.load());
         scene.getStylesheets().add(getClass().getResource("/ui/css/board-page.css").toExternalForm());
+        vm.startGame();
+        BoardController bc = fxmlLoader.getController();
+        bc.setViewModel(vm);
+        bc.initWindow();
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-        BoardController bc = fxmlLoader.getController();
-        bc.setViewModel(vm);
     }
 
     public void setIsHost(boolean isHost){
         this.host = isHost;
+
     }
 
-
+    @Override
+    public void update(Observable o, Object arg) {
+        try {
+            System.out.println("123");
+            this.startGame();
+        } catch (IOException e) {
+            System.out.println("123");
+        }
+    }
 }
