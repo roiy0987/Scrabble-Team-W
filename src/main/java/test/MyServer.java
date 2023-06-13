@@ -56,7 +56,6 @@ public class MyServer {
 
     public void close() throws InterruptedException {
         stop = true;
-        //Thread.sleep(3000);
         try {
             threadPool.shutdown();
             threadPool.awaitTermination(3,TimeUnit.SECONDS);

@@ -66,6 +66,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 case "Update":
                     this.setChanged();
                     this.notifyObservers();
+                    Thread.sleep(2000);
                     break;
                 case "GameOver":
                     gameOver=true;
