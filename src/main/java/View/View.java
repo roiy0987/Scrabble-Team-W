@@ -169,7 +169,7 @@ public class View {
 
     public void hostGame() throws IOException {
         System.out.println("HOST");
-        this.vm = new ScrabbleViewModel(new HostModel(nickname.toString(),"localhost",Integer.parseInt(port.toString())));
+        this.vm = new ScrabbleViewModel(new HostModel(nickname.toString()));
         this.stage.setScene(this.boardPageScene);
     }
 

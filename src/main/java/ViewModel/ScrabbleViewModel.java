@@ -209,8 +209,10 @@ public class ScrabbleViewModel implements Observer {
     public ListProperty<String> getScores()  {
         try {
             String score= model.getScore();
+            System.out.println(score);
             String[] scoreSplit = score.split("\n");
-            scores.addAll(Arrays.asList(scoreSplit));
+            if(scoreSplit.length != scores.size())
+                scores.addAll(Arrays.asList(scoreSplit));
             System.out.println(score);
             return scores;
         } catch (IOException e) {
@@ -222,7 +224,7 @@ public class ScrabbleViewModel implements Observer {
     public void update(Observable o, Object arg) {
         try {
             boardProperty.set(model.getBoard());
-            scores.set(getScores());
+            getScores();
             if(tiles==null){
                 tiles=new SimpleListProperty<>(FXCollections.observableArrayList());
                 this.startGame();

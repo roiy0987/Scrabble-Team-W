@@ -47,6 +47,7 @@ public class MainPageController {
             dialog.setContentText("ERROR in connecting to server. Check ip and port! #!");
         }
         if(guest!=null){
+            System.out.println("11111");
             vm = new ScrabbleViewModel(guest);
             this.setNextScene();
         }
@@ -56,7 +57,7 @@ public class MainPageController {
         System.out.println("Host clicked!");
         HostModel host = null;
         try{
-            host = new HostModel(nickname.getText(),"localhost",Integer.parseInt(port.getText()));
+            host = new HostModel(nickname.getText());
         }catch (IOException e){
             e.printStackTrace();
             dialog.setContentText("ERROR in connecting to server. Check ip and port! #2");

@@ -2,6 +2,7 @@ package View;
 
 import ViewModel.ScrabbleViewModel;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -36,17 +37,15 @@ public class WaitingPageController {
 
     public void setViewModel(ScrabbleViewModel vm){
         this.vm = vm;
-        // Retrieve the list property from the ViewModel
-        ObservableList<String> originalList = vm.getScores();
-        // Create a new ObservableList to store the modified data
-        ObservableList<String> modifiedList = FXCollections.observableArrayList();
         // Apply changes to the data in the list (e.g., split inner string and modify values)
-        for (String item : originalList) {
-            String[] parts = item.split(":"); // Split the inner string
-            modifiedList.add(parts[0]);
-        }
+//        for (String item : originalList) {
+//            String[] parts = item.split(":"); // Split the inner string
+//            modifiedList.add(parts[0]);
+//        }
         // Set the modified list to the items property of the ListView
-        playersList.setItems(modifiedList);
+        playersList.getItems().clear();
+        playersList.itemsProperty().bind(vm.getScores());
+        System.out.println(vm.getScores());
 
         System.out.println();
         if(!host){

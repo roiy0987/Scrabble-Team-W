@@ -53,7 +53,7 @@ public class Scrabble extends Application {
                 Label tile = new Label();
                 tile.setMinWidth(40);
                 tile.setMinHeight(40);
-
+                tile.setText("a");
                 board.add(tile,i,j);
                 GridPane.setHalignment(tile, HPos.CENTER);
                 GridPane.setValignment(tile, VPos.CENTER);
