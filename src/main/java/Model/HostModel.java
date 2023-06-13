@@ -4,14 +4,12 @@ import ViewModel.ScrabbleViewModel;
 import test.*;
 
 import java.io.*;
-import java.net.Socket;
 import java.util.*;
 
 public class HostModel extends Observable implements ScrabbleModelFacade {
-    //MyServer dictionaryServer;
     private MyServer guestServer;
     private HostHandler hh;
-    private Socket hostClient;
+
     protected Board board;
     protected List<Player> players;
     protected String name;
@@ -21,12 +19,11 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     private int turnCounter;
     private int numberOfPasses;
     protected boolean myTurn;
-
-    public HostModel(String name, String ip, int port) throws IOException {
+    //need to add the ability to play with more than 1 host
+    public HostModel(String name) throws IOException {
         this.name = name;
         bagIsEmpty = false;
         gameOver = false;
-        hostClient = new Socket(ip, port);
         hh = new HostHandler(this);
         guestServer = new MyServer(5556, hh);
         guestServer.start();
@@ -57,6 +54,17 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
+        for(int i=0;i<this.players.size();i++){
+            if(players.get(i).name.equals(this.name))
+                continue;
+            this.sendMessage("GameStarted", players.get(i));
+        }
+        //Thread sleep
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         if (players.get(0).name.equals(this.name)) { // if it's host turn
             myTurn = true;
             this.setChanged();
@@ -74,45 +82,9 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         bw.flush();
     }
 
-    private String wordToHandler(String word, int row, int col, boolean isVertical){
-        StringBuilder sb = new StringBuilder();
-        for(int i=0;i<word.length();i++){
-            if(word.charAt(i) == '_'){
-                if(isVertical)
-                    sb.append(board.getTiles()[row+i][col].letter);
-                else
-                    sb.append(board.getTiles()[row][col+i].letter);
-                continue;
-            }
-            sb.append(word.charAt(i));
-        }
-        return sb.toString();
-    }
-
     @Override
     public boolean submitWord(String word, int row, int col, boolean isVertical) throws IOException, ClassNotFoundException {
         Word submittedWord = stringToWord(word, row, col, isVertical);
-        if (!board.boardLegal(submittedWord))
-            return false;
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(hostClient.getOutputStream()));
-        BufferedReader br = new BufferedReader(new InputStreamReader(hostClient.getInputStream()));
-        bw.write(wordToHandler(word, row, col, isVertical) + "\n");
-        bw.flush();
-        String res = br.readLine();
-        if (res.equals("false")) {
-            return false;
-        }
-        ArrayList<Word> allWords = board.getWords(submittedWord);
-        String currentWord;
-        // To check all words that been created from the given word
-        for(int i=0;i<allWords.size();i++){
-            currentWord = wordToString(allWords.get(i));
-            bw.write(wordToHandler(currentWord, allWords.get(i).getRow(), allWords.get(i).getCol(), allWords.get(i).isVertical()) + "\n");
-            bw.flush();
-            res = br.readLine();
-            if(res.equals("false"))
-                return false;
-        }
         int score = board.tryPlaceWord(submittedWord);
         if (score == 0) {
             return false;
@@ -126,15 +98,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         // ViewModel should demand next turn, getBoard, getScore
         numberOfPasses = -1;
         return true;
-    }
-
-    private String wordToString(Word word){
-        StringBuilder sb = new StringBuilder();
-        for(int i =0; i< word.getTiles().length; i++)
-        {
-            sb.append(word.getTiles()[i].letter);
-        }
-        return sb.toString();
     }
 
     private void notifyAllPlayers() throws IOException {
@@ -160,7 +123,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score);
                 break;
             }
-            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append(";");
+            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append("\n");
         }
         return sb.toString(); // Arik:54'\n'Roie:45'\n'Tal:254
     }
@@ -193,6 +156,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     }
 
     private Word stringToWord(String word, int row, int col, boolean isVertical) {
+        System.out.println(word);
+        System.out.println(word.length());
         Tile[] t = new Tile[word.length()];
         for (int i = 0; i < word.length(); i++) {
             if (word.charAt(i) == '_') {
@@ -223,7 +188,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     @Override
     public void nextTurn() throws IOException, InterruptedException {
         //TODO
-        Thread.sleep(3000);
         numberOfPasses++;
         this.turnCounter++;
         if (this.turnCounter >= this.players.size()) {
@@ -243,9 +207,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             }
             //finishGame
             this.closeClient(); // need to test
-            Thread.sleep(4000);
             hh.close();
-            Thread.sleep(2000);
             guestServer.close();
             return;
         }
@@ -258,8 +220,9 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         myTurn = false;
         this.sendMessage("MyTurn", this.players.get(this.turnCounter));
     }
-    public void closeClient() throws IOException {
-        hostClient.close();
+    public void closeClient() {
+        DictionaryCommunication dc = DictionaryCommunication.getInstance();
+        dc.close();
     }
 
 

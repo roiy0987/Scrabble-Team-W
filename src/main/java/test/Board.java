@@ -117,6 +117,21 @@ public class Board {
         return isConnected;
     }
     public boolean dictionaryLegal(Word word){
+        DictionaryCommunication dc = DictionaryCommunication.getInstance();
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<word.getTiles().length;i++) {
+            if(word.getTiles()[i]==null){
+                if(word.isVertical()){
+                    sb.append(board.tiles[word.getRow()+i][word.getCol()].letter);
+                    continue;
+                }
+                sb.append(board.tiles[word.getRow()][word.getCol()+i].letter);
+                continue;
+            }
+            sb.append(word.getTiles()[i].letter);
+        }
+        if(!dc.checkIfWordValid(sb.toString()))
+            return false;
         return true;
     }
     public static Board getBoard(){
@@ -253,7 +268,7 @@ public class Board {
                     }
                 }
                 if(!isInListOfBoardWords){
-                    if(!dictionaryLegal(w))
+                    if(!dictionaryLegal(sendToDictionaryLegal(word,w)))
                         return null;
                     words.add(w);
                 }
@@ -261,6 +276,34 @@ public class Board {
             }
         }
         return words;
+    }
+    public Word sendToDictionaryLegal(Word submittedWord,Word wordToFinish){
+        Tile[] t = new Tile[wordToFinish.getTiles().length];
+        int row,col,firstRow,firstCol;
+        firstRow=wordToFinish.getRow();
+        firstCol=wordToFinish.getCol();
+        for(int i=0;i<t.length;i++){
+            if(wordToFinish.getTiles()[i]!=null){
+                t[i]=wordToFinish.getTiles()[i];
+                continue;
+            }
+            if(wordToFinish.isVertical()) {
+                if(i==0)firstRow=submittedWord.getRow();
+                row=submittedWord.getRow();
+                col= submittedWord.getCol();
+                while(row<wordToFinish.getRow()+i)row++;
+                while(col!=wordToFinish.getCol())col++;
+                t[i] = submittedWord.getTiles()[col-submittedWord.getCol()+row-submittedWord.getRow()];
+                continue;
+            }
+            if(i==0)firstCol=submittedWord.getCol();
+            row=submittedWord.getRow();
+            col= submittedWord.getCol();
+            while(col<wordToFinish.getCol()+i)col++;
+            while(row!=wordToFinish.getRow())row++;
+            t[i] = submittedWord.getTiles()[col-submittedWord.getCol()+row-submittedWord.getRow()];
+        }
+        return new Word(t,firstRow,firstCol,wordToFinish.isVertical());
     }
     public boolean isEqual(Word w1,Word w2){
         if(w1.getTiles().length!=w2.getTiles().length)
