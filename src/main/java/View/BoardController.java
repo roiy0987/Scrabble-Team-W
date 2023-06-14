@@ -55,6 +55,7 @@ public class BoardController {
     }
     
     public void initWindow(){
+        score.getItems().clear();
         score.itemsProperty().bind(vm.getScores());
         tiles = new SimpleListProperty<>(FXCollections.observableArrayList());
         tiles.bindBidirectional(vm.getTiles());// I think this should not be here

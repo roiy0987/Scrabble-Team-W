@@ -31,7 +31,7 @@ public class Main extends Application {
         MainPageController mp = fxmlLoader.getController();
         mp.setPage(stage);
         stage.setFullScreen(true);
-        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+//        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         stage.setScene(scene);
         stage.show();
     }

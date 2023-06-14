@@ -80,6 +80,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             return getNewPlayerTiles(7);
         }
         this.sendMessage("MyTurn", players.get(0)); // if it's a guest turn
+        this.setChanged();
+        this.notifyObservers();
         return getNewPlayerTiles(7);
     }
 

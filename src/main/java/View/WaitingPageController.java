@@ -1,7 +1,9 @@
 package View;
 
 import ViewModel.ScrabbleViewModel;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,13 +41,25 @@ public class WaitingPageController implements Observer {
 
     public void setViewModel(ScrabbleViewModel vm){
         this.vm = vm;
-        vm.addObserver(this);
-        playersList.getItems().clear();
-        playersList.itemsProperty().bind(vm.getScores());
-        System.out.println(vm.getScores());
-        if(!host){
+        if(host){
+            playersList.getItems().clear();
+            playersList.itemsProperty().bind(vm.getScores());
+            System.out.println(vm.getScores());
+        }else{
             startGame.setStyle("-fx-opacity:0");
+            vm.getGameStartedProperty().addListener((observable, oldValue, newValue)->{
+                if(newValue) {
+                    Platform.runLater(()->{
+                        try {
+                            this.startGame();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
+            });
         }
+
     }
 
     public void startGame() throws IOException {
@@ -56,6 +70,7 @@ public class WaitingPageController implements Observer {
         scene.getStylesheets().add(getClass().getResource("/ui/css/board-page.css").toExternalForm());
         vm.startGame();
         BoardController bc = fxmlLoader.getController();
+        bc.setStage(stage);
         bc.setViewModel(vm);
         bc.initWindow();
         stage.setScene(scene);
@@ -65,7 +80,6 @@ public class WaitingPageController implements Observer {
 
     public void setIsHost(boolean isHost){
         this.host = isHost;
-
     }
 
     @Override

@@ -18,7 +18,7 @@ public class ScrabbleViewModel extends Observable implements Observer {
     private ScrabbleModelFacade model;
     public BooleanProperty myTurn; // data binding
     public BooleanProperty gameOver; // data binding
-    private boolean gameStarted;
+    private BooleanProperty gameStarted;
 
 
 
@@ -30,7 +30,7 @@ public class ScrabbleViewModel extends Observable implements Observer {
         boardProperty = new SimpleObjectProperty<>();
         myTurn= new SimpleBooleanProperty();
         gameOver = new SimpleBooleanProperty();
-        gameStarted=false;
+        gameStarted= new SimpleBooleanProperty(false);
     }
     public ListProperty<Character> getTiles(){
         return tiles;
@@ -41,7 +41,7 @@ public class ScrabbleViewModel extends Observable implements Observer {
     }
     public void startGame() {
         try {
-            gameStarted=true;
+            gameStarted.set(true);
             if(tiles.size()==7)
                 return;
             tiles.setAll(model.startGame());
@@ -210,10 +210,10 @@ public class ScrabbleViewModel extends Observable implements Observer {
         }
     }
 
-
     public ListProperty<String> getScores()  {
         try {
             System.out.println("getScore invoked");
+            Thread.sleep(1500);
             String score= model.getScore();
             String[] scoreSplit = score.split("\n");
             System.out.println(score);
@@ -222,7 +222,13 @@ public class ScrabbleViewModel extends Observable implements Observer {
             return scores;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public BooleanProperty getGameStartedProperty(){
+        return this.gameStarted;
     }
 
     @Override
@@ -231,21 +237,19 @@ public class ScrabbleViewModel extends Observable implements Observer {
             // Before startGame WaitForPlayers -> player connected -> update ScoreList in host
             // Guest -> startGame
 
-            if(!gameStarted&&!model.isGameStarted())
+            if(!gameStarted.get()&&!model.isGameStarted())
             {
                 //Host
                 this.getScores();
                 return;
             }
-            if(!gameStarted&&model.isGameStarted()){
+            if(!gameStarted.get()&&model.isGameStarted()){
                 //Guest
-                super.setChanged();
-                super.notifyObservers();
-                this.startGame();
-
+                Thread.sleep(10000);
                 boardProperty.set(model.getBoard());
+                Thread.sleep(2000);
                 this.getScores();
-
+                this.startGame();
                 return;
             }
             boardProperty.set(model.getBoard());
@@ -257,6 +261,8 @@ public class ScrabbleViewModel extends Observable implements Observer {
                gameOver.set(true);
             }
         } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

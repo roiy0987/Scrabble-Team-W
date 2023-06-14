@@ -96,13 +96,13 @@ public class MainPageController {
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         Scene scene = new Scene(fxmlLoader.load());
         scene.getStylesheets().add(getClass().getResource("/ui/css/loading-page.css").toExternalForm());
-        stage.setScene(scene);
-        stage.setFullScreen(true);
-        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         WaitingPageController wp = fxmlLoader.getController();
+        wp.setStage(stage);
         wp.setIsHost(isHost);
         wp.setViewModel(vm);
-        wp.setStage(stage);
+        stage.setScene(scene);
+        stage.setFullScreen(true);
+//        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     }
 
 
