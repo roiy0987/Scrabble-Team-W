@@ -53,7 +53,7 @@ public class ScrabbleViewModel implements Observer {
 
     private String getDownWord(int row,int col){
         StringBuilder sb = new StringBuilder();
-        while(row!=15){
+        while(row!=15 && row > -1){
             if(boardProperty.get()[row][col]=='\u0000')
                 break;
             sb.append(boardProperty.get()[row][col]);
@@ -63,7 +63,7 @@ public class ScrabbleViewModel implements Observer {
     }
     private String getRightWord(int row,int col){
         StringBuilder sb = new StringBuilder();
-        while(col!=15){
+        while(col!=15 && col > -1){
             if(boardProperty.get()[row][col]=='\u0000')
                 break;
             sb.append(boardProperty.get()[row][col]);
@@ -74,7 +74,7 @@ public class ScrabbleViewModel implements Observer {
     private String getLeftWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         int originalCol=col;
-        while(col!=-1){
+        while(col!=-1 && col<15){
             if(boardProperty.get()[row][col]=='\u0000'){
                 col+=1;
                 break;
@@ -92,7 +92,7 @@ public class ScrabbleViewModel implements Observer {
     private String getUpWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         int originalRow=row;
-        while(row!=-1){
+        while(row!=-1 && row<15){
             if(boardProperty.get()[row][col]=='\u0000'){
                 row+=1;
                 break;
@@ -190,13 +190,17 @@ public class ScrabbleViewModel implements Observer {
                     Integer.parseInt(splittedAnswer[1]),
                     Integer.parseInt(splittedAnswer[2]),
                     Boolean.parseBoolean(splittedAnswer[3]))){
-                for(int i=0;i<splittedAnswer[0].length();i++){
-                    this.tiles.remove(this.tiles.indexOf(splittedAnswer[0].charAt(i)));
-                }
+//                for(int i=0;i<splittedAnswer[0].length();i++){
+//                    this.tiles.remove(this.tiles.indexOf(splittedAnswer[0].charAt(i)));
+//                }
                 tiles.addAll(model.getNewPlayerTiles(splittedAnswer[0].length()));
                 myTurn.set(false);
                 model.nextTurn();
-                this.update(null,null);
+                boardProperty.set(model.getBoard());
+                Platform.runLater(()->{
+                    this.getScores();
+                });
+//                this.update(null,null);
             }
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             throw new RuntimeException(e);

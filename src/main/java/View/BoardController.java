@@ -35,7 +35,7 @@ public class BoardController {
     @FXML
     GridPane board;
 
-    ObjectProperty<char[][]> bindingBoard;
+    ObjectProperty<Character[][]> bindingBoard;
 
     ListProperty<Character> tiles;
 
@@ -53,13 +53,13 @@ public class BoardController {
         score.getItems().clear();
         score.itemsProperty().bind(vm.getScores());
         tiles = new SimpleListProperty<>(FXCollections.observableArrayList());
-        tiles.bindBidirectional(vm.getTiles());// I think this should not be here
+        tiles.bindBidirectional(vm.getTiles());
         bindingBoard = new SimpleObjectProperty<>();
         bindingBoard.bindBidirectional(vm.getBoard());
 
         int numRows = board.getRowCount();
         int numCols = board.getColumnCount();
-
+        Character[][] m = new Character[15][15];
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numCols; col++) {
                 char cellValue;
@@ -70,6 +70,8 @@ public class BoardController {
                         String cellType = getCellType(row, col);
                         cell.setStyle(getCellStyle(cellType));
                         board.add(cell, col, row);
+//                        cell.setTile(new Tile(' '));
+                        m[row][col] = cell.getTile().getCharacter();
                     } else {
                         Tile tile = new Tile(cellValue);
                         Cell cell = new Cell();
@@ -79,8 +81,9 @@ public class BoardController {
                 }
             }
         }
+        bindingBoard.set(m);
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 7 ; i++) {
             Tile tile;
             if (!tiles.isEmpty()) {
                 tile = new Tile(tiles.get(i));
@@ -90,7 +93,6 @@ public class BoardController {
             playerTiles.getItems().add(tile);
         }
     }
-
 
     private String getCellType(int row, int col) {
         switch (row) {
@@ -159,13 +161,13 @@ public class BoardController {
         }
     }
 
-
-
     public void submitWord() {
+        System.out.println("Submit Clicked!");
         vm.submitWord();
-    }
+     }
 
     public void skipTurn() {
+        System.out.println("Skip Turn Clicked!");
         vm.skipTurn();
     }
 
@@ -186,6 +188,10 @@ public class BoardController {
         private Tile tile;
 
         public Cell() {
+            this.tile = new Tile();
+            tile.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
+            this.getChildren().add(tile);
+
             setPrefSize(TILE_SIZE, TILE_SIZE);
             setStyle("-fx-background-color: yellow; -fx-border-color: black;");
 
@@ -218,6 +224,13 @@ public class BoardController {
                     // Update the UI to reflect the change
                     Tile draggedTile = new Tile(event.getDragboard().getString().charAt(0));
                     setTile(draggedTile);
+
+                    // Update the bindingBoard property
+                    int row = GridPane.getRowIndex(this);
+                    int col = GridPane.getColumnIndex(this);
+                    Character[][] currentBoard = bindingBoard.get();
+                    currentBoard[row][col] = draggedTile.getCharacter();
+                    bindingBoard.set(currentBoard);
                 } else {
                     event.setDropCompleted(false);
                 }
@@ -226,7 +239,8 @@ public class BoardController {
         }
 
         public void setTile(Tile tile) {
-            this.tile = tile;
+            this.tile.character = tile.character;
+            System.out.println(this.tile.character);
             getChildren().clear();
             if (tile != null) {
                 getChildren().add(tile);
@@ -249,6 +263,93 @@ public class BoardController {
         private int value;
         private final DropShadow shadow = new DropShadow();
         private Cell targetCell;
+
+        public Tile(){
+            super();
+            this.character = '\u0000';
+
+            // Determine the value based on the Scrabble rules
+            switch (Character.toUpperCase(character)) {
+                case 'E', 'A', 'I', 'O', 'N', 'R', 'T', 'L', 'S', 'U' -> value = 1;
+                case 'D', 'G' -> value = 2;
+                case 'B', 'C', 'M', 'P' -> value = 3;
+                case 'F', 'H', 'V', 'W', 'Y' -> value = 4;
+                case 'K' -> value = 5;
+                case 'J', 'X' -> value = 8;
+                case 'Q', 'Z' -> value = 10;
+                default -> value = 0; // Blank tiles or unsupported characters
+            }
+
+            setText(getTileText());
+
+            setPrefSize(TILE_SIZE, TILE_SIZE);
+            setStyle("-fx-background-color: lightblue; -fx-font-size: 14px;");
+            setAlignment(Pos.CENTER);
+
+            setOnDragDetected(event -> {
+                Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent content = new ClipboardContent();
+                content.putString(getText());
+                db.setContent(content);
+                selectedTile = this;
+
+                // Add dragging effect
+                setEffect(shadow);
+                toFront();
+
+                // Set the drag view
+                SnapshotParameters parameters = new SnapshotParameters();
+                parameters.setFill(Color.TRANSPARENT);
+                Image snapshot = snapshot(parameters, null);
+                db.setDragView(snapshot, snapshot.getWidth() / 2, snapshot.getHeight() / 2);
+
+                // Set the drag position relative to the tile
+                double offsetX = event.getX();
+                double offsetY = event.getY();
+                event.setDragDetect(true);
+                event.consume();
+
+                // Set the mouse event handlers to move the tile with the mouse
+                setOnMouseDragged(e -> {
+                    setTranslateX(e.getSceneX() - offsetX - getLayoutX());
+                    setTranslateY(e.getSceneY() - offsetY - getLayoutY());
+                    e.consume();
+                });
+
+                setOnMouseReleased(e -> {
+                    setTranslateX(0);
+                    setTranslateY(0);
+                    e.consume();
+                });
+            });
+
+            setOnDragDone(event -> {
+                if (event.getTransferMode() == TransferMode.MOVE && targetCell != null) {
+                    selectedTile = null;
+                    // Remove the tile from the source cell
+                    Cell sourceCell = (Cell) getParent();
+                    sourceCell.setTile(null);
+                    // Add the tile to the target cell
+                    targetCell.setTile(this);
+
+                    // Center the tile in the target cell
+                    double cellCenterX = targetCell.getLayoutX() + targetCell.getWidth() / 2;
+                    double cellCenterY = targetCell.getLayoutY() + targetCell.getHeight() / 2;
+                    double tileCenterX = cellCenterX - getLayoutX() - TILE_SIZE / 2;
+                    double tileCenterY = cellCenterY - getLayoutY() - TILE_SIZE / 2;
+
+                    // Animate the tile movement to the center of the cell
+                    TranslateTransition transition = new TranslateTransition(Duration.millis(200), this);
+                    transition.setToX(tileCenterX);
+                    transition.setToY(tileCenterY);
+                    transition.play();
+                }
+
+                // Remove dragging effect
+                setEffect(null);
+                event.consume();
+            });
+        }
 
         public Tile(char character) {
             super();
@@ -351,6 +452,10 @@ public class BoardController {
 
         public Character toCharacter() {
             return character;
+        }
+
+        public Character getCharacter() {
+            return this.character;
         }
     }
 }
