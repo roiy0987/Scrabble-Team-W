@@ -136,14 +136,14 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     }
 
     @Override
-    public char[][] getBoard() throws IOException, ClassNotFoundException {
+    public Character[][] getBoard() throws IOException, ClassNotFoundException {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
         BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
         out.write("GetBoard\n");
         out.flush();
         String responseFromHandler = in.readLine();
         String[] lines = responseFromHandler.split(";");
-        char[][] responseToClient = new char[15][15];
+        Character[][] responseToClient = new Character[15][15];
         for (int i = 0; i < responseToClient.length; i++) {
             String[] line = lines[i].split(":");
             for (int j = 0; j < responseToClient[i].length; j++) {

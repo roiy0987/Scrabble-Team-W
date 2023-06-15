@@ -39,7 +39,7 @@ public class HostHandler implements ClientHandler {
                 case "Connect": // Connect:Michal
                     model.players.add(new Player(requestSplitted[1], client, 0));
                     //model.setChanged();
-                    model.notifyObservers1();
+                    model.playerConnected();
                     bw.write("Ok"+"\n");
                     bw.flush();
                     System.out.println("Connected");

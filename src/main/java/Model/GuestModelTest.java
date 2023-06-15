@@ -58,7 +58,7 @@ public class GuestModelTest {
     }
 
     public void testGetBoard() throws IOException, ClassNotFoundException {
-        char[][] board = g1.getBoard();
+        Character[][] board = g1.getBoard();
         char[][] expected = {
                 {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'},
                 {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'},

@@ -3,6 +3,7 @@ package ViewModel;
 
 import Model.HostModel;
 import Model.ScrabbleModelFacade;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import java.io.IOException;
@@ -11,8 +12,8 @@ import java.util.Observer;
 
 
 //Controller
-public class ScrabbleViewModel extends Observable implements Observer {
-    private ObjectProperty<char[][]> boardProperty;// data binding
+public class ScrabbleViewModel implements Observer {
+    private ObjectProperty<Character[][]> boardProperty;// data binding
     private ListProperty<Character> tiles; // data binding
     private ListProperty<String> scores; // data binding
     private ScrabbleModelFacade model;
@@ -36,7 +37,7 @@ public class ScrabbleViewModel extends Observable implements Observer {
         return tiles;
     }
 
-    public ObjectProperty<char[][]> getBoard(){
+    public ObjectProperty<Character[][]> getBoard(){
         return boardProperty;
     }
     public void startGame() {
@@ -123,7 +124,7 @@ public class ScrabbleViewModel extends Observable implements Observer {
         return "error";
     }
     private String getWord(){
-        char[][] currentBoard;
+        Character[][] currentBoard;
         try {
             currentBoard = model.getBoard();
         } catch (IOException | ClassNotFoundException e) {
@@ -213,9 +214,9 @@ public class ScrabbleViewModel extends Observable implements Observer {
     public ListProperty<String> getScores()  {
         try {
             System.out.println("getScore invoked");
-            Thread.sleep(1500);
+            //Thread.sleep(1500);
             String score= model.getScore();
-            String[] scoreSplit = score.split("\n");
+            String[] scoreSplit = score.split(";");
             scores.clear();
             for(String s : scoreSplit){
                 String[] ssp = s.split(":");
@@ -223,8 +224,6 @@ public class ScrabbleViewModel extends Observable implements Observer {
             }
             return scores;
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -238,7 +237,6 @@ public class ScrabbleViewModel extends Observable implements Observer {
         try {
             // Before startGame WaitForPlayers -> player connected -> update ScoreList in host
             // Guest -> startGame
-
             if(!gameStarted.get()&&!model.isGameStarted())
             {
                 //Host
@@ -247,15 +245,20 @@ public class ScrabbleViewModel extends Observable implements Observer {
             }
             if(!gameStarted.get()&&model.isGameStarted()){
                 //Guest
-                Thread.sleep(10000);
+                //Thread.sleep(2000);
                 boardProperty.set(model.getBoard());
-                Thread.sleep(2000);
-                this.getScores();
+                //Thread.sleep(2000);
+                Platform.runLater(()->{
+                    this.getScores();
+                });
                 this.startGame();
                 return;
             }
             boardProperty.set(model.getBoard());
-            this.getScores();
+            Platform.runLater(()->{
+                this.getScores();
+            });
+            //this.getScores();
             if(model.isMyTurn()){
                 myTurn.set(true);
             }
@@ -263,8 +266,6 @@ public class ScrabbleViewModel extends Observable implements Observer {
                gameOver.set(true);
             }
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

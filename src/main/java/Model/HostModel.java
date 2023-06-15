@@ -110,7 +110,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return true;
     }
 
-    public void notifyObservers1(){
+    public void playerConnected(){
         this.setChanged();
         this.notifyObservers();
     }
@@ -138,21 +138,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score);
                 break;
             }
-            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append("\n");
+            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append(";");
         }
         return sb.toString(); // Arik:54'\n'Roie:45'\n'Tal:254
     }
 
     @Override
-    public char[][] getBoard() throws IOException, ClassNotFoundException {
-        char[][] b = new char[15][15];
-        Character[][] updatedBoard = getBoardToCharacters();
-        for (int i = 0; i < b.length; i++) {
-            for (int j = 0; j < b[i].length; j++) {
-                b[i][j] = updatedBoard[i][j];
-            }
-        }
-        return b;
+    public Character[][] getBoard() throws IOException, ClassNotFoundException {
+        return getBoardToCharacters();
     }
 
     public Character[][] getBoardToCharacters() {
