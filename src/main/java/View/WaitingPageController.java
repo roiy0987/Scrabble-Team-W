@@ -44,7 +44,6 @@ public class WaitingPageController implements Observer {
         if(host){
             playersList.getItems().clear();
             playersList.itemsProperty().bind(vm.getScores());
-            System.out.println(vm.getScores());
         }else{
             startGame.setStyle("-fx-opacity:0");
             vm.getGameStartedProperty().addListener((observable, oldValue, newValue)->{

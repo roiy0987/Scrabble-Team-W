@@ -38,8 +38,11 @@ public class HostHandler implements ClientHandler {
             switch (requestSplitted[0]) {
                 case "Connect": // Connect:Michal
                     model.players.add(new Player(requestSplitted[1], client, 0));
+                    //model.setChanged();
+                    model.notifyObservers1();
                     bw.write("Ok"+"\n");
                     bw.flush();
+                    System.out.println("Connected");
                     break;
                 case "GetBoard": // GetBoard
                     Character[][] board = model.getBoardToCharacters();
@@ -66,6 +69,7 @@ public class HostHandler implements ClientHandler {
                 case "GetScore": // GetScore
                     bw.write(model.getScore() + "\n");
                     bw.flush();
+                    System.out.println("Score written");
                     break;
                 case "SubmitWord": // SubmitWord:CAT:10:8
                     String response = Boolean.toString(model.submitWord(requestSplitted[1],

@@ -7,11 +7,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.effect.DropShadow;
@@ -19,11 +17,8 @@ import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.util.Collections;
 
 public class BoardController {
@@ -53,7 +48,7 @@ public class BoardController {
     public void setViewModel(ScrabbleViewModel vm) {
         this.vm = vm;
     }
-    
+
     public void initWindow(){
         score.getItems().clear();
         score.itemsProperty().bind(vm.getScores());
@@ -203,8 +198,6 @@ public class BoardController {
                 event.consume();
             });
 
-
-
             setOnDragEntered(event -> {
                 if (event.getGestureSource() != this && event.getDragboard().hasString()) {
                     setOpacity(0.7);
@@ -230,8 +223,6 @@ public class BoardController {
                 }
                 event.consume();
             });
-
-
         }
 
         public void setTile(Tile tile) {
@@ -247,23 +238,16 @@ public class BoardController {
             getChildren().add(tile);
         }
 
-
         public Tile getTile() {
             return tile;
         }
-
-
     }
-
-
 
     private class Tile extends Label {
 
         private char character;
         private int value;
-
         private final DropShadow shadow = new DropShadow();
-
         private Cell targetCell;
 
         public Tile(char character) {
@@ -287,7 +271,6 @@ public class BoardController {
             setPrefSize(TILE_SIZE, TILE_SIZE);
             setStyle("-fx-background-color: lightblue; -fx-font-size: 14px;");
             setAlignment(Pos.CENTER);
-
 
             setOnDragDetected(event -> {
                 Dragboard db = startDragAndDrop(TransferMode.MOVE);
@@ -326,9 +309,6 @@ public class BoardController {
                 });
             });
 
-
-
-
             setOnDragDone(event -> {
                 if (event.getTransferMode() == TransferMode.MOVE && targetCell != null) {
                     selectedTile = null;
@@ -356,10 +336,10 @@ public class BoardController {
                 event.consume();
             });
         }
+
         public void setTargetCell(Cell cell) {
             this.targetCell = cell;
         }
-
 
         private String getTileText() {
             if (value == 0) {

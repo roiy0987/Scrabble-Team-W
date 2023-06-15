@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainPageController">
+<BorderPane fx:id="mainContainer" prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainPageController">
    <center>
       <VBox alignment="TOP_CENTER" prefHeight="1004.0" prefWidth="800.0" BorderPane.alignment="CENTER">
          <children>

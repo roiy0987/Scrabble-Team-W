@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.BoardController">
+<BorderPane fx:id="mainContainer" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.BoardController">
    <center>
       <GridPane fx:id="board" alignment="CENTER" gridLinesVisible="true" styleClass="grid-pane">
          <columnConstraints>

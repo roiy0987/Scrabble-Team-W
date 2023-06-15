@@ -216,9 +216,11 @@ public class ScrabbleViewModel extends Observable implements Observer {
             Thread.sleep(1500);
             String score= model.getScore();
             String[] scoreSplit = score.split("\n");
-            System.out.println(score);
             scores.clear();
-            scores.addAll(Arrays.asList(scoreSplit));
+            for(String s : scoreSplit){
+                String[] ssp = s.split(":");
+                scores.add(ssp[0]);
+            }
             return scores;
         } catch (IOException e) {
             throw new RuntimeException(e);
