@@ -133,11 +133,15 @@ public class ScrabbleViewModel implements Observer {
         StringBuilder sb = new StringBuilder();
         int firstTileSubmittedRow=-1;
         int firstTileSubmittedCol=-1;
-        for(int i=0;i<currentBoard.length;i++){
+        boolean br=false;
+        for(int i=0;!br&&i<currentBoard.length;i++){
             for(int j=0;j<currentBoard[i].length;j++){
+                if(currentBoard[i][j]!=boardProperty.get()[i][j]&&currentBoard[i][j]!='\u0000'&&boardProperty.get()[i][j]!='\u0000')
+                    return null;
                 if(currentBoard[i][j]!=boardProperty.get()[i][j]){
                     firstTileSubmittedRow=i;
                     firstTileSubmittedCol=j;
+                    br=true;
                     break;
                 }
             }
@@ -179,10 +183,10 @@ public class ScrabbleViewModel implements Observer {
         return sb.toString();
     }
 
-    public void submitWord(){
+    public boolean submitWord(){
         String answer = getWord();
         if(answer==null)
-            return;
+            return false;
         String [] splittedAnswer = answer.split(":");
         // Example: "CAT:1:2:true"
         try {
@@ -190,22 +194,27 @@ public class ScrabbleViewModel implements Observer {
                     Integer.parseInt(splittedAnswer[1]),
                     Integer.parseInt(splittedAnswer[2]),
                     Boolean.parseBoolean(splittedAnswer[3]))){
-//                for(int i=0;i<splittedAnswer[0].length();i++){
-//                    this.tiles.remove(this.tiles.indexOf(splittedAnswer[0].charAt(i)));
-//                }
-                tiles.addAll(model.getNewPlayerTiles(splittedAnswer[0].length()));
-                myTurn.set(false);
-                model.nextTurn();
+                ArrayList<Character> newPlayerTiles = model.getNewPlayerTiles(splittedAnswer[0].length());
+                for(int i=0;i<splittedAnswer[0].length();i++){
+                    tiles.remove(tiles.get(tiles.get().indexOf(splittedAnswer[0].charAt(i))));
+                }
+                System.out.println(tiles.toString());
+                System.out.println(newPlayerTiles.toString());
+                tiles.addAll(newPlayerTiles);
+                System.out.println(tiles.toString());
                 boardProperty.set(model.getBoard());
                 Platform.runLater(()->{
                     this.getScores();
                 });
+                Thread.sleep(1000);
+                myTurn.set(false);
+                model.nextTurn();
 //                this.update(null,null);
             }
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-
+        return true;
     }
     public void skipTurn(){
         try {
@@ -220,12 +229,10 @@ public class ScrabbleViewModel implements Observer {
             System.out.println("getScore invoked");
             //Thread.sleep(1500);
             String score= model.getScore();
+            System.out.println(score);
             String[] scoreSplit = score.split(";");
             scores.clear();
-            for(String s : scoreSplit){
-                String[] ssp = s.split(":");
-                scores.add(ssp[0]);
-            }
+            scores.addAll(Arrays.asList(scoreSplit));
             return scores;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -267,7 +274,8 @@ public class ScrabbleViewModel implements Observer {
                 myTurn.set(true);
             }
             if(model.isGameOver()){
-               gameOver.set(true);
+                System.out.println("GAME OVER");
+                gameOver.set(true);
             }
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);

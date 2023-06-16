@@ -29,7 +29,7 @@ public class BoardController {
     Stage stage;
 
     @FXML
-    ListView<Tile> playerTiles; // Specify the type of ListView items
+    ListView<Cell> playerTiles; // Specify the type of ListView items
     @FXML
     ListView<String> score; // Specify the type of ListView items
     @FXML
@@ -90,7 +90,9 @@ public class BoardController {
             } else {
                 tile = new Tile('A');
             }
-            playerTiles.getItems().add(tile);
+            playerTiles.getItems().add(new Cell());
+            playerTiles.getItems().get(i).setTile(tile);
+            playerTiles.getItems().get(i).setStyle("-fx-background-color: white");
         }
     }
 
@@ -163,12 +165,19 @@ public class BoardController {
 
     public void submitWord() {
         System.out.println("Submit Clicked!");
-        vm.submitWord();
+        if(this.vm.myTurn.get()&& vm.submitWord())
+        {
+            for (int i = 0; i < 7 ; i++) {
+                Tile tile = new Tile(tiles.get(i));
+                playerTiles.getItems().get(i).setTile(tile);
+            }
+        }
      }
 
     public void skipTurn() {
         System.out.println("Skip Turn Clicked!");
-        vm.skipTurn();
+        if(this.vm.myTurn.get())
+            vm.skipTurn();
     }
 
     public void shuffleTiles() {
@@ -199,6 +208,7 @@ public class BoardController {
             setOnDragOver(event -> {
                 if (event.getGestureSource() != this && event.getDragboard().hasString()) {
                     // Allow for moving
+                    // NEED TO CHECK IF TILE BELONG TO PLAYER OR ALREADY ON BOARD
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
@@ -216,26 +226,69 @@ public class BoardController {
                 }
             });
 
+//            setOnDragDropped(event -> {
+//                if (event.getGestureSource() != this && event.getDragboard().hasString()) {
+//                    // Indicate that the drag operation was successful
+//                    event.setDropCompleted(true);
+//
+//                    // Update the UI to reflect the change
+//                    Tile draggedTile = new Tile(event.getDragboard().getString().charAt(0));
+//                    setTile(draggedTile);
+//
+//                    // Update the bindingBoard property
+//                    int row = GridPane.getRowIndex(this);
+//                    int col = GridPane.getColumnIndex(this);
+//                    Character[][] currentBoard = bindingBoard.get();
+//                    currentBoard[row][col] = draggedTile.getCharacter();
+//                    bindingBoard.set(currentBoard);
+//                } else {
+//                    event.setDropCompleted(false);
+//                }
+//                event.consume();
+//            });
             setOnDragDropped(event -> {
                 if (event.getGestureSource() != this && event.getDragboard().hasString()) {
                     // Indicate that the drag operation was successful
                     event.setDropCompleted(true);
 
+                    if(this.tile.character!='\u0000') {
+                        System.out.println(this.tile.character);
+                        return;
+                    }
+                    System.out.println("Dragged!");
+                    Tile sourceTile = (Tile) event.getGestureSource();
+                    System.out.println(event.getGestureSource());
+                    System.out.println(sourceTile.character);
+                    System.out.println("-----");
+                    System.out.println(event.getDragboard().getString().charAt(0));
                     // Update the UI to reflect the change
                     Tile draggedTile = new Tile(event.getDragboard().getString().charAt(0));
-                    setTile(draggedTile);
 
+                    this.getChildren().clear();
+                    this.tile.setTile(draggedTile);
+                    this.getChildren().add(this.tile);
+                    Cell sourceCell = (Cell) sourceTile.getParent();
+                    sourceCell.getChildren().clear();
+                    sourceTile.setTile(new Tile());
+
+                    //sourceCell.getChildren().clear();
+                    //sourceCell.setTile(new Tile());
+                    //sourceCell.setTile(null);
                     // Update the bindingBoard property
                     int row = GridPane.getRowIndex(this);
                     int col = GridPane.getColumnIndex(this);
                     Character[][] currentBoard = bindingBoard.get();
                     currentBoard[row][col] = draggedTile.getCharacter();
                     bindingBoard.set(currentBoard);
+
+                    // Remove the tile from the source cell
+
                 } else {
                     event.setDropCompleted(false);
                 }
                 event.consume();
             });
+
         }
 
         public void setTile(Tile tile) {
@@ -328,7 +381,8 @@ public class BoardController {
                     selectedTile = null;
                     // Remove the tile from the source cell
                     Cell sourceCell = (Cell) getParent();
-                    sourceCell.setTile(null);
+                    System.out.println("Bla bla bla");
+                    sourceCell.setTile(new Tile());
                     // Add the tile to the target cell
                     targetCell.setTile(this);
 
@@ -413,9 +467,10 @@ public class BoardController {
             setOnDragDone(event -> {
                 if (event.getTransferMode() == TransferMode.MOVE && targetCell != null) {
                     selectedTile = null;
+                    System.out.println("Bla bla bla");
                     // Remove the tile from the source cell
                     Cell sourceCell = (Cell) getParent();
-                    sourceCell.setTile(null);
+                    sourceCell.setTile(new Tile());
                     // Add the tile to the target cell
                     targetCell.setTile(this);
 
@@ -436,6 +491,16 @@ public class BoardController {
                 setEffect(null);
                 event.consume();
             });
+        }
+        public void setTile(Tile tile) {
+            if (tile != null) {
+                this.character = tile.getCharacter();
+                this.value=tile.value;
+                this.setStyle("-fx-background-color: lightblue; -fx-font-size: 14px;");
+            } else {
+                this.character = '\u0000';
+            }
+            setText(getTileText());
         }
 
         public void setTargetCell(Cell cell) {

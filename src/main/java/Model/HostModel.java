@@ -126,6 +126,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 this.notifyObservers();
                 continue;
             }
+            if(this.players.get(this.turnCounter)==player)
+                continue;
             this.sendMessage("Update", player);
         }
     }
