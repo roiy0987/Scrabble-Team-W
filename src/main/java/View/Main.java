@@ -9,7 +9,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import test.BookScrabbleHandler;
 import test.MyServer;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -34,6 +33,7 @@ public class Main extends Application {
 //        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         stage.setScene(scene);
         stage.show();
+
     }
 
 }

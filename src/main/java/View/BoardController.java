@@ -83,6 +83,34 @@ public class BoardController {
         }
         bindingBoard.set(m);
 
+        // Add a ChangeListener to the bindingBoard property
+        bindingBoard.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Clear the board and re-populate it with the new values
+                board.getChildren().clear();
+                int numRows1 = board.getRowCount();
+                int numCols1 = board.getColumnCount();
+                for (int row = 0; row < numRows1; row++) {
+                    for (int col = 0; col < numCols1; col++) {
+                        char cellValue = newValue[row][col];
+                        Cell cell = new Cell();
+
+                        if (cellValue == '\u0000') {
+                            String cellType = getCellType(row, col);
+                            cell.setStyle(getCellStyle(cellType));
+                        } else {
+                            Tile tile = new Tile(cellValue);
+                            cell.setStyle("-fx-background-color: white");
+                            cell.setTileContent(tile);
+                        }
+
+                        board.add(cell, col, row);
+                    }
+                }
+            }
+        });
+
+
         for (int i = 0; i < 7 ; i++) {
             Tile tile;
             if (!tiles.isEmpty()) {
@@ -92,7 +120,7 @@ public class BoardController {
             }
             playerTiles.getItems().add(new Cell());
             playerTiles.getItems().get(i).setTile(tile);
-            playerTiles.getItems().get(i).setStyle("-fx-background-color: white");
+            playerTiles.getItems().get(i).setStyle("-fx-background-color: white; -fx-border-color: black;");
         }
     }
 
@@ -165,6 +193,7 @@ public class BoardController {
 
     public void submitWord() {
         System.out.println("Submit Clicked!");
+        System.out.println(bindingBoard.get()[7][7]);
         if(this.vm.myTurn.get()&& vm.submitWord())
         {
             for (int i = 0; i < 7 ; i++) {
@@ -280,7 +309,6 @@ public class BoardController {
                     Character[][] currentBoard = bindingBoard.get();
                     currentBoard[row][col] = draggedTile.getCharacter();
                     bindingBoard.set(currentBoard);
-
                     // Remove the tile from the source cell
 
                 } else {

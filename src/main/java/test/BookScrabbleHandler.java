@@ -32,7 +32,8 @@ public class BookScrabbleHandler implements ClientHandler{
             if(word==null)
                 continue;
             fileNames[books.getBooks().length]=word;
-            if(this.dm.query(fileNames) || this.dm.challenge(fileNames)){
+            //this.dm.query(fileNames) ||
+            if( this.dm.challenge(fileNames)){
                 out.print("true\n");
                 out.flush();
                 continue;

@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 
 public class Dictionary {
     private final CacheManager cLFU;
@@ -16,12 +17,12 @@ public class Dictionary {
             this.fileNames = fileNames;
             cLFU = new CacheManager(100, new LFU());
             cLRU = new CacheManager(400, new LRU());
-            bf = new BloomFilter(256, "SHA1", "MD5");
+            bf = new BloomFilter(8192, new HashSet<>());
             for (String file : fileNames) {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 String s = reader.readLine();
                 while (s != null) {
-                    String[] sArr = s.split(" ");
+                    String[] sArr = s.split("\\s+");
                     for (String value : sArr) {
                         bf.add(value);
                     }
@@ -46,6 +47,7 @@ public class Dictionary {
         return false;
     }
     public boolean challenge(String word) {
+        word=word.toLowerCase();
         boolean b;
         try{
             b = IOSearcher.search(word,this.fileNames);
