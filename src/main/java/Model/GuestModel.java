@@ -18,15 +18,23 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     private boolean gameOver;
     boolean gameStarted;
 
-    public GuestModel(String name, String ip, int port) throws IOException {
+    public GuestModel(String name, String ip, int port)throws IOException {
         this.playerName = name;
         gameStarted=false;
-        server = new Socket(ip, port);
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
+        try {
+            server = new Socket(ip, port);
+        }catch (IOException e){
+            throw new IOException("ERROR in connecting to server. Check ip and port!");
+        }
+        BufferedWriter bw = null;
+        bw = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
         BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
         bw.write("Connect:" + name + "\n");
         bw.flush();
         String st = br.readLine();
+        if(!st.equals("Ok")){
+            throw new IOException("Game is Full!");
+        }
         System.out.println(name + " Connected!");
         myTurn = false;
         gameOver=false;

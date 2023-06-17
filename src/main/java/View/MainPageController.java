@@ -43,7 +43,7 @@ public class MainPageController {
             guest = new GuestModel(nickname.getText(), ip.getText(), Integer.parseInt(port.getText()));
         }catch (IOException e){
             e.printStackTrace();
-            dialog.setContentText("ERROR in connecting to server. Check ip and port! #!");
+            dialog.setContentText(e.getMessage());
         }
         if(guest!=null){
             System.out.println("11111");
@@ -59,7 +59,7 @@ public class MainPageController {
             host = new HostModel(nickname.getText());
         }catch (IOException e){
             e.printStackTrace();
-            dialog.setContentText("ERROR in connecting to server. Check ip and port! #2");
+            dialog.setContentText(e.getMessage());
         }
         if(host!=null){
             vm = new ScrabbleViewModel(host);

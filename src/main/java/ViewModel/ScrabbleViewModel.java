@@ -1,7 +1,5 @@
 package ViewModel;
 
-
-import Model.HostModel;
 import Model.ScrabbleModelFacade;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -13,13 +11,14 @@ import java.util.Observer;
 
 //Controller
 public class ScrabbleViewModel implements Observer {
-    private ObjectProperty<Character[][]> boardProperty;// data binding
-    private ListProperty<Character> tiles; // data binding
-    private ListProperty<String> scores; // data binding
-    private ScrabbleModelFacade model;
-    public BooleanProperty myTurn; // data binding
-    public BooleanProperty gameOver; // data binding
-    private BooleanProperty gameStarted;
+    private final ObjectProperty<Character[][]> boardProperty;// data binding
+    private final ListProperty<Character> tiles; // data binding
+    private final ListProperty<String> scores; // data binding
+    private final ScrabbleModelFacade model;
+    public final BooleanProperty myTurn; // data binding
+    public final BooleanProperty gameOver; // data binding
+    private final BooleanProperty gameStarted;
+    private Character[][] prevBoard;
 
 
 
@@ -32,6 +31,10 @@ public class ScrabbleViewModel implements Observer {
         myTurn= new SimpleBooleanProperty();
         gameOver = new SimpleBooleanProperty();
         gameStarted= new SimpleBooleanProperty(false);
+        prevBoard = new Character[15][15];
+        for(int i=0;i<prevBoard.length;i++){
+            Arrays.fill(prevBoard[i], '\u0000');
+        }
     }
     public ListProperty<Character> getTiles(){
         return tiles;
@@ -40,6 +43,15 @@ public class ScrabbleViewModel implements Observer {
     public ObjectProperty<Character[][]> getBoard(){
         return boardProperty;
     }
+    public Character[][] getPrevBoard(){
+        try {
+            this.prevBoard = this.model.getBoard();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return this.prevBoard;
+    }
+
     public void startGame() {
         try {
             gameStarted.set(true);
@@ -56,6 +68,12 @@ public class ScrabbleViewModel implements Observer {
         while(row!=15 && row > -1){
             if(boardProperty.get()[row][col]=='\u0000')
                 break;
+            if(boardProperty.get()[row][col]==prevBoard[row][col]&&prevBoard[row][col]!='\u0000')
+            {
+                sb.append('_');
+                row++;
+                continue;
+            }
             sb.append(boardProperty.get()[row][col]);
             row++;
         }
@@ -66,6 +84,11 @@ public class ScrabbleViewModel implements Observer {
         while(col!=15 && col > -1){
             if(boardProperty.get()[row][col]=='\u0000')
                 break;
+            if(boardProperty.get()[row][col]==prevBoard[row][col]&&prevBoard[row][col]!='\u0000'){
+                sb.append('_');
+                col++;
+                continue;
+            }
             sb.append(boardProperty.get()[row][col]);
             col++;
         }
@@ -83,7 +106,7 @@ public class ScrabbleViewModel implements Observer {
         }
         sb.append(col).append(":");
         while(col!=originalCol){
-            sb.append(boardProperty.get()[row][col]);
+            sb.append('_');
             col++;
         }
         sb.append(this.getRightWord(row,col));
@@ -101,7 +124,7 @@ public class ScrabbleViewModel implements Observer {
         }
         sb.append(row).append(":");
         while(row!=originalRow){
-            sb.append(boardProperty.get()[row][col]);
+            sb.append('_');
             row++;
         }
         sb.append(this.getDownWord(row,col));
@@ -194,27 +217,38 @@ public class ScrabbleViewModel implements Observer {
                     Integer.parseInt(splittedAnswer[1]),
                     Integer.parseInt(splittedAnswer[2]),
                     Boolean.parseBoolean(splittedAnswer[3]))){
-                ArrayList<Character> newPlayerTiles = model.getNewPlayerTiles(splittedAnswer[0].length());
+                System.out.println(tiles.toString());
+                int counter = 0;
                 for(int i=0;i<splittedAnswer[0].length();i++){
+                    if(splittedAnswer[0].charAt(i)=='_')
+                        continue;
                     tiles.remove(tiles.get(tiles.get().indexOf(splittedAnswer[0].charAt(i))));
+                    counter++;
                 }
+                ArrayList<Character> newPlayerTiles = model.getNewPlayerTiles(counter);
                 System.out.println(tiles.toString());
                 System.out.println(newPlayerTiles.toString());
                 tiles.addAll(newPlayerTiles);
                 System.out.println(tiles.toString());
-                boardProperty.set(model.getBoard());
+
                 Platform.runLater(()->{
-                    this.getScores();
+                    try {
+                        boardProperty.set(model.getBoard());
+                        this.getScores();
+                        myTurn.set(false);
+                        model.nextTurn();
+                    } catch (IOException | ClassNotFoundException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 });
                 Thread.sleep(1000);
-                myTurn.set(false);
-                model.nextTurn();
 //                this.update(null,null);
+                return true;
             }
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return true;
+        return false;
     }
     public void skipTurn(){
         try {
@@ -245,51 +279,53 @@ public class ScrabbleViewModel implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        try {
-            // Before startGame WaitForPlayers -> player connected -> update ScoreList in host
-            // Guest -> startGame
-            if(!gameStarted.get()&&!model.isGameStarted())
-            {
-                //Host
-                Platform.runLater(()->{
-                    this.getScores();
-                });
-                return;
-            }
-            if(!gameStarted.get()&&model.isGameStarted()){
-                //Guest
-                //Thread.sleep(2000);
-                boardProperty.set(model.getBoard());
-                //Thread.sleep(2000);
-                Platform.runLater(()->{
-                    this.getScores();
-                });
-                this.startGame();
-                return;
-            }
-
+        // Before startGame WaitForPlayers -> player connected -> update ScoreList in host
+        // Guest -> startGame
+        if(!gameStarted.get()&&!model.isGameStarted())
+        {
+            //Host
+            Platform.runLater(()->{
+                this.getScores();
+            });
+            return;
+        }
+        if(!gameStarted.get()&&model.isGameStarted()){
+            //Guest
             Platform.runLater(()->{
                 try {
                     boardProperty.set(model.getBoard());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (ClassNotFoundException e) {
+                    prevBoard = boardProperty.get();
+                } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
                 this.getScores();
             });
-            //this.getScores();
-            if(model.isMyTurn()){
-                myTurn.set(true);
+            this.startGame();
+            return;
+        }
+
+        Platform.runLater(()->{
+            try {
+                prevBoard = boardProperty.get();
+                boardProperty.set(model.getBoard());
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
-            if(model.isGameOver()){
-                System.out.println("GAME OVER");
-                gameOver.set(true);
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            this.getScores();
+        });
+        if(model.isMyTurn()){
+            myTurn.set(true);
+        }
+        if(model.isGameOver()){
+            System.out.println("GAME OVER");
+            gameOver.set(true);
         }
     }
 
+    public void setPrevBoard() {
+        Platform.runLater(()->{
+            this.boardProperty.set(prevBoard);
+        });
+    }
 }
 

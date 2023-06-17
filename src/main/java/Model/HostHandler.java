@@ -37,6 +37,11 @@ public class HostHandler implements ClientHandler {
 
             switch (requestSplitted[0]) {
                 case "Connect": // Connect:Michal
+                    if(model.players.size()==4){
+                        bw.write("GameIsFull"+"\n");
+                        bw.flush();
+                        return;
+                    }
                     model.players.add(new Player(requestSplitted[1], client, 0));
                     //model.setChanged();
                     model.playerConnected();
