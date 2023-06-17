@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainContainer" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.BoardController">
+<BorderPane fx:id="mainContainer" styleClass="mainContainer" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.BoardController">
    <center>
       <GridPane fx:id="board" alignment="CENTER" gridLinesVisible="true" styleClass="grid-pane">
          <columnConstraints>
@@ -55,17 +55,17 @@
    <bottom>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="516.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox prefHeight="100.0" prefWidth="63.0">
+            <VBox prefHeight="100.0" prefWidth="150.0" styleClass="vbox">
                <children>
-                  <Button mnemonicParsing="false" onAction="#shuffleTiles" prefHeight="50.0" prefWidth="63.0" text="SHUFFLE" />
-                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="62.0" text="RESET" />
+                  <Button fx:id="shuffle" mnemonicParsing="false" onAction="#shuffleTiles" prefHeight="50.0" prefWidth="63.0" text="SHUFFLE" />
+                  <Button fx:id="reset" mnemonicParsing="false" prefHeight="50.0" prefWidth="62.0" text="RESET" />
                </children>
             </VBox>
             <ListView fx:id="playerTiles" minHeight="0.0" minWidth="0.0" orientation="HORIZONTAL" prefHeight="100.0" prefWidth="386.0" />
-            <VBox prefHeight="100.0" prefWidth="63.0">
+            <VBox prefHeight="100.0" prefWidth="150.0" styleClass="vbox">
                <children>
-                  <Button mnemonicParsing="false" onAction="#submitWord" prefHeight="50.0" prefWidth="63.0" text="SUBMIT" />
-                  <Button mnemonicParsing="false" onAction="#skipTurn" prefHeight="50.0" prefWidth="63.0" text="SKIP" />
+                  <Button fx:id="submit" mnemonicParsing="false" onAction="#submitWord" prefHeight="50.0" prefWidth="63.0" stylesheets="@../css/board-page.css" text="SUBMIT" />
+                  <Button fx:id="skip" mnemonicParsing="false" onAction="#skipTurn" prefHeight="50.0" prefWidth="63.0" text="SKIP" />
                </children>
             </VBox>
          </children>

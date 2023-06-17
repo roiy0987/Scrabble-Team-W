@@ -2,14 +2,12 @@ package View;
 
 import ViewModel.ScrabbleViewModel;
 import javafx.animation.TranslateTransition;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.effect.DropShadow;
@@ -35,6 +33,15 @@ public class BoardController {
     @FXML
     GridPane board;
 
+    @FXML
+    Button submit;
+    @FXML
+    Button skip;
+    @FXML
+    Button shuffle;
+    @FXML
+    Button reset;
+
     ObjectProperty<Character[][]> bindingBoard;
 
     ListProperty<Character> tiles;
@@ -45,18 +52,24 @@ public class BoardController {
 
     private Label draggedTile; // Reference to the dragged tile label
 
+    private BooleanProperty myTurn;
+
+    public BoardController(){}
+
     public void setViewModel(ScrabbleViewModel vm) {
         this.vm = vm;
     }
 
     public void initWindow(){
-        score.getItems().clear();
-        score.itemsProperty().bind(vm.getScores());
-        tiles = new SimpleListProperty<>(FXCollections.observableArrayList());
-        tiles.bindBidirectional(vm.getTiles());
-        bindingBoard = new SimpleObjectProperty<>();
-        bindingBoard.bindBidirectional(vm.getBoard());
+        initBinding();
+        initBoard();
+        initPlayersTiles();
+        addListeners();
+    }
 
+    private void initBoard(){
+
+        // Draw empty board and bind it
         int numRows = board.getRowCount();
         int numCols = board.getColumnCount();
         Character[][] m = new Character[15][15];
@@ -82,6 +95,58 @@ public class BoardController {
             }
         }
         bindingBoard.set(m);
+    }
+
+    private void initPlayersTiles(){
+        for (int i = 0; i < 7 ; i++) {
+            Tile tile;
+            if (!tiles.isEmpty()) {
+                tile = new Tile(tiles.get(i));
+            } else {
+                tile = new Tile('A');
+            }
+            playerTiles.getItems().add(new Cell());
+            playerTiles.getItems().get(i).setTile(tile);
+            playerTiles.getItems().get(i).setStyle("-fx-background-color: white; -fx-border-color: black;");
+        }
+    }
+
+    private void initBinding(){
+        score.getItems().clear();
+        score.itemsProperty().bind(vm.getScores());
+        tiles = new SimpleListProperty<>(FXCollections.observableArrayList());
+        tiles.bindBidirectional(vm.getTiles());
+        bindingBoard = new SimpleObjectProperty<>();
+        bindingBoard.bindBidirectional(vm.getBoard());
+        myTurn = new SimpleBooleanProperty();
+        myTurn.bind(vm.myTurn);
+    }
+
+    private void addListeners(){
+        // Change visibility so the player will know if it is his turn or not
+        System.out.println(myTurn.get());
+        myTurn.addListener((observable, oldValue, newValue)->{
+            if(!myTurn.get()){
+                submit.setDisable(true);
+                skip.setDisable(true);
+                shuffle.setDisable(true);
+                reset.setDisable(true);
+                submit.setOpacity(0.5);
+                skip.setOpacity(0.5);
+                shuffle.setOpacity(0.5);
+                reset.setOpacity(0.5);
+
+            }else {
+                submit.setDisable(false);
+                skip.setDisable(false);
+                shuffle.setDisable(false);
+                reset.setDisable(false);
+                submit.setOpacity(1);
+                skip.setOpacity(1);
+                shuffle.setOpacity(1);
+                reset.setOpacity(1);
+            }
+        });
 
         // Add a ChangeListener to the bindingBoard property
         bindingBoard.addListener((observable, oldValue, newValue) -> {
@@ -109,19 +174,6 @@ public class BoardController {
                 }
             }
         });
-
-
-        for (int i = 0; i < 7 ; i++) {
-            Tile tile;
-            if (!tiles.isEmpty()) {
-                tile = new Tile(tiles.get(i));
-            } else {
-                tile = new Tile('A');
-            }
-            playerTiles.getItems().add(new Cell());
-            playerTiles.getItems().get(i).setTile(tile);
-            playerTiles.getItems().get(i).setStyle("-fx-background-color: white; -fx-border-color: black;");
-        }
     }
 
     private String getCellType(int row, int col) {
@@ -193,7 +245,6 @@ public class BoardController {
 
     public void submitWord() {
         System.out.println("Submit Clicked!");
-        System.out.println(bindingBoard.get()[7][7]);
         if(this.vm.myTurn.get()&& vm.submitWord())
         {
             for (int i = 0; i < 7 ; i++) {

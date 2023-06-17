@@ -33,4 +33,18 @@
     -fx-background-color: lightblue;
 }
 
+.button{
+    -fx-min-width: 100px;
+    -fx-max-width: 100px;
+    -fx-font-family: stencil;
+    -fx-font-size: 20px;
+    -fx-background-radius: 10px;
+}
+
+.vbox {
+    -fx-min-width: 100px;
+    -fx-max-width: 100px;
+
+}
+
 

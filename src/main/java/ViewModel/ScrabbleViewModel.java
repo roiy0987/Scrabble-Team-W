@@ -251,7 +251,9 @@ public class ScrabbleViewModel implements Observer {
             if(!gameStarted.get()&&!model.isGameStarted())
             {
                 //Host
-                this.getScores();
+                Platform.runLater(()->{
+                    this.getScores();
+                });
                 return;
             }
             if(!gameStarted.get()&&model.isGameStarted()){
@@ -265,8 +267,15 @@ public class ScrabbleViewModel implements Observer {
                 this.startGame();
                 return;
             }
-            boardProperty.set(model.getBoard());
+
             Platform.runLater(()->{
+                try {
+                    boardProperty.set(model.getBoard());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
                 this.getScores();
             });
             //this.getScores();
