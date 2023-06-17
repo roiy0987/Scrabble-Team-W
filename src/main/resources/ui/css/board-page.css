@@ -6,7 +6,15 @@
     -fx-background-repeat: no-repeat;
 }
 
-.list-view{
+#score{
+    -fx-min-width: 200px;
+    -fx-max-width: 200px;
+    -fx-background-color: transparent;
+}
+
+#playerTiles{
+    -fx-min-width: 470px;
+    -fx-max-width: 470px;
     -fx-background-color: transparent;
 }
 
@@ -23,10 +31,13 @@
 }
 
 .list-cell {
-    -fx-font-size: 25px;
-    -fx-text-fill: black; /* Set the text color to red */
     -fx-background-color: transparent;
-    -fx-alignment: center;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+.list-view{
+    -fx-background-color: transparent;
 }
 
 .grid-pane {
@@ -34,16 +45,16 @@
 }
 
 .button{
-    -fx-min-width: 100px;
-    -fx-max-width: 100px;
+    -fx-min-width: 150px;
+    -fx-max-width: 150px;
     -fx-font-family: stencil;
     -fx-font-size: 20px;
     -fx-background-radius: 10px;
 }
 
 .vbox {
-    -fx-min-width: 100px;
-    -fx-max-width: 100px;
+    -fx-min-width: 150px;
+    -fx-max-width: 150px;
 
 }
 

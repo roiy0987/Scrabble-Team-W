@@ -41,6 +41,9 @@ public class BoardController {
     Button shuffle;
     @FXML
     Button reset;
+    @FXML
+    HBox hbox;
+
 
     ObjectProperty<Character[][]> bindingBoard;
 
@@ -64,10 +67,15 @@ public class BoardController {
         initBinding();
         initBoard();
         initPlayersTiles();
+        initButtons();
         addListeners();
     }
 
     private void initBoard(){
+        HBox.setHgrow(submit, Priority.ALWAYS);
+        HBox.setHgrow(reset, Priority.ALWAYS);
+        HBox.setHgrow(shuffle, Priority.ALWAYS);
+        HBox.setHgrow(reset, Priority.ALWAYS);
 
         // Draw empty board and bind it
         int numRows = board.getRowCount();
@@ -107,7 +115,7 @@ public class BoardController {
             }
             playerTiles.getItems().add(new Cell());
             playerTiles.getItems().get(i).setTile(tile);
-            playerTiles.getItems().get(i).setStyle("-fx-background-color: white; -fx-border-color: black;");
+            playerTiles.getItems().get(i).setStyle("-fx-background-color: transparent;"); //-fx-border-color: black;
         }
     }
 
@@ -119,33 +127,37 @@ public class BoardController {
         bindingBoard = new SimpleObjectProperty<>();
         bindingBoard.bindBidirectional(vm.getBoard());
         myTurn = new SimpleBooleanProperty();
-        myTurn.bind(vm.myTurn);
+        myTurn.bindBidirectional(vm.myTurn);
+    }
+
+    private void initButtons(){
+        if(!myTurn.get()){
+            submit.setDisable(true);
+            skip.setDisable(true);
+            shuffle.setDisable(true);
+            reset.setDisable(true);
+            submit.setOpacity(0.5);
+            skip.setOpacity(0.5);
+            shuffle.setOpacity(0.5);
+            reset.setOpacity(0.5);
+        }else{
+            submit.setDisable(false);
+            skip.setDisable(false);
+            shuffle.setDisable(false);
+            reset.setDisable(false);
+            submit.setOpacity(1);
+            skip.setOpacity(1);
+            shuffle.setOpacity(1);
+            reset.setOpacity(1);
+        }
+
     }
 
     private void addListeners(){
         // Change visibility so the player will know if it is his turn or not
         System.out.println(myTurn.get());
         myTurn.addListener((observable, oldValue, newValue)->{
-            if(!myTurn.get()){
-                submit.setDisable(true);
-                skip.setDisable(true);
-                shuffle.setDisable(true);
-                reset.setDisable(true);
-                submit.setOpacity(0.5);
-                skip.setOpacity(0.5);
-                shuffle.setOpacity(0.5);
-                reset.setOpacity(0.5);
-
-            }else {
-                submit.setDisable(false);
-                skip.setDisable(false);
-                shuffle.setDisable(false);
-                reset.setDisable(false);
-                submit.setOpacity(1);
-                skip.setOpacity(1);
-                shuffle.setOpacity(1);
-                reset.setOpacity(1);
-            }
+            initButtons();
         });
 
         // Add a ChangeListener to the bindingBoard property
@@ -251,13 +263,16 @@ public class BoardController {
                 Tile tile = new Tile(tiles.get(i));
                 playerTiles.getItems().get(i).setTile(tile);
             }
+            this.myTurn.set(false);
         }
      }
 
     public void skipTurn() {
         System.out.println("Skip Turn Clicked!");
-        if(this.vm.myTurn.get())
+        if(this.vm.myTurn.get()){
             vm.skipTurn();
+            this.myTurn.set(false);
+        }
     }
 
     public void shuffleTiles() {

@@ -2,20 +2,13 @@ package View;
 
 import ViewModel.ScrabbleViewModel;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCombination;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
@@ -62,12 +55,16 @@ public class WaitingPageController implements Observer {
     }
 
     public void startGame() throws IOException {
+        vm.startGame();
+        swapScene();
+    }
+
+    private void swapScene() throws IOException {
         FXMLLoader fxmlLoader = null;
         String fxmlPath = "src/main/resources/ui/fxml/board-page.fxml";
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         Scene scene = new Scene(fxmlLoader.load());
         scene.getStylesheets().add(getClass().getResource("/ui/css/board-page.css").toExternalForm());
-        vm.startGame();
         BoardController bc = fxmlLoader.getController();
         bc.setStage(stage);
         bc.setViewModel(vm);

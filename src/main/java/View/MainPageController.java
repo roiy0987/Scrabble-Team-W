@@ -35,7 +35,6 @@ public class MainPageController {
 
     Stage stage;
 
-
     public void joinGame() throws IOException {
         System.out.println("Join clicked!");
         System.out.println(Integer.parseInt(port.getText()));
@@ -49,7 +48,7 @@ public class MainPageController {
         if(guest!=null){
             System.out.println("11111");
             vm = new ScrabbleViewModel(guest);
-            this.setNextScene();
+            this.swapScenes();
         }
     }
 
@@ -65,7 +64,7 @@ public class MainPageController {
         if(host!=null){
             vm = new ScrabbleViewModel(host);
             isHost = true;
-            this.setNextScene();
+            this.swapScenes();
         }
     }
 
@@ -90,7 +89,7 @@ public class MainPageController {
         this.stage = stage;
     }
 
-    private void setNextScene() throws IOException {
+    private void swapScenes() throws IOException {
         FXMLLoader fxmlLoader = null;
         String fxmlPath = "src/main/resources/ui/fxml/loading-page.fxml";
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
@@ -104,7 +103,6 @@ public class MainPageController {
         stage.setFullScreen(true);
 //        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     }
-
 
 }
 

@@ -10,9 +10,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainContainer" styleClass="mainContainer" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.BoardController">
+<BorderPane fx:id="mainContainer" prefHeight="1080.0" prefWidth="1920.0" styleClass="mainContainer" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.BoardController">
    <center>
-      <GridPane fx:id="board" alignment="CENTER" gridLinesVisible="true" styleClass="grid-pane">
+      <GridPane fx:id="board" alignment="CENTER" gridLinesVisible="true" maxHeight="850.0" maxWidth="850.0" minHeight="850.0" minWidth="850.0" prefHeight="850.0" prefWidth="850.0" styleClass="grid-pane">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -48,33 +48,45 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <BorderPane.margin>
-            <Insets bottom="25.0" />
+            <Insets bottom="20.0" right="200.0" />
          </BorderPane.margin>
       </GridPane>
    </center>
    <bottom>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="516.0" BorderPane.alignment="CENTER">
+      <HBox fx:id="hbox" alignment="CENTER" spacing="50.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox prefHeight="100.0" prefWidth="150.0" styleClass="vbox">
+            <VBox fillWidth="false" maxWidth="150.0" minWidth="400.0" prefHeight="111.0" prefWidth="150.0" styleClass="vbox" HBox.hgrow="ALWAYS">
                <children>
                   <Button fx:id="shuffle" mnemonicParsing="false" onAction="#shuffleTiles" prefHeight="50.0" prefWidth="63.0" text="SHUFFLE" />
                   <Button fx:id="reset" mnemonicParsing="false" prefHeight="50.0" prefWidth="62.0" text="RESET" />
                </children>
             </VBox>
-            <ListView fx:id="playerTiles" minHeight="0.0" minWidth="0.0" orientation="HORIZONTAL" prefHeight="100.0" prefWidth="386.0" />
-            <VBox prefHeight="100.0" prefWidth="150.0" styleClass="vbox">
+            <ListView fx:id="playerTiles" maxWidth="368.0" minHeight="0.0" minWidth="0.0" orientation="HORIZONTAL" prefHeight="111.0" prefWidth="368.0" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets bottom="20.0" left="10.0" top="20.0" />
+               </padding></ListView>
+            <VBox maxWidth="208.0" prefHeight="111.0" prefWidth="208.0" styleClass="vbox" HBox.hgrow="ALWAYS">
                <children>
-                  <Button fx:id="submit" mnemonicParsing="false" onAction="#submitWord" prefHeight="50.0" prefWidth="63.0" stylesheets="@../css/board-page.css" text="SUBMIT" />
+                  <Button fx:id="submit" maxWidth="134.0" mnemonicParsing="false" onAction="#submitWord" prefHeight="50.0" prefWidth="134.0" stylesheets="@../css/board-page.css" text="SUBMIT" />
                   <Button fx:id="skip" mnemonicParsing="false" onAction="#skipTurn" prefHeight="50.0" prefWidth="63.0" text="SKIP" />
                </children>
             </VBox>
          </children>
+         <BorderPane.margin>
+            <Insets bottom="25.0" />
+         </BorderPane.margin>
       </HBox>
    </bottom>
    <left>
-      <ListView fx:id="score" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ListView fx:id="score" maxWidth="200.0" minWidth="200.0" prefHeight="400.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets right="25.0" />
          </BorderPane.margin></ListView>
    </left>
+   <padding>
+      <Insets top="25.0" />
+   </padding>
 </BorderPane>
