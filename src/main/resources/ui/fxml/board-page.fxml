@@ -58,7 +58,7 @@
             <VBox fillWidth="false" maxWidth="150.0" minWidth="400.0" prefHeight="111.0" prefWidth="150.0" styleClass="vbox" HBox.hgrow="ALWAYS">
                <children>
                   <Button fx:id="shuffle" mnemonicParsing="false" onAction="#shuffleTiles" prefHeight="50.0" prefWidth="63.0" text="SHUFFLE" />
-                  <Button fx:id="reset" mnemonicParsing="false" prefHeight="50.0" prefWidth="62.0" text="RESET" />
+                  <Button fx:id="reset" mnemonicParsing="false" onAction="#resetButton" prefHeight="50.0" prefWidth="62.0" text="RESET" />
                </children>
             </VBox>
             <ListView fx:id="playerTiles" maxWidth="368.0" minHeight="0.0" minWidth="0.0" orientation="HORIZONTAL" prefHeight="111.0" prefWidth="368.0" HBox.hgrow="NEVER">

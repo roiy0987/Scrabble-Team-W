@@ -75,7 +75,7 @@ public class BoardController {
         HBox.setHgrow(submit, Priority.ALWAYS);
         HBox.setHgrow(reset, Priority.ALWAYS);
         HBox.setHgrow(shuffle, Priority.ALWAYS);
-        HBox.setHgrow(reset, Priority.ALWAYS);
+        HBox.setHgrow(skip, Priority.ALWAYS);
 
         // Draw empty board and bind it
         int numRows = board.getRowCount();
@@ -91,7 +91,6 @@ public class BoardController {
                         String cellType = getCellType(row, col);
                         cell.setStyle(getCellStyle(cellType));
                         board.add(cell, col, row);
-//                        cell.setTile(new Tile(' '));
                         m[row][col] = cell.getTile().getCharacter();
                     } else {
                         Tile tile = new Tile(cellValue);
@@ -115,7 +114,7 @@ public class BoardController {
             }
             playerTiles.getItems().add(new Cell());
             playerTiles.getItems().get(i).setTile(tile);
-            playerTiles.getItems().get(i).setStyle("-fx-background-color: transparent;"); //-fx-border-color: black;
+            playerTiles.getItems().get(i).setStyle("-fx-background-color: white; -fx-border-color: black;"); //-fx-border-color: black;
         }
     }
 
@@ -171,16 +170,14 @@ public class BoardController {
                     for (int col = 0; col < numCols1; col++) {
                         char cellValue = newValue[row][col];
                         Cell cell = new Cell();
-
                         if (cellValue == '\u0000') {
                             String cellType = getCellType(row, col);
                             cell.setStyle(getCellStyle(cellType));
                         } else {
                             Tile tile = new Tile(cellValue);
-                            cell.setStyle("-fx-background-color: white");
+                            cell.setStyle("-fx-background-color: white; -fx-border-color: black;");
                             cell.setTileContent(tile);
                         }
-
                         board.add(cell, col, row);
                     }
                 }
@@ -265,7 +262,8 @@ public class BoardController {
             }
             this.myTurn.set(false);
         }
-     }
+        this.resetButton();
+    }
 
     public void skipTurn() {
         System.out.println("Skip Turn Clicked!");
@@ -278,9 +276,43 @@ public class BoardController {
     public void shuffleTiles() {
         Collections.shuffle(playerTiles.getItems());
     }
+    public void resetButton(){
+        if(this.vm.myTurn.get()){
+            // Reset the playerTiles ListView
+            //playerBoardTiles.clear();
+            playerTiles.getItems().clear();
+            // Add the original tiles back to the playerTiles ListView
+            for (int i = 0; i < tiles.size(); i++) {
+                Tile tile = new Tile(tiles.get(i));
+                playerTiles.getItems().add(new Cell());
+                playerTiles.getItems().get(i).setTile(tile);
+                playerTiles.getItems().get(i).setStyle("-fx-background-color: white; -fx-border-color: black;");
+            }
+            board.getChildren().clear();
+            this.bindingBoard.set(vm.getPrevBoard());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Character[][] prevBoard = this.vm.getPrevBoard();
+            // Reset the tiles on the board to empty cells
+            for (int row = 0; row < board.getRowCount(); row++) {
+                for (int col = 0; col < board.getColumnCount(); col++) {
+                    Cell cell = new Cell();
+                    if (prevBoard[row][col]==null||prevBoard[row][col] == '\u0000') {
+                        String cellType = getCellType(row, col);
+                        cell.setStyle(getCellStyle(cellType));
+                    } else {
+                        Tile tile = new Tile(prevBoard[row][col]);
+                        cell.setStyle("-fx-background-color: white; -fx-border-color: black;");
+                        cell.setTileContent(tile);
+                    }
+                    board.add(cell, col, row);
+                }
+            }
+        }
 
-    public void setVm(ScrabbleViewModel vm) {
-        this.vm = vm;
     }
 
     public void setStage(Stage stage) {
@@ -345,36 +377,47 @@ public class BoardController {
                 if (event.getGestureSource() != this && event.getDragboard().hasString()) {
                     // Indicate that the drag operation was successful
                     event.setDropCompleted(true);
+                    Tile sourceTile = (Tile) event.getGestureSource();
+                    Cell sourceCell = (Cell) sourceTile.getParent();
+                    // Check if the dragged Tile belongs to the playerTiles or tiles
+                    if (playerTiles.getItems().contains(sourceCell) || tiles.contains(sourceCell.tile.getCharacter())) {
+                        // Update the UI to reflect the change
+                        System.out.println(sourceCell.tile.character);
+                        //playerBoardTiles.add(this);
+                        if(this.tile.character!='\u0000') {
+                            System.out.println(this.tile.character);
+                            return;
+                        }
+                        System.out.println("Dragged!");
+                        System.out.println(event.getGestureSource());
+                        System.out.println(sourceTile.character);
+                        System.out.println("-----");
+                        System.out.println(event.getDragboard().getString().charAt(0));
+                        Tile newTile = new Tile(sourceTile.getCharacter());
 
-                    if(this.tile.character!='\u0000') {
-                        System.out.println(this.tile.character);
+                        this.getChildren().clear();
+                        this.tile.setTile(newTile);
+                        this.getChildren().add(this.tile);
+
+                        //playerBoardTiles.add(sourceCell);
+                        sourceCell.getChildren().clear();
+                        sourceTile.setTile(new Tile());
+                        //sourceCell.getChildren().clear();
+                        //sourceCell.setTile(new Tile());
+                        //sourceCell.setTile(null);
+                        // Update the bindingBoard property
+                        int row = GridPane.getRowIndex(this);
+                        int col = GridPane.getColumnIndex(this);
+                        Character[][] currentBoard = bindingBoard.get();
+                        currentBoard[row][col] = newTile.getCharacter();
+                        bindingBoard.set(currentBoard);
+
+                        // Return immediately after a successful drop
                         return;
                     }
-                    System.out.println("Dragged!");
-                    Tile sourceTile = (Tile) event.getGestureSource();
-                    System.out.println(event.getGestureSource());
-                    System.out.println(sourceTile.character);
-                    System.out.println("-----");
-                    System.out.println(event.getDragboard().getString().charAt(0));
+
                     // Update the UI to reflect the change
-                    Tile draggedTile = new Tile(event.getDragboard().getString().charAt(0));
 
-                    this.getChildren().clear();
-                    this.tile.setTile(draggedTile);
-                    this.getChildren().add(this.tile);
-                    Cell sourceCell = (Cell) sourceTile.getParent();
-                    sourceCell.getChildren().clear();
-                    sourceTile.setTile(new Tile());
-
-                    //sourceCell.getChildren().clear();
-                    //sourceCell.setTile(new Tile());
-                    //sourceCell.setTile(null);
-                    // Update the bindingBoard property
-                    int row = GridPane.getRowIndex(this);
-                    int col = GridPane.getColumnIndex(this);
-                    Character[][] currentBoard = bindingBoard.get();
-                    currentBoard[row][col] = draggedTile.getCharacter();
-                    bindingBoard.set(currentBoard);
                     // Remove the tile from the source cell
 
                 } else {

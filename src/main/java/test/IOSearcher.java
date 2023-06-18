@@ -8,9 +8,9 @@ public class IOSearcher {
             String s =reader.readLine();
             while(s!=null)
             {
-                String[] sArr =s.split(" ");
+                String[] sArr = s.split("[\"\\s,?!.-]+");
                 for (String value : sArr) {
-                    if (value.equals(word))
+                    if (value.toUpperCase().equals(word))
                         return true;
                 }
                 s =reader.readLine();
