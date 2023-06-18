@@ -12,7 +12,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
@@ -90,7 +89,7 @@ public class WaitingPageController implements Observer {
         });
         stage.setScene(scene);
         stage.setFullScreen(true);
-        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+//        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     }
 
     public void setIsHost(boolean isHost){
