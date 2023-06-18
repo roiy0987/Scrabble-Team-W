@@ -2,6 +2,8 @@ package View;
 
 import ViewModel.ScrabbleViewModel;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -28,6 +30,7 @@ public class WaitingPageController implements Observer {
     boolean host = false;
 
     ScrabbleViewModel vm;
+    private BooleanProperty disconnect;
 
     public WaitingPageController(){}
 
@@ -37,6 +40,13 @@ public class WaitingPageController implements Observer {
 
     public void setViewModel(ScrabbleViewModel vm){
         this.vm = vm;
+        disconnect = new SimpleBooleanProperty(false);
+        disconnect.bindBidirectional(this.vm.getDisconnect());
+        disconnect.addListener((observable, oldValue, newValue)->{
+            if(newValue){
+                Platform.runLater(()->stage.close());
+            }
+        });
         if(host){
             playersList.getItems().clear();
             playersList.itemsProperty().bind(vm.getScores());

@@ -35,13 +35,7 @@ public class MyServer {
             while (!stop) {
                 try {
                     Socket client = server.accept();
-                    threadPool.execute(() -> {
-                        try {
-                            ch.handleClient(client);
-                        } catch (IOException | ClassNotFoundException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+                    threadPool.execute(() -> ch.handleClient(client));
                 } catch (SocketTimeoutException e) {}
             }
             // Delay in order to guest to recieve the message

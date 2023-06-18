@@ -123,7 +123,6 @@ public class MainPageController {
         disconnect.addListener((observable, oldValue, newValue)->{
             if(newValue){
                 Platform.runLater(()->stage.close());
-
             }
         });
         stage.setOnCloseRequest((WindowEvent event) -> {
