@@ -14,8 +14,8 @@ public class BookScrabbleHandler implements ClientHandler{
 
     public BookScrabbleHandler(){ // Need to get names of books
         this.dm = DictionaryManager.get();
-        fileNames = new String[books.getBooks().length+1];
-        for(int i=0; i<books.getBooks().length;i++)
+        fileNames = new String[3];
+        for(int i=0; i<2;i++)
         {
             fileNames[i]= books.getBooks()[i];
         }
@@ -23,24 +23,28 @@ public class BookScrabbleHandler implements ClientHandler{
     }
 
     @Override
-    public void handleClient(Socket client) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        PrintWriter out = new PrintWriter(client.getOutputStream(),true);
-        while(!stop){
-            String word;
-            word=in.readLine();
-            if(word==null)
-                continue;
-            fileNames[books.getBooks().length]=word;
-            //this.dm.query(fileNames) ||
-            if( this.dm.challenge(fileNames)){
-                out.print("true\n");
+    public void handleClient(Socket client)  {
+        try{
+            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            PrintWriter out = new PrintWriter(client.getOutputStream(),true);
+            while(!stop){
+                String word;
+                word=in.readLine();
+                if(word==null)
+                    continue;
+                fileNames[2]=word;
+                if( this.dm.query(fileNames)||this.dm.challenge(fileNames)){
+                    out.print("true\n");
+                    out.flush();
+                    continue;
+                }
+                out.print("false\n");
                 out.flush();
-                continue;
             }
-            out.print("false\n");
-            out.flush();
+        }catch (IOException e){
+
         }
+
     }
 
     @Override
