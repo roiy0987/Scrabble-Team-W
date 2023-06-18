@@ -52,10 +52,8 @@ public class BoardController {
     HBox hbox;
     @FXML
     BorderPane mainContainer;
-
-
+    BooleanProperty disconnect;
     ObjectProperty<Character[][]> bindingBoard;
-
     ListProperty<Character> tiles;
 
     ListProperty<String> bindingScore;
@@ -159,6 +157,8 @@ public class BoardController {
         myTurn.bindBidirectional(vm.myTurn);
         gameOver = new SimpleBooleanProperty();
         gameOver.bind(vm.getGameOver());
+        disconnect = new SimpleBooleanProperty();
+        disconnect.bindBidirectional(vm.getDisconnect());
     }
 
     private void initButtons(){
@@ -196,6 +196,12 @@ public class BoardController {
                 Platform.runLater(()->{
                     gameOver();
                 });
+            }
+        });
+
+        disconnect.addListener((observable, oldValue, newValue)->{
+            if(newValue){
+                Platform.runLater(()->stage.close());
             }
         });
 
@@ -295,13 +301,20 @@ public class BoardController {
 
     public void submitWord() {
         System.out.println("Submit Clicked!");
-        if(this.vm.myTurn.get()&& vm.submitWord())
-        {
-            for (int i = 0; i < 7 ; i++) {
-                Tile tile = new Tile(tiles.get(i));
-                playerTiles.getItems().get(i).setTile(tile);
+        try {
+            if(this.vm.myTurn.get()&& vm.submitWord())
+            {
+                for (int i = 0; i < 7 ; i++) {
+                    Tile tile = new Tile(tiles.get(i));
+                    playerTiles.getItems().get(i).setTile(tile);
+                }
+                this.myTurn.set(false);
             }
-            this.myTurn.set(false);
+        } catch (NullPointerException e) {
+            if(disconnect.get()) {
+                this.stage.close();
+            }
+            return;
         }
         this.resetButton();
     }
