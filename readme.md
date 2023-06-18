@@ -1,6 +1,6 @@
 
 ## Demo Video
-[LINK to Video](https://drive.google.com/file/d/1QPFmpmgjCSpsMmi07Chh2pD74y-pw2Lz/view)
+[Link to video](https://drive.google.com/file/d/1QPFmpmgjCSpsMmi07Chh2pD74y-pw2Lz/view)
 
 ## Scrabble Game:
 ### _About the game:_
