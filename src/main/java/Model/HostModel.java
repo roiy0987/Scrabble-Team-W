@@ -241,6 +241,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 throw new RuntimeException(e);
             }
         }
+        //finishGame
+        this.closeClient(); // need to test
     }
     @Override
     public void endGame(){
@@ -259,16 +261,16 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         //finishGame
         this.closeClient(); // need to test
+    }
+    public void closeClient() {
+        DictionaryCommunication dc = DictionaryCommunication.getInstance();
+        dc.close();
         hh.close();
         try {
             guestServer.close();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-    public void closeClient() {
-        DictionaryCommunication dc = DictionaryCommunication.getInstance();
-        dc.close();
     }
 
 

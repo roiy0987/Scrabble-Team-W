@@ -15,8 +15,6 @@ public class HostHandler implements ClientHandler {
         stop = false;
     }
 
-
-
     @Override
     public void handleClient(Socket client) {
         InputStream inFromClient = null;
@@ -54,7 +52,7 @@ public class HostHandler implements ClientHandler {
                         model.update();
                         bw.write("Ok"+"\n");
                         bw.flush();
-                        System.out.println("Connected");
+                        System.out.println(requestSplitted[1]+"Connected!");
                         break;
                     case "Disconnect":
                         //System.out.println("Disconnect started!");
@@ -68,8 +66,6 @@ public class HostHandler implements ClientHandler {
                                 System.out.println(this.model.players.get(i).name + " Disconnected Successfully!");
                                 this.model.players.remove(this.model.players.get(i));
                                 this.model.update();
-                                this.stop=true;
-                                return;
                             }
                         }
                         break;

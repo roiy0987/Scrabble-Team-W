@@ -58,13 +58,10 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
             bw.write("Disconnect:"+this.playerName+"\n");
             bw.flush();
+            bw.close();
+            if(!server.isClosed())
+                this.server.close();
             //TODO
-            // Need to check if need to close streams before closing the socket
-//            disconnect=true;
-//            this.setChanged();
-//            this.notifyObservers();
-            // bw.close();
-            this.server.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -82,8 +79,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             String res = br.readLine();// Wait for game to start
             if(res==null||!res.equals("GameStarted")){
                 server.close();
-                //TODO
-                // Need to close the screen of guest
                 this.disconnect=true;
                 this.setChanged();
                 this.notifyObservers();
@@ -230,7 +225,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             out.write("GetBoard\n");
             out.flush();
             String responseFromHandler = in.readLine();
-            System.out.println(responseFromHandler);
             String[] lines = responseFromHandler.split(";");
             Character[][] responseToClient = new Character[15][15];
             for (int i = 0; i < responseToClient.length; i++) {
@@ -240,12 +234,15 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 }
             }
             return responseToClient;
-        }catch (IOException|ArrayIndexOutOfBoundsException e){
+        }catch (Exception e){
             this.disconnect=true;
             this.setChanged();
             this.notifyObservers();
-            throw new RuntimeException(e);
         }
+        this.disconnect=true;
+        this.setChanged();
+        this.notifyObservers();
+        return null;
     }
 
     @Override
@@ -255,7 +252,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             out.println("GetNewTiles:" + amount);
             out.flush();
             BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
-
             ArrayList<Character> playerTiles = new ArrayList<>();
             String response = in.readLine();
             for (int i = 0; i < response.length(); i++) {
