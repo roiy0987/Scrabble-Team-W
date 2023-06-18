@@ -2,11 +2,11 @@ package View;
 
 import ViewModel.ScrabbleViewModel;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,6 +18,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.IOException;
 import java.util.Collections;
 
 public class BoardController {
@@ -45,16 +47,15 @@ public class BoardController {
     @FXML
     HBox hbox;
 
-
     ObjectProperty<Character[][]> bindingBoard;
 
     ListProperty<Character> tiles;
 
-    ListProperty<String> bindingScore;
+    private BooleanProperty disconnect;
 
     private Tile selectedTile;
 
-    private Label draggedTile; // Reference to the dragged tile label
+    // Reference to the dragged tile label
 
     private BooleanProperty myTurn;
 
@@ -128,6 +129,8 @@ public class BoardController {
         bindingBoard.bindBidirectional(vm.getBoard());
         myTurn = new SimpleBooleanProperty();
         myTurn.bindBidirectional(vm.myTurn);
+        disconnect = new SimpleBooleanProperty();
+        disconnect.bindBidirectional(vm.getDisconnect());
     }
 
     private void initButtons(){
@@ -159,7 +162,11 @@ public class BoardController {
         myTurn.addListener((observable, oldValue, newValue)->{
             initButtons();
         });
-
+        disconnect.addListener((observable, oldValue, newValue)->{
+            if(newValue){
+                Platform.runLater(()->stage.close());
+            }
+        });
         // Add a ChangeListener to the bindingBoard property
         bindingBoard.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -270,7 +277,12 @@ public class BoardController {
     public void skipTurn() {
         System.out.println("Skip Turn Clicked!");
         if(this.vm.myTurn.get()){
-            vm.skipTurn();
+            try{
+                this.resetButton();
+                vm.skipTurn();
+            }catch (IOException | InterruptedException e) {
+                throw new RuntimeException("Game is ended");
+            }
             this.myTurn.set(false);
         }
     }
@@ -282,7 +294,6 @@ public class BoardController {
     public void resetButton(){
         if(this.vm.myTurn.get()){
             // Reset the playerTiles ListView
-            //playerBoardTiles.clear();
             playerTiles.getItems().clear();
             // Add the original tiles back to the playerTiles ListView
             for (int i = 0; i < tiles.size(); i++) {
@@ -377,7 +388,6 @@ public class BoardController {
                         }
                         // Update the UI to reflect the change
                         System.out.println(sourceCell.tile.character);
-                        //playerBoardTiles.add(this);
                         if(this.tile.character!='\u0000') {
                             System.out.println(this.tile.character);
                             return;
