@@ -6,6 +6,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -72,11 +73,6 @@ public class BoardController {
     }
 
     private void initBoard(){
-        HBox.setHgrow(submit, Priority.ALWAYS);
-        HBox.setHgrow(reset, Priority.ALWAYS);
-        HBox.setHgrow(shuffle, Priority.ALWAYS);
-        HBox.setHgrow(skip, Priority.ALWAYS);
-
         // Draw empty board and bind it
         int numRows = board.getRowCount();
         int numCols = board.getColumnCount();
@@ -90,13 +86,16 @@ public class BoardController {
                         Cell cell = new Cell();
                         String cellType = getCellType(row, col);
                         cell.setStyle(getCellStyle(cellType));
+                        cell.setDraggable(false);
                         board.add(cell, col, row);
                         m[row][col] = cell.getTile().getCharacter();
                     } else {
                         Tile tile = new Tile(cellValue);
                         Cell cell = new Cell();
-                        cell.setTileContent(tile); // Set the tile content in the Cell
+                        cell.setTile(tile); // Set the tile content in the Cell
+                        cell.setDraggable(false);
                         board.add(cell, col, row);
+
                     }
                 }
             }
@@ -112,7 +111,9 @@ public class BoardController {
             } else {
                 tile = new Tile('A');
             }
-            playerTiles.getItems().add(new Cell());
+            Cell c = new Cell();
+            c.setDraggable(true);
+            playerTiles.getItems().add(c);
             playerTiles.getItems().get(i).setTile(tile);
             playerTiles.getItems().get(i).setStyle("-fx-background-color: white; -fx-border-color: black;"); //-fx-border-color: black;
         }
@@ -176,8 +177,9 @@ public class BoardController {
                         } else {
                             Tile tile = new Tile(cellValue);
                             cell.setStyle("-fx-background-color: white; -fx-border-color: black;");
-                            cell.setTileContent(tile);
+                            cell.setTile(tile);
                         }
+                        cell.setDraggable(false);
                         board.add(cell, col, row);
                     }
                 }
@@ -276,6 +278,7 @@ public class BoardController {
     public void shuffleTiles() {
         Collections.shuffle(playerTiles.getItems());
     }
+
     public void resetButton(){
         if(this.vm.myTurn.get()){
             // Reset the playerTiles ListView
@@ -290,6 +293,7 @@ public class BoardController {
             }
             board.getChildren().clear();
             this.bindingBoard.set(vm.getPrevBoard());
+
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -303,39 +307,43 @@ public class BoardController {
                     if (prevBoard[row][col]==null||prevBoard[row][col] == '\u0000') {
                         String cellType = getCellType(row, col);
                         cell.setStyle(getCellStyle(cellType));
+                        cell.setDraggable(false);
                     } else {
                         Tile tile = new Tile(prevBoard[row][col]);
                         cell.setStyle("-fx-background-color: white; -fx-border-color: black;");
-                        cell.setTileContent(tile);
+                        cell.setTile(tile);
+                        cell.setDraggable(false);
                     }
                     board.add(cell, col, row);
                 }
             }
         }
-
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
-
     private class Cell extends StackPane {
         private Tile tile;
+
+        private boolean draggable;
 
         public Cell() {
             this.tile = new Tile();
             tile.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
             this.getChildren().add(tile);
-
+            this.draggable = true;
             setPrefSize(TILE_SIZE, TILE_SIZE);
             setStyle("-fx-background-color: yellow; -fx-border-color: black;");
+            initEvents();
+        }
 
+        private void initEvents(){
             // Set the drag and drop event handlers for the cell
             setOnDragOver(event -> {
                 if (event.getGestureSource() != this && event.getDragboard().hasString()) {
                     // Allow for moving
-                    // NEED TO CHECK IF TILE BELONG TO PLAYER OR ALREADY ON BOARD
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
@@ -353,34 +361,20 @@ public class BoardController {
                 }
             });
 
-//            setOnDragDropped(event -> {
-//                if (event.getGestureSource() != this && event.getDragboard().hasString()) {
-//                    // Indicate that the drag operation was successful
-//                    event.setDropCompleted(true);
-//
-//                    // Update the UI to reflect the change
-//                    Tile draggedTile = new Tile(event.getDragboard().getString().charAt(0));
-//                    setTile(draggedTile);
-//
-//                    // Update the bindingBoard property
-//                    int row = GridPane.getRowIndex(this);
-//                    int col = GridPane.getColumnIndex(this);
-//                    Character[][] currentBoard = bindingBoard.get();
-//                    currentBoard[row][col] = draggedTile.getCharacter();
-//                    bindingBoard.set(currentBoard);
-//                } else {
-//                    event.setDropCompleted(false);
-//                }
-//                event.consume();
-//            });
             setOnDragDropped(event -> {
-                if (event.getGestureSource() != this && event.getDragboard().hasString()) {
+                if (event.getGestureSource() != this && event.getDragboard().hasString() && this.tile.character == '\u0000') {
                     // Indicate that the drag operation was successful
                     event.setDropCompleted(true);
+
                     Tile sourceTile = (Tile) event.getGestureSource();
                     Cell sourceCell = (Cell) sourceTile.getParent();
+                    sourceCell.setDraggable(true);
                     // Check if the dragged Tile belongs to the playerTiles or tiles
                     if (playerTiles.getItems().contains(sourceCell) || tiles.contains(sourceCell.tile.getCharacter())) {
+                        if (this == sourceCell) {
+                            // The tile is being dragged onto the same cell, no action needed
+                            return;
+                        }
                         // Update the UI to reflect the change
                         System.out.println(sourceCell.tile.character);
                         //playerBoardTiles.add(this);
@@ -388,62 +382,47 @@ public class BoardController {
                             System.out.println(this.tile.character);
                             return;
                         }
-                        System.out.println("Dragged!");
-                        System.out.println(event.getGestureSource());
-                        System.out.println(sourceTile.character);
-                        System.out.println("-----");
-                        System.out.println(event.getDragboard().getString().charAt(0));
                         Tile newTile = new Tile(sourceTile.getCharacter());
 
                         this.getChildren().clear();
                         this.tile.setTile(newTile);
                         this.getChildren().add(this.tile);
-
-                        //playerBoardTiles.add(sourceCell);
                         sourceCell.getChildren().clear();
                         sourceTile.setTile(new Tile());
-                        //sourceCell.getChildren().clear();
-                        //sourceCell.setTile(new Tile());
-                        //sourceCell.setTile(null);
+                        this.setDraggable(true);
                         // Update the bindingBoard property
                         int row = GridPane.getRowIndex(this);
                         int col = GridPane.getColumnIndex(this);
                         Character[][] currentBoard = bindingBoard.get();
                         currentBoard[row][col] = newTile.getCharacter();
                         bindingBoard.set(currentBoard);
-
-                        // Return immediately after a successful drop
-                        return;
                     }
-
-                    // Update the UI to reflect the change
-
-                    // Remove the tile from the source cell
-
                 } else {
                     event.setDropCompleted(false);
                 }
                 event.consume();
             });
 
+
         }
 
         public void setTile(Tile tile) {
-            this.tile.character = tile.character;
-            System.out.println(this.tile.character);
+            this.tile = tile;
             getChildren().clear();
-            if (tile != null) {
-                getChildren().add(tile);
-            }
+            getChildren().add(this.tile);
         }
 
-        public void setTileContent(Tile tile) {
-            getChildren().clear();
-            getChildren().add(tile);
+        public void setDraggable(Boolean val){
+            tile.setDraggable(val);
+            this.draggable = val;
         }
 
         public Tile getTile() {
             return tile;
+        }
+
+        public boolean isDraggable(){
+            return draggable;
         }
     }
 
@@ -454,21 +433,14 @@ public class BoardController {
         private final DropShadow shadow = new DropShadow();
         private Cell targetCell;
 
+        private boolean draggable;
+
         public Tile(){
             super();
             this.character = '\u0000';
-
+            draggable = true;
             // Determine the value based on the Scrabble rules
-            switch (Character.toUpperCase(character)) {
-                case 'E', 'A', 'I', 'O', 'N', 'R', 'T', 'L', 'S', 'U' -> value = 1;
-                case 'D', 'G' -> value = 2;
-                case 'B', 'C', 'M', 'P' -> value = 3;
-                case 'F', 'H', 'V', 'W', 'Y' -> value = 4;
-                case 'K' -> value = 5;
-                case 'J', 'X' -> value = 8;
-                case 'Q', 'Z' -> value = 10;
-                default -> value = 0; // Blank tiles or unsupported characters
-            }
+            initValue();
 
             setText(getTileText());
 
@@ -476,77 +448,26 @@ public class BoardController {
             setStyle("-fx-background-color: lightblue; -fx-font-size: 14px;");
             setAlignment(Pos.CENTER);
 
-            setOnDragDetected(event -> {
-                Dragboard db = startDragAndDrop(TransferMode.MOVE);
-                ClipboardContent content = new ClipboardContent();
-                content.putString(getText());
-                db.setContent(content);
-                selectedTile = this;
-
-                // Add dragging effect
-                setEffect(shadow);
-                toFront();
-
-                // Set the drag view
-                SnapshotParameters parameters = new SnapshotParameters();
-                parameters.setFill(Color.TRANSPARENT);
-                Image snapshot = snapshot(parameters, null);
-                db.setDragView(snapshot, snapshot.getWidth() / 2, snapshot.getHeight() / 2);
-
-                // Set the drag position relative to the tile
-                double offsetX = event.getX();
-                double offsetY = event.getY();
-                event.setDragDetect(true);
-                event.consume();
-
-                // Set the mouse event handlers to move the tile with the mouse
-                setOnMouseDragged(e -> {
-                    setTranslateX(e.getSceneX() - offsetX - getLayoutX());
-                    setTranslateY(e.getSceneY() - offsetY - getLayoutY());
-                    e.consume();
-                });
-
-                setOnMouseReleased(e -> {
-                    setTranslateX(0);
-                    setTranslateY(0);
-                    e.consume();
-                });
-            });
-
-            setOnDragDone(event -> {
-                if (event.getTransferMode() == TransferMode.MOVE && targetCell != null) {
-                    selectedTile = null;
-                    // Remove the tile from the source cell
-                    Cell sourceCell = (Cell) getParent();
-                    System.out.println("Bla bla bla");
-                    sourceCell.setTile(new Tile());
-                    // Add the tile to the target cell
-                    targetCell.setTile(this);
-
-                    // Center the tile in the target cell
-                    double cellCenterX = targetCell.getLayoutX() + targetCell.getWidth() / 2;
-                    double cellCenterY = targetCell.getLayoutY() + targetCell.getHeight() / 2;
-                    double tileCenterX = cellCenterX - getLayoutX() - TILE_SIZE / 2;
-                    double tileCenterY = cellCenterY - getLayoutY() - TILE_SIZE / 2;
-
-                    // Animate the tile movement to the center of the cell
-                    TranslateTransition transition = new TranslateTransition(Duration.millis(200), this);
-                    transition.setToX(tileCenterX);
-                    transition.setToY(tileCenterY);
-                    transition.play();
-                }
-
-                // Remove dragging effect
-                setEffect(null);
-                event.consume();
-            });
+            this.initEvents();
         }
 
         public Tile(char character) {
             super();
             this.character = character;
-
+            draggable = true;
             // Determine the value based on the Scrabble rules
+            initValue();
+
+            setText(getTileText());
+
+            setPrefSize(TILE_SIZE, TILE_SIZE);
+            setStyle("-fx-background-color: lightblue; -fx-font-size: 14px;");
+            setAlignment(Pos.CENTER);
+
+            this.initEvents();
+        }
+
+        private void initValue(){
             switch (Character.toUpperCase(character)) {
                 case 'E', 'A', 'I', 'O', 'N', 'R', 'T', 'L', 'S', 'U' -> value = 1;
                 case 'D', 'G' -> value = 2;
@@ -557,78 +478,8 @@ public class BoardController {
                 case 'Q', 'Z' -> value = 10;
                 default -> value = 0; // Blank tiles or unsupported characters
             }
-
-            setText(getTileText());
-
-            setPrefSize(TILE_SIZE, TILE_SIZE);
-            setStyle("-fx-background-color: lightblue; -fx-font-size: 14px;");
-            setAlignment(Pos.CENTER);
-
-            setOnDragDetected(event -> {
-                Dragboard db = startDragAndDrop(TransferMode.MOVE);
-                ClipboardContent content = new ClipboardContent();
-                content.putString(getText());
-                db.setContent(content);
-                selectedTile = this;
-
-                // Add dragging effect
-                setEffect(shadow);
-                toFront();
-
-                // Set the drag view
-                SnapshotParameters parameters = new SnapshotParameters();
-                parameters.setFill(Color.TRANSPARENT);
-                Image snapshot = snapshot(parameters, null);
-                db.setDragView(snapshot, snapshot.getWidth() / 2, snapshot.getHeight() / 2);
-
-                // Set the drag position relative to the tile
-                double offsetX = event.getX();
-                double offsetY = event.getY();
-                event.setDragDetect(true);
-                event.consume();
-
-                // Set the mouse event handlers to move the tile with the mouse
-                setOnMouseDragged(e -> {
-                    setTranslateX(e.getSceneX() - offsetX - getLayoutX());
-                    setTranslateY(e.getSceneY() - offsetY - getLayoutY());
-                    e.consume();
-                });
-
-                setOnMouseReleased(e -> {
-                    setTranslateX(0);
-                    setTranslateY(0);
-                    e.consume();
-                });
-            });
-
-            setOnDragDone(event -> {
-                if (event.getTransferMode() == TransferMode.MOVE && targetCell != null) {
-                    selectedTile = null;
-                    System.out.println("Bla bla bla");
-                    // Remove the tile from the source cell
-                    Cell sourceCell = (Cell) getParent();
-                    sourceCell.setTile(new Tile());
-                    // Add the tile to the target cell
-                    targetCell.setTile(this);
-
-                    // Center the tile in the target cell
-                    double cellCenterX = targetCell.getLayoutX() + targetCell.getWidth() / 2;
-                    double cellCenterY = targetCell.getLayoutY() + targetCell.getHeight() / 2;
-                    double tileCenterX = cellCenterX - getLayoutX() - TILE_SIZE / 2;
-                    double tileCenterY = cellCenterY - getLayoutY() - TILE_SIZE / 2;
-
-                    // Animate the tile movement to the center of the cell
-                    TranslateTransition transition = new TranslateTransition(Duration.millis(200), this);
-                    transition.setToX(tileCenterX);
-                    transition.setToY(tileCenterY);
-                    transition.play();
-                }
-
-                // Remove dragging effect
-                setEffect(null);
-                event.consume();
-            });
         }
+
         public void setTile(Tile tile) {
             if (tile != null) {
                 this.character = tile.getCharacter();
@@ -640,8 +491,58 @@ public class BoardController {
             setText(getTileText());
         }
 
-        public void setTargetCell(Cell cell) {
-            this.targetCell = cell;
+        private void initEvents(){
+            setOnDragDetected(event -> {
+                System.out.println(draggable);
+                if(!draggable)
+                    return;
+                Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent content = new ClipboardContent();
+                content.putString(getText());
+                db.setContent(content);
+                selectedTile = this;
+
+                // Add dragging effect
+                setEffect(shadow);
+                toFront();
+
+                // Set the drag view
+                SnapshotParameters parameters = new SnapshotParameters();
+                parameters.setFill(Color.TRANSPARENT);
+                Image snapshot = snapshot(parameters, null);
+                db.setDragView(snapshot, snapshot.getWidth() / 2, snapshot.getHeight() / 2);
+
+                // Set the drag position relative to the tile
+                event.setDragDetect(true);
+                event.consume();
+            });
+
+            setOnDragDone(event -> {
+                if (event.getTransferMode() == TransferMode.MOVE && targetCell != null) {
+                    selectedTile = null;
+                    // Remove the tile from the source cell
+                    Cell sourceCell = (Cell) getParent();
+                    sourceCell.setTile(new Tile());
+                    // Add the tile to the target cell
+                    targetCell.setTile(this);
+
+                    // Center the tile in the target cell
+                    double cellCenterX = targetCell.getLayoutX() + targetCell.getWidth() / 2;
+                    double cellCenterY = targetCell.getLayoutY() + targetCell.getHeight() / 2;
+                    double tileCenterX = cellCenterX - getLayoutX() - TILE_SIZE / 2;
+                    double tileCenterY = cellCenterY - getLayoutY() - TILE_SIZE / 2;
+
+                    // Animate the tile movement to the center of the cell
+                    TranslateTransition transition = new TranslateTransition(Duration.millis(200), this);
+                    transition.setToX(tileCenterX);
+                    transition.setToY(tileCenterY);
+                    transition.play();
+                }
+
+                // Remove dragging effect
+                setEffect(null);
+                event.consume();
+            });
         }
 
         private String getTileText() {
@@ -652,12 +553,12 @@ public class BoardController {
             }
         }
 
-        public Character toCharacter() {
-            return character;
-        }
-
         public Character getCharacter() {
             return this.character;
+        }
+
+        public void setDraggable(Boolean val) {
+            draggable = val;
         }
     }
 }
