@@ -19,10 +19,12 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     private int turnCounter;
     private int numberOfPasses;
     protected boolean myTurn;
+    private boolean disconnect;
     public boolean gameStarted;
     //need to add the ability to play with more than 1 host
     public HostModel(String name) throws IOException {
         this.name = name;
+        disconnect=false;
         bagIsEmpty = false;
         gameStarted=false;
         gameOver = false;
@@ -112,7 +114,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return true;
     }
 
-    public void playerConnected(){
+    public void update(){
         this.setChanged();
         this.notifyObservers();
     }
@@ -132,6 +134,11 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 continue;
             this.sendMessage("Update", player);
         }
+    }
+
+    @Override
+    public boolean isDisconnected() {
+        return disconnect;
     }
 
     @Override
@@ -208,19 +215,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         if (round == 10 || numberOfPasses == this.players.size()) {//finish game
             //TODO
-            for (int i = 0; i < this.players.size(); i++) {
-                if (this.players.get(i).name.equals(this.name)) {
-                    gameOver = true;
-                    this.setChanged();
-                    this.notifyObservers();
-                    continue;
-                }
-                this.sendMessage("GameOver", this.players.get(i));
-            }
-            //finishGame
-            this.closeClient(); // need to test
-            hh.close();
-            guestServer.close();
+            this.endGame();
             return;
         }
         if (this.players.get(this.turnCounter).name.equals(this.name)) {
@@ -231,6 +226,45 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         myTurn = false;
         this.sendMessage("MyTurn", this.players.get(this.turnCounter));
+    }
+    @Override
+    public void disconnect(){
+        disconnect=true;
+        this.setChanged();
+        this.notifyObservers();
+        for(int i=0;i<players.size();i++){
+            if(this.players.get(i).name.equals(this.name))
+                continue;
+            try {
+                this.sendMessage("Disconnect",this.players.get(i));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    @Override
+    public void endGame(){
+        for (int i = 0; i < this.players.size(); i++) {
+            if (this.players.get(i).name.equals(this.name)) {
+                gameOver = true;
+                this.setChanged();
+                this.notifyObservers();
+                continue;
+            }
+            try {
+                this.sendMessage("GameOver", this.players.get(i));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        //finishGame
+        this.closeClient(); // need to test
+        hh.close();
+        try {
+            guestServer.close();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
     public void closeClient() {
         DictionaryCommunication dc = DictionaryCommunication.getInstance();

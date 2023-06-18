@@ -15,6 +15,8 @@ public interface ScrabbleModelFacade {
     boolean isMyTurn();
     boolean isGameOver();
     void addObserver(ScrabbleViewModel vm);
-
+    void endGame();
     boolean isGameStarted();
+    void disconnect();
+    boolean isDisconnected();
 }

@@ -19,7 +19,7 @@ public class ScrabbleViewModel implements Observer {
     public final BooleanProperty gameOver; // data binding
     private final BooleanProperty gameStarted;
     private Character[][] prevBoard;
-
+    private final BooleanProperty disconnect;
 
 
     public ScrabbleViewModel(ScrabbleModelFacade m) throws IOException {
@@ -31,6 +31,7 @@ public class ScrabbleViewModel implements Observer {
         myTurn= new SimpleBooleanProperty();
         gameOver = new SimpleBooleanProperty();
         gameStarted= new SimpleBooleanProperty(false);
+        disconnect = new SimpleBooleanProperty(false);
         prevBoard = new Character[15][15];
         for(int i=0;i<prevBoard.length;i++){
             Arrays.fill(prevBoard[i], '\u0000');
@@ -61,6 +62,15 @@ public class ScrabbleViewModel implements Observer {
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+    public BooleanProperty getDisconnect() {
+        return disconnect;
+    }
+    public void disconnect(){
+        this.model.disconnect();
+    }
+    public void endGame(){
+        this.model.endGame();
     }
 
     private String getDownWord(int row,int col){
@@ -242,7 +252,6 @@ public class ScrabbleViewModel implements Observer {
                     }
                 });
                 Thread.sleep(1000);
-//                this.update(null,null);
                 return true;
             }
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
@@ -250,12 +259,9 @@ public class ScrabbleViewModel implements Observer {
         }
         return false;
     }
-    public void skipTurn(){
-        try {
-            model.nextTurn();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    public void skipTurn() throws IOException, InterruptedException {
+        model.nextTurn();
+
     }
 
     public ListProperty<String> getScores()  {
@@ -281,7 +287,11 @@ public class ScrabbleViewModel implements Observer {
     public void update(Observable o, Object arg) {
         // Before startGame WaitForPlayers -> player connected -> update ScoreList in host
         // Guest -> startGame
-        if(!gameStarted.get()&&!model.isGameStarted())
+        if(model.isDisconnected()){
+            this.disconnect.set(true);
+            return;
+        }
+        if(!gameStarted.get()&&!model.isGameStarted()&&!model.isGameOver())
         {
             //Host
             Platform.runLater(()->{
@@ -327,5 +337,7 @@ public class ScrabbleViewModel implements Observer {
             this.boardProperty.set(prevBoard);
         });
     }
+
+
 }
 

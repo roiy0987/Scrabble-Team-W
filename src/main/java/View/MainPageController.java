@@ -3,15 +3,18 @@ package View;
 import Model.GuestModel;
 import Model.HostModel;
 import ViewModel.ScrabbleViewModel;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -32,6 +35,7 @@ public class MainPageController {
     private TextField textField;
 
     private boolean isHost = false;
+    private BooleanProperty disconnect;
 
     Stage stage;
 
@@ -91,6 +95,8 @@ public class MainPageController {
 
     private void swapScenes() throws IOException {
         FXMLLoader fxmlLoader = null;
+        disconnect = new SimpleBooleanProperty(false);
+        disconnect.bindBidirectional(this.vm.getDisconnect());
         String fxmlPath = "src/main/resources/ui/fxml/loading-page.fxml";
         fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
         Scene scene = new Scene(fxmlLoader.load());
@@ -98,6 +104,33 @@ public class MainPageController {
         WaitingPageController wp = fxmlLoader.getController();
         wp.setStage(stage);
         wp.setIsHost(isHost);
+        disconnect.addListener((observable, oldValue, newValue)->{
+            if(newValue){
+                Platform.runLater(()->stage.close());
+
+            }
+        });
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            event.consume(); // Consume the event to prevent automatic window closure
+            // Show a confirmation dialog
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to exit?");
+            alert.showAndWait()
+                    .filter(response -> response == ButtonType.OK) // Handle the user's choice
+                    .ifPresent(response ->{
+                        Platform.runLater(()->{
+                            if(isHost)
+                            {
+                                System.out.println("Host Disconnected!");
+                                this.vm.disconnect();
+                                stage.close();
+                                return;
+                            }
+                            this.vm.disconnect();
+                            System.out.println("Guest Disconnected!");
+                            stage.close();
+                        });
+                    } );
+        });
         wp.setViewModel(vm);
         stage.setScene(scene);
         stage.setFullScreen(true);

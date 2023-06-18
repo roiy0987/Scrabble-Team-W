@@ -5,10 +5,14 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
@@ -69,6 +73,21 @@ public class WaitingPageController implements Observer {
         bc.setStage(stage);
         bc.setViewModel(vm);
         bc.initWindow();
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            event.consume(); // Consume the event to prevent automatic window closure
+
+            // Show a confirmation dialog
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to exit?");
+            alert.showAndWait()
+                    .filter(response -> response == ButtonType.OK) // Handle the user's choice
+                    .ifPresent(response ->{
+                        Platform.runLater(()->{
+                            System.out.println("Disconnected!");
+                            vm.disconnect();
+                            stage.close();
+                        });
+                    } );
+        });
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
