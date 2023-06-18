@@ -10,7 +10,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCombination;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -38,6 +37,23 @@ public class MainPageController {
     private BooleanProperty disconnect;
 
     Stage stage;
+
+    private static MainPageController singleton_instace = null;
+
+    public static MainPageController getMainPage() throws IOException {
+        if(singleton_instace == null)
+            singleton_instace = new MainPageController();
+        return singleton_instace;
+    }
+
+    public Scene getScene() throws IOException {
+        FXMLLoader fxmlLoader = null;
+        String fxmlPath = "src/main/resources/ui/fxml/main-page.fxml";
+        fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
+        Scene scene = new Scene(fxmlLoader.load(), Screen.getPrimary().getVisualBounds().getWidth(), Screen.getPrimary().getVisualBounds().getHeight());
+        scene.getStylesheets().add(getClass().getResource("/ui/css/main-page.css").toExternalForm());
+        return scene;
+    }
 
     public void joinGame() throws IOException {
         System.out.println("Join clicked!");

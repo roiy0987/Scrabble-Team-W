@@ -2,11 +2,15 @@ package View;
 
 import ViewModel.ScrabbleViewModel;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,6 +22,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 
 public class BoardController {
@@ -33,7 +40,6 @@ public class BoardController {
     ListView<String> score; // Specify the type of ListView items
     @FXML
     GridPane board;
-
     @FXML
     Button submit;
     @FXML
@@ -44,6 +50,8 @@ public class BoardController {
     Button reset;
     @FXML
     HBox hbox;
+    @FXML
+    BorderPane mainContainer;
 
 
     ObjectProperty<Character[][]> bindingBoard;
@@ -58,6 +66,8 @@ public class BoardController {
 
     private BooleanProperty myTurn;
 
+    private BooleanProperty gameOver;
+
     public BoardController(){}
 
     public void setViewModel(ScrabbleViewModel vm) {
@@ -71,6 +81,25 @@ public class BoardController {
         initButtons();
         addListeners();
     }
+
+    public void gameOver() {
+        try {
+            FXMLLoader fxmlLoader = null;
+            String fxmlPath = "src/main/resources/ui/fxml/game-over.fxml";
+            fxmlLoader = new FXMLLoader(new File(fxmlPath).toURI().toURL());
+            Scene scene = new Scene(fxmlLoader.load());
+            scene.getStylesheets().add(getClass().getResource("/ui/css/game-over.css").toExternalForm());
+            GameOverPageController go = fxmlLoader.getController();
+            go.setVm(this.vm);
+            go.setPlayersList(score.getItems());
+            go.setStage(stage);
+            stage.setScene(scene);
+            stage.setFullScreen(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void initBoard(){
         // Draw empty board and bind it
@@ -128,6 +157,8 @@ public class BoardController {
         bindingBoard.bindBidirectional(vm.getBoard());
         myTurn = new SimpleBooleanProperty();
         myTurn.bindBidirectional(vm.myTurn);
+        gameOver = new SimpleBooleanProperty();
+        gameOver.bind(vm.getGameOver());
     }
 
     private void initButtons(){
@@ -158,6 +189,14 @@ public class BoardController {
         System.out.println(myTurn.get());
         myTurn.addListener((observable, oldValue, newValue)->{
             initButtons();
+        });
+
+        gameOver.addListener((observable, oldValue, newValue)->{
+            if(newValue){
+                Platform.runLater(()->{
+                    gameOver();
+                });
+            }
         });
 
         // Add a ChangeListener to the bindingBoard property
@@ -267,7 +306,7 @@ public class BoardController {
         this.resetButton();
     }
 
-    public void skipTurn() {
+    public void skipTurn() throws IOException, InterruptedException {
         System.out.println("Skip Turn Clicked!");
         if(this.vm.myTurn.get()){
             vm.skipTurn();
