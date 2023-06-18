@@ -3,6 +3,7 @@ package ViewModel;
 import Model.ScrabbleModelFacade;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import java.io.IOException;
 import java.util.*;
@@ -68,9 +69,6 @@ public class ScrabbleViewModel implements Observer {
     }
     public void disconnect(){
         this.model.disconnect();
-    }
-    public void endGame(){
-        this.model.endGame();
     }
 
     private String getDownWord(int row,int col){
@@ -335,12 +333,9 @@ public class ScrabbleViewModel implements Observer {
 
     }
 
-    public void setPrevBoard() {
-        Platform.runLater(()->{
-            this.boardProperty.set(prevBoard);
-        });
+
+    public BooleanProperty getGameOver() {
+        return gameOver;
     }
-
-
 }
 

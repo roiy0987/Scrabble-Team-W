@@ -310,7 +310,7 @@ public class BoardController {
                 }
                 this.myTurn.set(false);
             }
-        } catch (NullPointerException e) {
+        } catch (NullPointerException|IOException e) {
             if(disconnect.get()) {
                 this.stage.close();
             }
