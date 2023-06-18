@@ -79,9 +79,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             String res = br.readLine();// Wait for game to start
             if(res==null||!res.equals("GameStarted")){
                 server.close();
-                this.disconnect=true;
-                this.setChanged();
-                this.notifyObservers();
+                this.disconnectInvoked();
                 return;
             }
             gameStarted=true;
@@ -150,9 +148,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 }
             }
         }catch(IOException | InterruptedException e) {
-            this.disconnect=true;
-            this.setChanged();
-            this.notifyObservers();
+            this.disconnectInvoked();
             throw new RuntimeException(e);
         }
 
@@ -168,9 +164,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             Thread t = new Thread(this::waitForTurn);
             t.start();
         }catch (IOException e){
-            this.disconnect=true;
-            this.setChanged();
-            this.notifyObservers();
+            this.disconnectInvoked();
             throw new RuntimeException(e);
         }
     }
@@ -187,9 +181,7 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             response = in.readLine();
             return response.startsWith("true");
         }catch (IOException e){
-            this.disconnect=true;
-            this.setChanged();
-            this.notifyObservers();
+            this.disconnectInvoked();
             throw new RuntimeException(e);
         }
     }
@@ -203,12 +195,9 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             out.flush();
             return in.readLine();
         }catch (IOException e){
-            this.disconnect=true;
-            this.setChanged();
-            this.notifyObservers();
+            this.disconnectInvoked();
             throw new RuntimeException(e);
         }
-
         /*
             Michal:104
             Tal:98
@@ -235,14 +224,15 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             }
             return responseToClient;
         }catch (Exception e){
-            this.disconnect=true;
-            this.setChanged();
-            this.notifyObservers();
+            this.disconnectInvoked();
         }
+        this.disconnectInvoked();
+        return null;
+    }
+    public void disconnectInvoked(){
         this.disconnect=true;
         this.setChanged();
         this.notifyObservers();
-        return null;
     }
 
     @Override

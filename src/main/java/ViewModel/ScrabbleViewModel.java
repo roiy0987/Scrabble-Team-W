@@ -214,15 +214,17 @@ public class ScrabbleViewModel implements Observer {
                 return null;
         }
         return sb.toString();
+
+
     }
 
-    public boolean submitWord(){
-        String answer = getWord();
-        if(answer==null)
-            return false;
-        String [] splittedAnswer = answer.split(":");
+    public boolean submitWord()throws IOException{
         // Example: "CAT:1:2:true"
         try {
+            String answer = getWord();
+            if(answer==null)
+                return false;
+            String [] splittedAnswer = answer.split(":");
             if(model.submitWord(splittedAnswer[0],
                     Integer.parseInt(splittedAnswer[1]),
                     Integer.parseInt(splittedAnswer[2]),
@@ -313,7 +315,11 @@ public class ScrabbleViewModel implements Observer {
             this.startGame();
             return;
         }
-
+        if(model.isGameOver()){
+            System.out.println("GAME OVER");
+            gameOver.set(true);
+            return;
+        }
         Platform.runLater(()->{
             try {
                 prevBoard = boardProperty.get();
@@ -326,10 +332,7 @@ public class ScrabbleViewModel implements Observer {
         if(model.isMyTurn()){
             myTurn.set(true);
         }
-        if(model.isGameOver()){
-            System.out.println("GAME OVER");
-            gameOver.set(true);
-        }
+
     }
 
     public void setPrevBoard() {
