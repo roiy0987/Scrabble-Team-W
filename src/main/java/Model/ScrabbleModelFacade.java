@@ -8,12 +8,15 @@ import java.util.ArrayList;
 public interface ScrabbleModelFacade {
     boolean submitWord(String word, int row, int col, boolean isVertical) throws IOException, ClassNotFoundException;
     String getScore() throws IOException;
-    char[][] getBoard() throws IOException, ClassNotFoundException;
+    Character[][] getBoard() throws IOException, ClassNotFoundException;
     ArrayList<Character> getNewPlayerTiles(int amount) throws IOException, ClassNotFoundException;
     void nextTurn() throws IOException, InterruptedException;
     ArrayList<Character> startGame() throws IOException, ClassNotFoundException;
     boolean isMyTurn();
     boolean isGameOver();
     void addObserver(ScrabbleViewModel vm);
-    
+    void endGame();
+    boolean isGameStarted();
+    void disconnect();
+    boolean isDisconnected();
 }

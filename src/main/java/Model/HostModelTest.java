@@ -51,7 +51,7 @@ public class HostModelTest {
 
     // '\u0000' = null in char language
     public void testGetBoard() throws IOException, ClassNotFoundException {
-        char[][] board = host.getBoard();
+        Character[][] board = host.getBoard();
         char[][] expected = {
                 {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'},
                 {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'},

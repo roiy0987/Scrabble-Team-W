@@ -49,7 +49,7 @@ public class Tile {
                 return null;
             int rand = (int)Math.floor(Math.random()*(26));
             while(amount[rand]==0)
-                rand = (int)Math.floor(Math.random()*(26));
+                rand = (rand+1)%26;
             amount[rand]--;
             size--;
             return letters[rand];

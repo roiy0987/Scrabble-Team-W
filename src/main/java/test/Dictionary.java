@@ -1,10 +1,8 @@
 package test;
 
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.Scanner;
 
 public class Dictionary {
     private final CacheManager cLFU;
@@ -16,16 +14,17 @@ public class Dictionary {
             this.fileNames = fileNames;
             cLFU = new CacheManager(100, new LFU());
             cLRU = new CacheManager(400, new LRU());
-            bf = new BloomFilter(256, "SHA1", "MD5");
+            bf = new BloomFilter(32768,"MD5","SHA1","MD2","SHA256","SHA512");
             for (String file : fileNames) {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
-                String s = reader.readLine();
-                while (s != null) {
-                    String[] sArr = s.split(" ");
+                Scanner reader = new Scanner(new File(file));
+                while (reader.hasNext()) {
+                    String s = reader.nextLine();
+                    String[] sArr = s.split("\\W+");
                     for (String value : sArr) {
+                        if(value.equals("")||value.length()==1)
+                            continue;
                         bf.add(value);
                     }
-                    s = reader.readLine();
                 }
                 reader.close();
             }
@@ -53,6 +52,7 @@ public class Dictionary {
             return false;
         }
         if(b){
+            System.out.println("Word is valid by -> IOSearcher!");
             this.cLRU.add(word);
             return true;
         }

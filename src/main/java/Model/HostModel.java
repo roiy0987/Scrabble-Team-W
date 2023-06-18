@@ -19,10 +19,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     private int turnCounter;
     private int numberOfPasses;
     protected boolean myTurn;
+    private boolean disconnect;
+    public boolean gameStarted;
     //need to add the ability to play with more than 1 host
     public HostModel(String name) throws IOException {
         this.name = name;
+        disconnect=false;
         bagIsEmpty = false;
+        gameStarted=false;
         gameOver = false;
         hh = new HostHandler(this);
         guestServer = new MyServer(5556, hh);
@@ -33,8 +37,11 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         numberOfPasses = 0;
         round = 0;
     }
+    @Override
+    public boolean isGameStarted(){
+        return gameStarted;
+    }
 
- 
     @Override
     public boolean isMyTurn() {
         return myTurn;
@@ -49,11 +56,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         super.addObserver(vm);
     }
 
+
+
     // returns hosts tiles for guest sends appropriate message
     @Override
     public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
         Collections.shuffle(players);
+        gameStarted=true;
         for(int i=0;i<this.players.size();i++){
             if(players.get(i).name.equals(this.name))
                 continue;
@@ -72,6 +82,8 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             return getNewPlayerTiles(7);
         }
         this.sendMessage("MyTurn", players.get(0)); // if it's a guest turn
+        this.setChanged();
+        this.notifyObservers();
         return getNewPlayerTiles(7);
     }
 
@@ -94,10 +106,17 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         p.score += score;
         // remove tiles from player somehow
         this.notifyAllPlayers();
+        this.setChanged();
+        this.notifyObservers();
         // ViewModel should demand new tiles and remove previous ones
         // ViewModel should demand next turn, getBoard, getScore
         numberOfPasses = -1;
         return true;
+    }
+
+    public void update(){
+        this.setChanged();
+        this.notifyObservers();
     }
 
     private void notifyAllPlayers() throws IOException {
@@ -111,8 +130,15 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 this.notifyObservers();
                 continue;
             }
+            if(this.players.get(this.turnCounter)==player)
+                continue;
             this.sendMessage("Update", player);
         }
+    }
+
+    @Override
+    public boolean isDisconnected() {
+        return disconnect;
     }
 
     @Override
@@ -123,21 +149,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
                 sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score);
                 break;
             }
-            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append("\n");
+            sb.append(this.players.get(i).name).append(":").append(this.players.get(i).score).append(";");
         }
         return sb.toString(); // Arik:54'\n'Roie:45'\n'Tal:254
     }
 
     @Override
-    public char[][] getBoard() throws IOException, ClassNotFoundException {
-        char[][] b = new char[15][15];
-        Character[][] updatedBoard = getBoardToCharacters();
-        for (int i = 0; i < b.length; i++) {
-            for (int j = 0; j < b[i].length; j++) {
-                b[i][j] = updatedBoard[i][j];
-            }
-        }
-        return b;
+    public Character[][] getBoard() throws IOException, ClassNotFoundException {
+        return getBoardToCharacters();
     }
 
     public Character[][] getBoardToCharacters() {
@@ -196,19 +215,7 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
         if (round == 10 || numberOfPasses == this.players.size()) {//finish game
             //TODO
-            for (int i = 0; i < this.players.size(); i++) {
-                if (this.players.get(i).name.equals(this.name)) {
-                    gameOver = true;
-                    this.setChanged();
-                    this.notifyObservers();
-                    continue;
-                }
-                this.sendMessage("GameOver", this.players.get(i));
-            }
-            //finishGame
-            this.closeClient(); // need to test
-            hh.close();
-            guestServer.close();
+            this.endGame();
             return;
         }
         if (this.players.get(this.turnCounter).name.equals(this.name)) {
@@ -220,9 +227,50 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         myTurn = false;
         this.sendMessage("MyTurn", this.players.get(this.turnCounter));
     }
+    @Override
+    public void disconnect(){
+        disconnect=true;
+        this.setChanged();
+        this.notifyObservers();
+        for(int i=0;i<players.size();i++){
+            if(this.players.get(i).name.equals(this.name))
+                continue;
+            try {
+                this.sendMessage("Disconnect",this.players.get(i));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        //finishGame
+        this.closeClient(); // need to test
+    }
+    @Override
+    public void endGame(){
+        for (int i = 0; i < this.players.size(); i++) {
+            if (this.players.get(i).name.equals(this.name)) {
+                gameOver = true;
+                this.setChanged();
+                this.notifyObservers();
+                continue;
+            }
+            try {
+                this.sendMessage("GameOver", this.players.get(i));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        //finishGame
+        this.closeClient(); // need to test
+    }
     public void closeClient() {
         DictionaryCommunication dc = DictionaryCommunication.getInstance();
         dc.close();
+        hh.close();
+        try {
+            guestServer.close();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

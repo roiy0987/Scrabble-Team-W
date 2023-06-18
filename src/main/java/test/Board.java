@@ -246,6 +246,8 @@ public class Board {
         int length = tilesOfWord.length;
         boolean isV = word.isVertical();
         boolean isInListOfBoardWords=false;
+        if(!dictionaryLegal(word))
+            return null;
         ArrayList<Word> words=new ArrayList<Word>();
         words.add(word);
         if(this.amountOfWords==1)
