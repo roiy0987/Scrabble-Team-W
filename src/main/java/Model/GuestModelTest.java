@@ -110,7 +110,7 @@ public class GuestModelTest {
         }
         g1.nextTurn();
         Thread.sleep(3000);
-        if(!g1.getGameOver())
+        if(!g1.isGameOver())
             System.out.println("Error in game over");
         System.out.println("---------------End of test next turn---------------");
     }

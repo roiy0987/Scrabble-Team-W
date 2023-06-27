@@ -1,18 +1,20 @@
 package test;
 
 import java.io.File;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BooksDirectoryReader {
 
-    private String[] fileNameArray;
+    private final String[] fileNameArray;
 
     //private static BooksDirectoryReader = null;
 
+    /**
+     * The BooksDirectoryReader constructor reads all the books in a directory and sets an array of strings containing
+     * the file names of each book.
+     *
+     */
     public BooksDirectoryReader() {
         String directoryPath = "./src/main/resources/books";
         File directory = new File(directoryPath);
@@ -31,6 +33,12 @@ public class BooksDirectoryReader {
         fileNameArray = fileNames.toArray(new String[0]);
     }
 
+    /**
+     * The getBooks function returns an array of strings containing the paths of all books in the library.
+     *
+     * @return An array of String
+     *
+     */
     public String[] getBooks() {
         return fileNameArray;
     }

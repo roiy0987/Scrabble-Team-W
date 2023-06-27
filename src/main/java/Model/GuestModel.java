@@ -18,6 +18,23 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     boolean gameStarted;
     private boolean disconnect;
 
+    /**
+     * The GuestModel function is the constructor for the GuestModel class.
+     * It takes in a String name, String ip and int port as parameters.
+     * The function creates a new socket with the given ip and port, then sends &quot;Connect:name&quot; to server to connect.
+     * If server responds with &quot;GameIsFull&quot;, it throws an IOException saying that game is full.
+     * If server responds with &quot;NameIsTaken&quot;, it throws an IOException saying that name is taken by another player already connected to game.
+     *
+     * @param name A String -Set the name of the player
+     * @param ip A String -Connect to the server
+        public void waitforgamestart() {
+            try {
+                bufferedreader br = new bufferedreader(new inputstreamreader(server
+     * @param port An int -Connect to the server
+     *
+     * @return A guestModel object
+     *
+     */
     public GuestModel(String name, String ip, int port)throws IOException {
         this.playerName = name;
         gameStarted=false;
@@ -47,11 +64,23 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         new Thread(this::waitForGameStart).start();
         // Connect to server with name and socket for blabla
     }
+
+    /**
+     * The isGameStarted function returns a boolean value that indicates whether the game has started or not.
+     *
+     * @return A boolean value
+     */
     @Override
     public boolean isGameStarted(){
         return gameStarted;
     }
 
+    /**
+     * The disconnect function is used to disconnect the client from the server.
+     * It sends a message to the server that it is disconnecting, and then closes
+     * its socket connection with the server.
+     *
+     */
     @Override
     public void disconnect() { //Need to complete
         try {
@@ -61,18 +90,28 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             bw.close();
             if(!server.isClosed())
                 this.server.close();
-            //TODO
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+
+    /**
+     * The isDisconnected function checks to see if the client is disconnected.
+     *
+     * @return The value of the disconnect boolean variable
+     */
     @Override
     public boolean isDisconnected() {
         return disconnect;
     }
 
 
+    /**
+     * The waitForGameStart function is used to wait for the game to start.
+     * It waits until it receives a message from the server that says &quot;GameStarted&quot;.
+     * Once this happens, it notifies all of its observers and then calls waitForTurn().
+     */
     public void waitForGameStart(){ //Need to complete
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
@@ -94,24 +133,42 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     }
 
+    /**
+     * The addObserver function adds a new observer to the list of observers.
+     *
+     * @param vm ScrabbleViewModel -Pass the view model to the super class
+     *
+     */
     @Override
     public void addObserver(ScrabbleViewModel vm) {
         super.addObserver(vm);
     }
 
-    @Override
-    public void endGame() { // Need to complete
 
-    }
-
+    /**
+     * The isMyTurn function returns a boolean value that indicates whether it is the player's turn.
+     *
+     * @return A boolean value of true if it is the player's turn and false otherwise
+     */
     @Override
     public boolean isMyTurn() {
         return myTurn;
     }
+    /**
+     * The isGameOver function checks to see if the game is over.
+     *
+     * @return True if the game is over, false otherwise
+     */
     @Override
     public boolean isGameOver(){
         return gameOver;
     }
+    /**
+     * The waitForTurn function is used to wait for the server to notify the client that it's their turn.
+     * The function will continue running until either:
+     * 1) It receives a message from the server saying that it's their turn, or
+     * 2) The game has ended (in which case, we close our connection with the server).
+     */
     public void waitForTurn()  {
         try{
             BufferedReader br = new BufferedReader(new InputStreamReader(server.getInputStream()));
@@ -154,6 +211,12 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
 
     }
 
+    /**
+     * The nextTurn function is called when the current player's turn ends.
+     * It sends a message to the server that it is no longer their turn, and then waits for a message from the server
+     * indicating that it is now their turn again. This function also sets myTurn to false, so that any further attempts
+     * by this client to send messages will be disabled until they receive another &quot;YourTurn&quot; message from the server.
+     */
     @Override
     public void nextTurn() {
         myTurn=false;
@@ -169,6 +232,16 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         }
     }
 
+    /**
+     * The submitWord function is used to submit a word to the game board.
+     *
+     * @param word String -Pass the word that is being submitted to the server
+     * @param row int -Specify the row of the first letter in a word
+     * @param col int -Determine the column of the first letter in a word
+     * @param isVertical boolean -Determine whether the word is vertical or horizontal
+     *
+     * @return true if word was successfully placed on board, false if not.
+     */
     @Override
     public boolean submitWord(String word, int row, int col, boolean isVertical)  {
         // user
@@ -186,6 +259,14 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         }
     }
 
+    /**
+     * The getScore function returns a string containing the current score of all players in the game.
+     * The format of this string is as follows with a delimiter of ";" to separate between players.
+     * <p>
+     * Example: Michal:104;Tal:98;Roie:57;Arik:82
+     *
+     * @return String
+     */
     @Override
     public String getScore() {
         try {
@@ -198,14 +279,13 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
             this.disconnectInvoked();
             throw new RuntimeException(e);
         }
-        /*
-            Michal:104
-            Tal:98
-            Roie:57
-            Michal:104\nTal:98
-         */
     }
 
+    /**
+     * The getBoard function is used to get the board from the server.
+     *
+     * @return A 2d array of characters
+     */
     @Override
     public Character[][] getBoard()  {
         try {
@@ -229,12 +309,23 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
         this.disconnectInvoked();
         return null;
     }
+    /**
+     * The disconnectInvoked function is used to notify the observers that a disconnection has been invoked.
+     * It sets the disconnect boolean to true, and notifies all of its observers.
+     */
     public void disconnectInvoked(){
         this.disconnect=true;
         this.setChanged();
         this.notifyObservers();
     }
 
+    /**
+     * The getNewPlayerTiles function is used to get new tiles for the player.
+     *
+     * @param amount int -Determine how many tiles the player needs to get from the bag
+     *
+     * @return An arraylist of characters
+     */
     @Override
     public ArrayList<Character> getNewPlayerTiles(int amount) {
         try {
@@ -257,13 +348,17 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
     }
 
 
+    /**
+     * The startGame function is called when the game begins. It returns an ArrayList of 7 characters, which are the tiles that
+     * will be given to a player at the start of a game. The function calls getNewPlayerTiles(7) to accomplish this task.
+     *
+     * @return An arraylist of character objects
+     *
+     */
     @Override
     public ArrayList<Character> startGame()throws IOException, ClassNotFoundException{
         return getNewPlayerTiles(7);
     }
 
-    public boolean getGameOver(){
-        return this.gameOver;
-    }
 
 }

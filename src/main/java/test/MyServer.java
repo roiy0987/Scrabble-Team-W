@@ -17,17 +17,40 @@ public class MyServer {
     private ServerSocket server;
     private ExecutorService threadPool;
 
+
+    /**
+     * The MyServer function is a constructor for the MyServer class.
+     * It initializes the port number, client handler and stop boolean to be used by the server.
+     * It also creates a thread pool of cached threads that will be used by the server to handle clients.
+     *
+     * @param port int -Set the port number that the server will listen to
+     * @param ch ClientHandler -Handle the client's request
+     *
+     * @return MyServer Object
+     *
+     */
     public MyServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
         stop = false;
-        threadPool = Executors.newCachedThreadPool(); // Set maximum of 3 threads in the pool
+        threadPool = Executors.newCachedThreadPool();
     }
 
+    /**
+     * The start function starts the server in a new Thread.
+     *
+     */
     public void start() {
         new Thread(() -> startServer()).start();
     }
 
+    /**
+     * The startServer function is responsible for starting the server.
+     * It creates a new ServerSocket and sets its timeout to 1000 milliseconds.
+     * Then, it enters a loop that waits for clients to connect, and when they do,
+     * it handles them with the handleClient function from the ClientHandler facade.
+     *
+     */
     private void startServer() {
         try {
             server = new ServerSocket(this.port);
@@ -48,6 +71,13 @@ public class MyServer {
         }
     }
 
+    /**
+     * The close function is used to close the thread pool.
+     * It sets the stop variable to true, and then shuts down
+     * the thread pool and end the server by exiting the loop in the startServer function. If there are any threads that are still running,
+     * it will wait for them to finish before shutting down.
+     *
+     */
     public void close() throws InterruptedException {
         stop = true;
         try {

@@ -21,7 +21,15 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     protected boolean myTurn;
     private boolean disconnect;
     public boolean gameStarted;
-    //need to add the ability to play with more than 1 host
+
+    /**
+     * The HostModel function is the constructor for the HostModel class.
+     * It initializes all the variables that are used in this class, and starts a server to listen for incoming connections from guests.
+     *
+     * @param name String -Set the name of the host
+     *
+     * @return A hostModel object
+     */
     public HostModel(String name) throws IOException {
         this.name = name;
         disconnect=false;
@@ -37,28 +45,56 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         numberOfPasses = 0;
         round = 0;
     }
+    /**
+     * The isGameStarted function returns a boolean value that indicates whether the game has started or not.
+     *
+     * @return A boolean value
+     */
     @Override
     public boolean isGameStarted(){
         return gameStarted;
     }
 
+    /**
+     * The isMyTurn function returns a boolean value that indicates whether it is the player's turn.
+     *
+     * @return A boolean value
+     */
     @Override
     public boolean isMyTurn() {
         return myTurn;
     }
+    /**
+     * The isGameOver function checks to see if the game is over.
+     *
+     * @return True if the game is over, and false otherwise
+     */
     @Override
     public boolean isGameOver(){
         return gameOver;
     }
 
+    /**
+     * The addObserver function adds a new observer to the list of observers.
+     *
+     * @param vm An ScrabbleViewModel -Pass the view model to the super class
+     *
+     * @return A boolean value
+     *
+     */
     @Override
     public void addObserver(ScrabbleViewModel vm) {
         super.addObserver(vm);
     }
 
-
-
-    // returns hosts tiles for guest sends appropriate message
+    /**
+     * The startGame function is responsible for starting the game.
+     * It shuffles the players, and then sends a message to all of them that the game has started.
+     * Then it waits 2 seconds before sending a message to either host or guest depending on who's turn it is first.
+     *
+     * @return A list of characters
+     *
+     */
     @Override
     public ArrayList<Character> startGame() throws IOException, ClassNotFoundException {
         board = Board.getBoard();
@@ -87,6 +123,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return getNewPlayerTiles(7);
     }
 
+    /**
+     * The sendMessage function sends a message to the player specified in the parameter.
+     *
+     *
+     * @param message String -Send a message to the player
+     * @param playerReceiver Player -Send the message to a specific player
+     *
+     */
     private void sendMessage(String message, Player playerReceiver) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(playerReceiver.socket.getOutputStream()));
         message = message+"\n";
@@ -94,6 +138,21 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         bw.flush();
     }
 
+    /**
+     * The submitWord function takes in a word, row, column and boolean value to determine if the word is vertical or horizontal.
+     * It then converts the string into a Word object using the stringToWord function. The tryPlaceWord function from Board is called
+     * with this new Word object as an argument and returns an integer score which represents how many points were earned by placing that
+     * word on the board. If no points are earned (score == 0), then false is returned because it was not possible to place that word on
+     * the board at those coordinates. Otherwise, true is returned because it was possible to place that word
+     *
+     * @param word String -Create a word object to be placed on the board
+     * @param row int -Determine the row of the first letter in a word
+     * @param col int -Determine the column of the first letter in a word
+     * @param isVertical boolean -Determine whether the word is placed vertically or horizontally on the board
+     *
+     * @return A boolean, which is true if the word was successfully placed on the board
+     *
+     */
     @Override
     public boolean submitWord(String word, int row, int col, boolean isVertical) throws IOException, ClassNotFoundException {
         Word submittedWord = stringToWord(word, row, col, isVertical);
@@ -114,11 +173,24 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return true;
     }
 
+    /**
+     * The update function is used to notify the observers that a change has been made.
+     * This function will be called by the model whenever it needs to update its observers.
+     *
+     */
     public void update(){
         this.setChanged();
         this.notifyObservers();
     }
 
+    /**
+     * The notifyAllPlayers function is used to notify all players of the current state of the game.
+     * This function will be called after a player has submitted a word, and it will send an update message to all other players.
+     * The update message contains information about the board, score and whose turn it is next.
+     *
+     * @return A string
+     *
+     */
     private void notifyAllPlayers() throws IOException {
 
         for (Player player : this.players) {
@@ -136,11 +208,23 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         }
     }
 
+    /**
+     * The isDisconnected function checks to see if the client is disconnected.
+     *
+     * @return A boolean value that indicates whether the client is disconnected
+     *
+     */
     @Override
     public boolean isDisconnected() {
         return disconnect;
     }
 
+    /**
+     * The getScore function returns a string of the players' names and scores.
+     *
+     * @return A string with the scores of all players in the game
+     *
+     */
     @Override
     public String getScore() throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -154,11 +238,23 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return sb.toString(); // Arik:54'\n'Roie:45'\n'Tal:254
     }
 
+    /**
+     * The getBoard function is used to return the board as a 2D array of characters.
+     *
+     * @return A character[][]
+     *
+     */
     @Override
     public Character[][] getBoard() throws IOException, ClassNotFoundException {
         return getBoardToCharacters();
     }
 
+    /**
+     * The getBoardToCharacters function is a helper function that converts the board's tiles into characters.
+     *
+     *
+     * @return A 2d array of characters
+     */
     public Character[][] getBoardToCharacters() {
         Character[][] updatedBoard = new Character[15][15];
         Tile[][] boardTiles = board.getTiles();
@@ -174,6 +270,18 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return updatedBoard;
     }
 
+    /**
+     * The stringToWord function takes a string and converts it into a Word object.
+     *
+     *
+     * @param word String -Store the word that is being passed in
+     * @param row int -Set the row of the word
+     * @param col int -Determine the column of the word
+     * @param isVertical boolean -Determine if the word is vertical or horizontal
+     *
+     * @return A word object
+     *
+     */
     private Word stringToWord(String word, int row, int col, boolean isVertical) {
         System.out.println(word);
         System.out.println(word.length());
@@ -188,6 +296,15 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return new Word(t, row, col, isVertical);
     }
 
+    /**
+     * The getNewPlayerTiles function is used to get a new set of tiles for the player.
+     *
+     *
+     * @param amount int -Determine how many tiles the player will receive
+     *
+     * @return An arraylist of characters
+     *
+     */
     @Override
     public ArrayList<Character> getNewPlayerTiles(int amount) throws IOException, ClassNotFoundException {
         if (bagIsEmpty)
@@ -204,9 +321,15 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         return list;
     }
 
+    /**
+     * The nextTurn function is used to determine which player's turn it is.
+     * It also determines when the game ends, and if so, call the endGame function.
+     *
+     * @return The player whose turn it is
+     *
+     */
     @Override
     public void nextTurn() throws IOException, InterruptedException {
-        //TODO
         numberOfPasses++;
         this.turnCounter++;
         if (this.turnCounter >= this.players.size()) {
@@ -214,7 +337,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             this.round++;
         }
         if (round == 10 || numberOfPasses == this.players.size()) {//finish game
-            //TODO
             this.endGame();
             return;
         }
@@ -227,6 +349,10 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
         myTurn = false;
         this.sendMessage("MyTurn", this.players.get(this.turnCounter));
     }
+    /**
+     * The disconnect function is used to notify the other players that this player has disconnected.
+     * It also closes the client socket and stops listening for messages from the server.
+     */
     @Override
     public void disconnect(){
         disconnect=true;
@@ -242,10 +368,14 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             }
         }
         //finishGame
-        this.closeClient(); // need to test
+        this.closeClient();
     }
-    @Override
-    public void endGame(){
+
+    /**
+     * The endGame function is called when the game has ended.
+     * It sends a message to all players that the game is over, and then closes the client.
+     */
+    private void endGame(){
         for (int i = 0; i < this.players.size(); i++) {
             if (this.players.get(i).name.equals(this.name)) {
                 gameOver = true;
@@ -260,8 +390,13 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
             }
         }
         //finishGame
-        this.closeClient(); // need to test
+        this.closeClient();
     }
+    /**
+     * The closeClient function closes the client's connection to the server.
+     * It does this by closing the DictionaryCommunication instance, which in turn
+     * closes its socket and input/output streams.
+     */
     public void closeClient() {
         DictionaryCommunication dc = DictionaryCommunication.getInstance();
         dc.close();

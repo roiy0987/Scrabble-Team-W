@@ -10,11 +10,28 @@ public class HostHandler implements ClientHandler {
 
     private boolean stop;
     private HostModel model;
+    /**
+     * The HostHandler function is responsible for handling the Host's turn.
+     * It will first check if the player has any cards in their hand, and if they do not, it will draw a card from the deck.
+     * If there are no cards left in the deck to draw from, then it will end its turn without drawing a card.
+     * The function then checks whether there are any valid moves that can be made with this new card (or old ones).
+     * If so, it makes one of these moves at random and ends its turn; otherwise, it discards this new card (or an old one) at
+     *
+     * @param model HostModel
+     *
+     */
     public HostHandler(HostModel model){
         this.model = model;
         stop = false;
     }
 
+    /**
+     * The handleClient function is responsible for handling the client's requests.
+     * It reads a request from the client, and then performs an action according to that request.
+     * The function also sends back a response to the client after performing each action.
+     *
+     * @param client Socket -Connect to the client
+     */
     @Override
     public void handleClient(Socket client) {
         InputStream inFromClient = null;
@@ -112,9 +129,6 @@ public class HostHandler implements ClientHandler {
                 }
         }
         } catch (IOException e) {
-            //TODO
-            //Need to end the game of the player which it is his turn now.
-            //model.endGame();
             throw new RuntimeException("Socket Closed!");
         } catch (ClassNotFoundException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -122,6 +136,11 @@ public class HostHandler implements ClientHandler {
     }
 
 
+    /**
+     * The close function is used to stop the thread from running.
+     * It sets the boolean variable &quot;stop&quot; to true, which causes the while loop in run()
+     * to terminate. This allows for a clean shutdown of this thread when it is no longer needed.
+     */
     @Override
     public void close() {
         stop = true;
