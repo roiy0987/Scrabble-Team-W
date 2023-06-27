@@ -338,4 +338,3 @@ public class ScrabbleViewModel implements Observer {
         return gameOver;
     }
 }
-

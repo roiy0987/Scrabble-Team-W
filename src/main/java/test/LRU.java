@@ -11,12 +11,23 @@ public class LRU implements CacheReplacementPolicy {
         return words;
     }
 
+    /**
+     * The add function adds a word to the list of words.
+     *
+     * @param word Add a word to the list
+     */
     public void add(String word){
         if(words.contains(word)){
             this.words.remove(word);
         }
         this.words.add(word);
     }
+
+    /**
+     * The remove function removes the first element in the list.
+     *
+     * @return The first element in the set
+     */
     public String remove(){
         if(this.words.size()==0)
             return null;
