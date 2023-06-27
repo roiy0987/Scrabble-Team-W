@@ -23,14 +23,6 @@ public class ScrabbleViewModel implements Observer {
     private final BooleanProperty disconnect;
 
 
-																						 
-																									 
-																																					   
-	  
-											   
-	  
-														 
-	   
     public ScrabbleViewModel(ScrabbleModelFacade m) throws IOException {
         model = m;
         m.addObserver(this);
@@ -46,39 +38,13 @@ public class ScrabbleViewModel implements Observer {
             Arrays.fill(prevBoard[i], '\u0000');
         }
     }
-
-	   
-														
-	  
-											   
-	   
     public ListProperty<Character> getTiles(){
         return tiles;
     }
 
-	   
-															  
-	  
-							  
-	   
-										 
-							 
-	 
-
-	   
-															  
-	  
-								
-	   
     public ObjectProperty<Character[][]> getBoard(){
         return boardProperty;
     }
-
-	   
-																				  
-	  
-							
-	   
     public Character[][] getPrevBoard(){
         try {
             this.prevBoard = this.model.getBoard();
@@ -88,10 +54,6 @@ public class ScrabbleViewModel implements Observer {
         return this.prevBoard;
     }
 
-	   
-														
-																									   
-	   
     public void startGame() {
         try {
             gameStarted.set(true);
@@ -102,43 +64,13 @@ public class ScrabbleViewModel implements Observer {
             throw new RuntimeException(e);
         }
     }
-	   
-																  
-	  
-								
-	   
     public BooleanProperty getDisconnect() {
         return disconnect;
     }
-
-	   
-																	  
-	  
-							  
-	   
     public void disconnect(){
         this.model.disconnect();
     }
 
-	   
-														 
-																																					 
-	  
-						
-	   
-						  
-							 
-	 
-
-	   
-																			   
-																			
-	  
-																 
-																	
-	  
-																	  
-	   
     private String getDownWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         while(row!=15 && row > -1){
@@ -155,16 +87,6 @@ public class ScrabbleViewModel implements Observer {
         }
         return sb.toString();
     }
-
-	   
-																				
-																  
-	  
-																 
-																	
-	  
-																			
-	   
     private String getRightWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         while(col!=15 && col > -1){
@@ -180,15 +102,6 @@ public class ScrabbleViewModel implements Observer {
         }
         return sb.toString();
     }
-
-	   
-																													
-	  
-																 
-																	
-	  
-											   
-	   
     private String getLeftWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         int originalCol=col;
@@ -207,15 +120,6 @@ public class ScrabbleViewModel implements Observer {
         sb.append(this.getRightWord(row,col));
         return sb.toString();
     }
-
-	   
-																															   
-	  
-																 
-																	
-	  
-											  
-	   
     private String getUpWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         int originalRow=row;
@@ -235,14 +139,6 @@ public class ScrabbleViewModel implements Observer {
         return sb.toString();
     }
 
-	   
-																																	
-	  
-																 
-																	
-	  
-										
-	   
     private String getDirectionOfWord(int row,int col){
         if(row!=0&&boardProperty.get()[row-1][col]!='\u0000'){
             return "up";
@@ -258,15 +154,6 @@ public class ScrabbleViewModel implements Observer {
         }
         return "error";
     }
-
-	   
-																						  
-																													
-																								 
-																																 
-	  
-									
-	   
     private String getWord(){
         Character[][] currentBoard;
         try {
@@ -329,20 +216,7 @@ public class ScrabbleViewModel implements Observer {
 
     }
 
-	   
-																					
-																											
-																															  
-																																																																														  
-	  
-															
-	  
-	   
     public boolean submitWord()throws IOException{
-								  
-						
-						 
-													 
         // Example: "CAT:1:2:true"
         try {
             String answer = getWord();
@@ -390,11 +264,6 @@ public class ScrabbleViewModel implements Observer {
 
     }
 
-	   
-																					
-	  
-										   
-	   
     public ListProperty<String> getScores()  {
         try {
             System.out.println("getScore invoked");
@@ -410,11 +279,6 @@ public class ScrabbleViewModel implements Observer {
         }
     }
 
-	   
-																			
-	  
-								
-	   
     public BooleanProperty getGameStartedProperty(){
         return this.gameStarted;
     }
@@ -449,13 +313,11 @@ public class ScrabbleViewModel implements Observer {
             this.startGame();
             return;
         }
-
         if(model.isGameOver()){
             System.out.println("GAME OVER");
             gameOver.set(true);
             return;
         }
-
         Platform.runLater(()->{
             try {
                 prevBoard = boardProperty.get();
@@ -474,13 +336,5 @@ public class ScrabbleViewModel implements Observer {
 
     public BooleanProperty getGameOver() {
         return gameOver;
-	  
-				   
-	   
-								
-							   
-											  
-		   
     }
 }
-
