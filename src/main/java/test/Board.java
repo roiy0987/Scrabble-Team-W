@@ -5,11 +5,16 @@ import java.util.ArrayList;
 public class Board {
     private Tile[][] tiles;
     private int amountOfWords;
-    public Tile[][] getTiles(){
-        return this.tiles.clone();
-    }
+    
     public static Board board = null;
     private ArrayList<Word> boardWords;
+    /**    
+     * The Board function is a constructor for the Board class. It initializes all the tiles in the board to null, and sets
+     * amountOfWords to 0.
+     *
+     * @return A board object
+     *
+     */
     private Board(){
         this.amountOfWords=0;
         this.tiles=new Tile[15][15];
@@ -19,6 +24,26 @@ public class Board {
         }
         this.boardWords=new ArrayList<Word>();
     }
+    /**    
+     * The getTiles function returns a copy of the tiles array.
+     *
+     * @return A copy of the tiles array
+     *
+     */
+    public Tile[][] getTiles(){
+        return this.tiles.clone();
+    }
+    /**    
+     * The isWordThere function checks if the word is there in the board.
+     *
+     * @param word Word -Get the length of the word
+     * @param row int -Check if the word is in the same row as the letter
+     * @param col int -Check if the column of the word is equal to the col parameter
+     * @param isVertical boolean -Determine whether the word is vertical or horizontal
+     *
+     * @return True if the word is in the board
+     *
+     */
     public boolean isWordThere(Word word,int row,int col,boolean isVertical){
         int length = word.getTiles().length;
         int startLetterRow=word.getRow();
@@ -38,6 +63,14 @@ public class Board {
             return false;
         return true;
     }
+    /**    
+     * The boardLegal function checks if the word is legal to be placed on the board.
+     * It checks if it's connected to other words, and that it doesn't overlap with any letters already on the board.
+     *
+     * @param word Word -Get the row, column, and tiles of the word
+     *
+     * @return True if the word is legal on the board and false otherwise
+     */
     public boolean boardLegal(Word word){
         int col = word.getCol();
         int row = word.getRow();
@@ -116,6 +149,14 @@ public class Board {
         }
         return isConnected;
     }
+    /**    
+     * The dictionaryLegal function checks if the word is a valid English word.
+     *
+     * @param word Word -Get the tiles from the word, and to see if it is vertical or horizontal
+     *
+     * @return True if the word is in the dictionary, false otherwise
+     *
+     */
     public boolean dictionaryLegal(Word word){
         DictionaryCommunication dc = DictionaryCommunication.getInstance();
         StringBuilder sb = new StringBuilder();
@@ -134,11 +175,26 @@ public class Board {
             return false;
         return true;
     }
+    /**    
+     * The getBoard function is a static function that returns the Singleton board object.
+     *
+     * @return The board object
+     *
+     */
     public static Board getBoard(){
         if(board==null)
             board=new Board();
         return board;
     }
+    /**    
+     * The getFirstLetterRow function takes in a row and column number
+     * and returns the first letter that is connected from there in that column.
+     *
+     * @param row int -Get the row of the first letter in a word
+     * @param col int -Determine the column of the first letter in a word
+     * @return An int
+     *
+     */
     public int getFirstLetterRow(int row,int col){
         int firstLetterRow=row;
         for(int i=firstLetterRow-1;i>0;i--)
@@ -146,6 +202,16 @@ public class Board {
                 return i+1;
         return 0;
     }
+    /**    
+     * The tileVerticalWord function takes in a row and column number, and returns the word that is formed by the tiles
+     * vertically above or below it. If there are no tiles above or below it, then null is returned.
+     *
+     * @param row int-Determine the row of the first letter in a word
+     * @param col int-Determine the column of the first letter in a word
+     *
+     * @return A word object that represents the word formed by
+     *
+     */
     public Word tileVerticalWord(int row,int col){
         int i=1;
         int len=verticalLength(row,col);
@@ -159,6 +225,16 @@ public class Board {
         Word w = new Word(t,firstLetterRow,col,true);
         return w;
     }
+    /**    
+     * The verticalLength function returns the length of a vertical line of tiles
+     * starting at (row,col) and extending in the positive row direction.  If there is no tile at (row,col), then 0 is returned.
+     *
+     * @param row int -Determine the row of the tile that is being checked
+     * @param col int -Determine the column of the tile
+     *
+     * @return The number of tiles in a vertical line starting at the given row and column
+     *
+     */
     public int verticalLength(int row,int col){
         int i=1;
         int len=1;
@@ -190,6 +266,15 @@ public class Board {
         }
         return len;
     }
+    /**    
+     * The nonVerticalLength function is used to find the length of a non-vertical line.
+     *
+     * @param row int -Determine the row that the tile is in
+     * @param col int -Determine the column of the tile
+     *
+     * @return The length of the non-vertical line
+     *
+     */
     public int nonVerticalLength(int row,int col){
         int i=1;
         int len=1;
@@ -221,6 +306,18 @@ public class Board {
         }
         return len;
     }
+    /**    
+     * The nonVerticalTileWord function takes in a row and column number as parameters.
+     * It then checks if the tile at that position is null, if it is not null, it will check to see how many tiles are connected to the right of this tile.
+     * If there are no tiles connected to the right of this tile, then we return null because there is no word formed by just one letter.
+     * Otherwise we create an array of Tiles with length equal to the number of letters in our non-vertical word (including our starting letter). 
+     * We also keep track of which column contains our first letter so that when we add
+     *
+     * @param row int -Specify the row of the tile that is being checked
+     * @param col int -Determine the column of the first letter in a word
+     * @return A word that is not vertical
+     *
+     */
     public Word nonVerticalTileWord(int row,int col){
         int i=1;
         int len=nonVerticalLength(row,col);
@@ -239,6 +336,13 @@ public class Board {
         Word w = new Word(t,row,firstLetterCol,false);
         return w;
     }
+    /**    
+     * The getWords function returns an ArrayList of Word objects that are formed by the tiles in the given word.
+     *
+     * @param word Word -Get the tiles of the word
+     * @return An arraylist of words
+     *
+     */
     public ArrayList<Word> getWords(Word word){
         Tile[] tilesOfWord =word.getTiles();
         int col = word.getCol();
@@ -279,6 +383,18 @@ public class Board {
         }
         return words;
     }
+    /**    
+     * The sendToDictionaryLegal function takes in a submitted word and a word to finish.
+     * It then creates an array of tiles that is the same length as the word to finish,
+     * and fills it with tiles from both words. If there is no tile at that position in the
+     * WordToFinish, it will take one from submittedWord instead. The function returns this new Word object.
+     *
+     * @param submittedWord Word
+     * @param wordToFinish Word 
+     *
+     * @return A new word that is the combination of the submittedword and wordtofinish
+     *
+     */
     public Word sendToDictionaryLegal(Word submittedWord,Word wordToFinish){
         Tile[] t = new Tile[wordToFinish.getTiles().length];
         int row,col,firstRow,firstCol;
@@ -307,6 +423,15 @@ public class Board {
         }
         return new Word(t,firstRow,firstCol,wordToFinish.isVertical());
     }
+    /**    
+     * The isEqual function checks if two words are equal.
+     *
+     * @param w1 Word 
+     * @param w2 Word 
+     *
+     * @return A boolean
+     *
+     */
     public boolean isEqual(Word w1,Word w2){
         if(w1.getTiles().length!=w2.getTiles().length)
             return false;
@@ -340,6 +465,17 @@ public class Board {
         }
         return true;
     }
+    /**    
+     * The checkBonus function checks the board for any bonus squares and returns a string
+     * that represents the type of bonus square. The function takes in two parameters, row and col,
+     * which are used to determine what kind of bonus square is at that location on the board.
+     *
+     * @param row int
+     * @param col int
+     *
+     * @return A string 
+     *
+     */
     public String checkBonus(int row,int col){
         switch(row){
             case 0:case 14:
@@ -391,6 +527,16 @@ public class Board {
         }
         return "";
     }
+    /**    
+     * The getScore function takes a Word object as an argument and returns the score of that word.
+     * The function first gets all the words in the board by calling getWords(Word) function.
+     * Then it iterates over each word, calculates its score and adds it to total score.
+     *
+     * @param word Word
+     *
+     * @return The score of the word that is placed on the board
+     *
+     */
     public int getScore(Word word){
         ArrayList<Word> words = getWords(word);
         int score=0;
@@ -472,6 +618,17 @@ public class Board {
         }
         return score;
     }
+    /**    
+     * The tryPlaceWord function takes in a word and checks if it is legal to place on the board.
+     * If it is, then the function will try to place the word on the board with all the new words
+     * that been created as well checks if they are all valid.
+     * 
+     *
+     * @param word Word
+     *
+     * @return An int - returns the score of the given word, if the word wasn't placed returns 0.
+     *
+     */
     public int tryPlaceWord(Word word){
         if(!boardLegal(word))
             return 0;
@@ -508,6 +665,10 @@ public class Board {
         return score;
     }
 
+    /**    
+     * The printBoard function prints the board to the console.
+     *
+     */
     public void printBoard() {
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
