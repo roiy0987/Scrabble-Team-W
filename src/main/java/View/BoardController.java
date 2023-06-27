@@ -68,10 +68,19 @@ public class BoardController {
 
     public BoardController(){}
 
+    /**
+     * The setViewModel function is used to set the view model of the class.
+     *
+     * @param vm Set the view model for this class
+     */
     public void setViewModel(ScrabbleViewModel vm) {
         this.vm = vm;
     }
 
+    /**
+     * The initWindow function initializes the window by calling the initBinding,
+     * initBoard, and addListeners functions.
+     */
     public void initWindow(){
         initBinding();
         initBoard();
@@ -80,6 +89,10 @@ public class BoardController {
         addListeners();
     }
 
+    /**
+     * The gameOver function is called when the game ends. It loads the GameOverPageController and sets its stage, vm,
+     * playersList and scene. The scene is then set to be full screen.
+     */
     public void gameOver() {
         try {
             FXMLLoader fxmlLoader = null;
@@ -99,6 +112,13 @@ public class BoardController {
     }
 
 
+    /**
+     * The initBoard function is used to draw the board and bind it.
+     * It takes in no parameters, but uses the global variables numRows and numCols to determine how many rows and columns there are.
+     * It then creates a 2D array of characters called m that will be used as a placeholder for bindingBoard's value.
+     * The function then iterates through each row, column pair on the board using two nested for loops (one looping through rows, one looping through columns).
+     * For each cell in this iteration: if bindingBoard's value is not null (i.e., if we have already set
+     */
     private void initBoard(){
         // Draw empty board and bind it
         int numRows = board.getRowCount();
@@ -130,6 +150,10 @@ public class BoardController {
         bindingBoard.set(m);
     }
 
+    /**
+     * The initPlayersTiles function initializes the player's tiles.
+     * It does this by creating a new tile for each of the 7 cells in the playerTiles list, and then adding that cell to the list.
+     */
     private void initPlayersTiles(){
         for (int i = 0; i < 7 ; i++) {
             Tile tile;
@@ -146,6 +170,15 @@ public class BoardController {
         }
     }
 
+    /**
+     * The initBinding function initializes the bindings between the view model and the view.
+     * It clears any previous scores, binds score to vm.getScores(), creates a new SimpleListProperty&lt;&gt;() for tiles,
+     * binds tiles to vm.getTiles(), creates a new SimpleObjectProperty&lt;&gt;() for bindingBoard,
+     * binds bindingBoard to vm.getBoard(), creates a new SimpleBooleanProperty() for myTurn and gameOver,
+     * then finally it sets up bidirectional bindings between myTurn and gameOver with their respective properties in VMGame2048LogicImpl().
+     *
+     * @return A simplelistproperty&lt;tile&gt;
+     */
     private void initBinding(){
         score.getItems().clear();
         score.itemsProperty().bind(vm.getScores());
@@ -161,6 +194,11 @@ public class BoardController {
         disconnect.bindBidirectional(vm.getDisconnect());
     }
 
+    /**
+     * The initButtons function is used to initialize the buttons on the board.
+     * It sets all of them to be disabled and transparent if it is not your turn,
+     * or enabled and opaque if it is your turn. This function also sets up a listener for each button that calls its respective function when clicked.
+     */
     private void initButtons(){
         if(!myTurn.get()){
             submit.setDisable(true);
@@ -184,6 +222,12 @@ public class BoardController {
 
     }
 
+    /**
+     * The addListeners function adds listeners to the myTurn, gameOver, and disconnect properties.
+     * The listener for myTurn changes the visibility of buttons depending on whether it is this player's turn or not.
+     * The listener for gameOver closes the stage if a player wins or loses.
+     * The listener for disconnect closes the stage if a player disconnects from their opponent.
+     */
     private void addListeners(){
         // Change visibility so the player will know if it is his turn or not
         System.out.println(myTurn.get());
@@ -232,6 +276,21 @@ public class BoardController {
         });
     }
 
+
+    /**
+     * The getCellType function returns the type of cell at a given row and column.
+     * The function takes two parameters: an integer representing the row, and an
+     * integer representing the column. It returns a string that represents what kind
+     * of cell is at that location on the board. The possible return values are: &quot;dl&quot; for double letter,
+     * &quot;dw&quot; for double word, &quot;tl&quot; for triple letter, or &quot;tw&quot; for triple word. If there is no special tile
+     * at that location on the board (i.e., it's just a normal square), then this function will return an
+     *
+     * @param row Determine the row of the cell
+
+     * @param col Determine the column of the cell
+     *
+     * @return A string that is used to determine the type of tile
+     */
     private String getCellType(int row, int col) {
         switch (row) {
             case 0: case 14:
@@ -284,6 +343,13 @@ public class BoardController {
         return ""; // Default cell type
     }
 
+    /**
+     * The getCellStyle function takes in a String cellType and returns the appropriate style for that cell.
+     *
+     * @param cellType Determine the style of the cell
+     *
+     * @return A string that is used to set the style of a cell
+     */
     private String getCellStyle(String cellType) {
         switch (cellType) {
             case "dl":
@@ -299,6 +365,13 @@ public class BoardController {
         }
     }
 
+    /**
+     * The submitWord function is called when the submit button is clicked.
+     * It checks if it's the player's turn, and if so, calls vm.submitWord() to check whether or not a word has been submitted.
+     * If a word has been submitted, then it resets all of the tiles in playerTiles to be blank tiles (i.e., no letter).
+     *
+     * @return A boolean value
+     */
     public void submitWord() {
         System.out.println("Submit Clicked!");
         try {
@@ -319,6 +392,11 @@ public class BoardController {
         this.resetButton();
     }
 
+    /**
+     * The skipTurn function is called when the user clicks on the &quot;Skip Turn&quot; button.
+     * It sends a message to the server that it is skipping its turn, and then sets
+     * myTurn to false so that no more moves can be made until it becomes this player's turn again.
+     */
     public void skipTurn() throws IOException, InterruptedException {
         System.out.println("Skip Turn Clicked!");
         if(this.vm.myTurn.get()){
@@ -327,10 +405,18 @@ public class BoardController {
         }
     }
 
+    /**
+     * The shuffleTiles function shuffles the tiles in the player's hand.
+     */
     public void shuffleTiles() {
         Collections.shuffle(playerTiles.getItems());
     }
 
+    /**
+     * The resetButton function resets the board to its previous state.
+     * It does this by clearing the playerTiles ListView and adding back all of the original tiles.
+     * Then it clears the board GridPane and sets it equal to vm's prevBoard, which is a copy of what was on the board before resetButton was called.
+     */
     public void resetButton(){
         if(this.vm.myTurn.get()){
             // Reset the playerTiles ListView
@@ -372,6 +458,12 @@ public class BoardController {
         }
     }
 
+    /**
+     * The setStage function is used to set the stage of the application.
+     *
+     * @param stage Set the stage
+     *
+     */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -381,6 +473,11 @@ public class BoardController {
 
         private boolean draggable;
 
+        /**
+         * The Cell function creates a new cell object that extends StackPane.
+         *
+         * @return A cell with a tile
+         */
         public Cell() {
             this.tile = new Tile();
             tile.setStyle("-fx-background-color: transparent; -fx-font-size: 14px;");
@@ -458,17 +555,32 @@ public class BoardController {
 
         }
 
+        /**
+         * The setTile function sets the tile to be displayed in this cell.
+         *
+         * @param tile Set the tile to a new one
+         */
         public void setTile(Tile tile) {
             this.tile = tile;
             getChildren().clear();
             getChildren().add(this.tile);
         }
 
+        /**
+         * The setDraggable function sets the draggable property of a tile to true or false.
+         *
+         * @param val Set the draggable property of the tile
+         */
         public void setDraggable(Boolean val){
             tile.setDraggable(val);
             this.draggable = val;
         }
 
+        /**
+         * The getTile function returns the tile that is stored in this object.
+         *
+         * @return The tile
+         */
         public Tile getTile() {
             return tile;
         }
@@ -487,6 +599,17 @@ public class BoardController {
 
         private boolean draggable;
 
+        /**
+         * The Tile function is a constructor for the Tile class. It sets the character
+         * of the tile to be blank, and it also sets whether or not it can be dragged.
+         * The function then determines what value each tile should have based on
+         * Scrabble rules, and then initializes events for when a mouse button is pressed,
+         * released or clicked on this particular tile. Finally, it sets its text to be
+         * whatever getTileText() returns (which will either return an empty string if there's no character in this Tile object yet), or else return that character as a String. It also gives
+         *
+         * @return A tile object
+         *
+         */
         public Tile(){
             super();
             this.character = '\u0000';
@@ -503,6 +626,15 @@ public class BoardController {
             this.initEvents();
         }
 
+        /**
+         * The Tile function is a constructor for the Tile class. It takes in a character and sets it as the tile's character,
+         * then initializes its value based on Scrabble rules, sets its text to be that of getTileText(), and gives it some
+         * styling. Finally, it calls initEvents() to initialize all events associated with this tile.
+         *
+         * @param character Determine the value of the tile
+         *
+         * @return A tile object
+         */
         public Tile(char character) {
             super();
             this.character = character;
@@ -519,6 +651,14 @@ public class BoardController {
             this.initEvents();
         }
 
+        /**
+         * The initValue function assigns a value to the tile based on its character.
+         * The values are as follows:
+         * E, A, I, O, N, R, T and L = 1 point; D and G = 2 points; B C M P = 3 points; F H V W Y = 4 points; K 5 points J X 8 Points Q Z 10 Points.
+         *
+         * @return The value of the tile
+         *
+         */
         private void initValue(){
             switch (Character.toUpperCase(character)) {
                 case 'E', 'A', 'I', 'O', 'N', 'R', 'T', 'L', 'S', 'U' -> value = 1;
@@ -532,6 +672,11 @@ public class BoardController {
             }
         }
 
+        /**
+         * The setTile function sets the tile to a new tile.
+         *
+         * @param tile Set the character and value of a tile
+         */
         public void setTile(Tile tile) {
             if (tile != null) {
                 this.character = tile.getCharacter();
@@ -543,6 +688,12 @@ public class BoardController {
             setText(getTileText());
         }
 
+        /**
+         * The initEvents function is used to initialize the events for each tile.
+         * The first event is a drag detected event, which occurs when the user clicks on a tile and drags it.
+         * This function sets up the Dragboard object that will be used to transfer data between cells during dragging.
+         * It also sets up some visual effects for dragging, such as adding a shadow effect and bringing the dragged tile to front of all other tiles in its cell.
+         */
         private void initEvents(){
             setOnDragDetected(event -> {
                 System.out.println(draggable);
@@ -597,6 +748,13 @@ public class BoardController {
             });
         }
 
+        /**
+         * The getTileText function returns the text that should be displayed on a tile.
+         * If the value of the tile is 0, then only its character should be displayed.
+         * Otherwise, both its character and value should be displayed in parentheses.
+         *
+         * @return A string that is the character and value of a tile
+         */
         private String getTileText() {
             if (value == 0) {
                 return String.valueOf(character);
@@ -605,10 +763,21 @@ public class BoardController {
             }
         }
 
+        /**
+         * The getCharacter function returns the character that is stored in this object.
+         *
+         * @return The character object
+         */
         public Character getCharacter() {
             return this.character;
         }
 
+        /**
+         * The setDraggable function sets the draggable property of a marker.
+         *
+         *
+         * @param val Determine whether the marker is draggable or not
+         */
         public void setDraggable(Boolean val) {
             draggable = val;
         }

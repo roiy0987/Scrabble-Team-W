@@ -40,12 +40,26 @@ public class MainPageController {
 
     private static MainPageController singleton_instace = null;
 
+    /**
+     * The getMainPage function is a static function that returns the singleton instance of the MainPageController class.
+     * This function is used to ensure that only one instance of this class exists at any given time, and it also allows
+     * for easy access to this object from other classes.  The getMainPage function takes no parameters and returns an object
+     * of type MainPageController.  If there are no instances of the MainPageController class currently in existence, then a new one will be created before being returned by this method.
+     *
+     * @return A mainpagecontroller object
+     */
     public static MainPageController getMainPage() throws IOException {
         if(singleton_instace == null)
             singleton_instace = new MainPageController();
         return singleton_instace;
     }
 
+    /**
+     * The getScene function is used to load the main-page.fxml file and return a Scene object
+     * that can be used in the Main class to set up the stage for this scene.
+     *
+     * @return A scene object
+     */
     public Scene getScene() throws IOException {
         FXMLLoader fxmlLoader = null;
         String fxmlPath = "src/main/resources/ui/fxml/main-page.fxml";
@@ -55,6 +69,13 @@ public class MainPageController {
         return scene;
     }
 
+    /**
+     * The joinGame function is called when the user clicks on the &quot;Join Game&quot; button.
+     * It creates a new GuestModel object, which will attempt to connect to a server at
+     * the IP address and port number specified by the user in their respective text fields.
+     *
+     * @return The scrabbleviewmodel object
+     */
     public void joinGame() throws IOException {
         System.out.println("Join clicked!");
         System.out.println(Integer.parseInt(port.getText()));
@@ -72,6 +93,13 @@ public class MainPageController {
         }
     }
 
+    /**
+     * The hostGame function is called when the host button is clicked.
+     * It creates a new HostModel object, which will be used to create a ScrabbleViewModel object.
+     * The ScrabbleViewModel object will then be used to swap scenes and start the game.
+     *
+     * @return A hostmodel object
+     */
     public void hostGame() throws IOException {
         System.out.println("Host clicked!");
         HostModel host = null;
@@ -88,6 +116,12 @@ public class MainPageController {
         }
     }
 
+    /**
+     * The editParameters function allows the user to edit their nickname, IP address and port number.
+     * The function is called when the &quot;EDIT&quot; button is clicked. When this happens, all three text fields are set to be editable by the user.
+     * If they click on &quot;SAVE&quot;, then all three text fields are no longer editable by the user and their changes will be saved in those respective variables for future use.
+     *
+     */
     public void editParameters() {
         dialog.setContentText("");
         if(editButton.getText().equals("EDIT")){
@@ -105,10 +139,18 @@ public class MainPageController {
         }
     }
 
+    /**
+     * The setPage function is used to set the stage of the current page.
+     *
+     * @param stage Set the stage for the scene
+     */
     public void setPage(Stage stage){
         this.stage = stage;
     }
 
+    /**
+     * The swapScenes function is used to swap the current scene with a new one.
+     */
     private void swapScenes() throws IOException {
         FXMLLoader fxmlLoader = null;
         disconnect = new SimpleBooleanProperty(false);

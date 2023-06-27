@@ -38,6 +38,11 @@ public class WaitingPageController implements Observer {
         this.stage = stage;
     }
 
+    /**
+     * The setViewModel function is used to set the view model for this class.
+     *
+     * @param  vm Bind the disconnect property to the view model's disconnect property
+     */
     public void setViewModel(ScrabbleViewModel vm){
         this.vm = vm;
         disconnect = new SimpleBooleanProperty(false);
@@ -67,11 +72,20 @@ public class WaitingPageController implements Observer {
 
     }
 
+    /**
+     * The startGame function is called when the user clicks on the &quot;Start Game&quot; button.
+     * It calls a function in ViewModel to start the game, and then swaps scenes to display
+     * the game board.
+     */
     public void startGame() throws IOException {
         vm.startGame();
         swapScene();
     }
 
+    /**
+     * The swapScene function is used to swap the current scene with a new one.
+     *
+     */
     private void swapScene() throws IOException {
         FXMLLoader fxmlLoader = null;
         String fxmlPath = "src/main/resources/ui/fxml/board-page.fxml";
@@ -102,6 +116,11 @@ public class WaitingPageController implements Observer {
 //        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     }
 
+    /**
+     * The setIsHost function sets the host variable to true or false.
+     *
+     * @param isHost Set the host variable to true or false
+     */
     public void setIsHost(boolean isHost){
         this.host = isHost;
     }
