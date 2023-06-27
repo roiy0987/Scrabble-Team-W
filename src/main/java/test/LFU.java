@@ -16,6 +16,13 @@ public class LFU implements CacheReplacementPolicy {
 
 
     //add in O(1) or add in O(N)
+    /**
+     * The add function adds a word to the map. If the word is already in the map,
+     * it increments its frequency by 1. Otherwise, it adds a new entry with
+     * frequency 1.
+     *
+     * @param  word Add a word to the map
+     */
     public void add(String word){
         if(wordsByOrder.containsKey(word)){
             frequencies.put(word,this.wordsByOrder.get(word)+1);
@@ -26,6 +33,11 @@ public class LFU implements CacheReplacementPolicy {
         }
     }
     //remove in O(N) or remove in O(log(N))
+    /**
+     * The remove function removes the least frequently used word from the cache.
+     *
+     * @return The string that was removed
+     */
     public String remove(){
         if(wordsByOrder.size()==0)
             return null;
