@@ -23,6 +23,15 @@ public class ScrabbleViewModel implements Observer {
     private final BooleanProperty disconnect;
 
 
+    /**
+     * The ScrabbleViewModel function is the constructor for the ScrabbleViewModel class.
+     * It takes in a ScrabbleModelFacade object and sets it to be an instance variable of this class.
+     * It also adds itself as an observer to the model, initializes all of its properties, and creates a 2D array that will hold previous board states.
+     *
+     * @param m Set the model
+     *
+     * @return A scrabbleviewmodel object
+     */
     public ScrabbleViewModel(ScrabbleModelFacade m) throws IOException {
         model = m;
         m.addObserver(this);
@@ -38,10 +47,21 @@ public class ScrabbleViewModel implements Observer {
             Arrays.fill(prevBoard[i], '\u0000');
         }
     }
+
+    /**
+     * The getTiles function returns the tiles property of the Board class.
+     *
+     * @return The tiles property
+     */
     public ListProperty<Character> getTiles(){
         return tiles;
     }
 
+    /**
+     * The getBoard function returns the boardProperty object.
+     *
+     * @return A property of type character[][]
+     */
     public ObjectProperty<Character[][]> getBoard(){
         return boardProperty;
     }
@@ -54,6 +74,12 @@ public class ScrabbleViewModel implements Observer {
         return this.prevBoard;
     }
 
+    /**
+     * The startGame function is used to start the game.
+     * It sets the boolean value of gameStarted to true, and then calls on model's startGame function.
+     * The tiles are set equal to what model returns from its startGame function.
+     *
+     */
     public void startGame() {
         try {
             gameStarted.set(true);
@@ -64,13 +90,33 @@ public class ScrabbleViewModel implements Observer {
             throw new RuntimeException(e);
         }
     }
+    /**
+     * The getDisconnect function returns the disconnect property.
+     *
+     * @return A booleanproperty
+     */
     public BooleanProperty getDisconnect() {
         return disconnect;
     }
+    /**
+     * The disconnect function disconnects the client from the server.
+     *
+     * @return A boolean
+     */
     public void disconnect(){
         this.model.disconnect();
     }
 
+    /**
+     * The getDownWord function takes in a row and column number as parameters,
+     * and returns the word that is formed by going down from that position.
+     *
+     *
+     * @param row specifies row of first letter of word
+     * @param col specifies col of first letter of word
+     *
+     * @return The word formed by the letters placed on the board in a downward direction
+     */
     private String getDownWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         while(row!=15 && row > -1){
@@ -87,6 +133,15 @@ public class ScrabbleViewModel implements Observer {
         }
         return sb.toString();
     }
+    /**
+     * The getRightWord function takes in a row and column number as parameters,
+     * and returns the word that is to the right of that position.
+     *
+     * @param row specifies row of first letter of word
+     * @param col specifies col of first letter of word
+     *
+     * @return The word that is to the right of the given row and column
+     */
     private String getRightWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         while(col!=15 && col > -1){
@@ -102,6 +157,16 @@ public class ScrabbleViewModel implements Observer {
         }
         return sb.toString();
     }
+
+    /**
+     * The getLeftWord function takes in a row and column number, and returns the word to the left of that position.
+     *
+     *
+     * @param row specifies row of first letter of word
+     * @param col specifies col of first letter of word
+     *
+     * @return A string that looks like this:
+     */
     private String getLeftWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         int originalCol=col;
@@ -120,6 +185,15 @@ public class ScrabbleViewModel implements Observer {
         sb.append(this.getRightWord(row,col));
         return sb.toString();
     }
+    /**
+     * The getUpWord function takes in a row and column number, and returns the word that is above the letter at that position.
+     *
+     *
+     * @param row specifies row of first letter of word
+     * @param col specifies col of first letter of word
+     *
+     * @return A string that contains the letters above the given row and column
+     */
     private String getUpWord(int row,int col){
         StringBuilder sb = new StringBuilder();
         int originalRow=row;
@@ -139,6 +213,15 @@ public class ScrabbleViewModel implements Observer {
         return sb.toString();
     }
 
+    /**
+     * The getDirectionOfWord function takes in a row and column number, and returns the direction of the word that is being placed.
+     *
+     *
+     * @param row specifies row of first letter of word
+     * @param col specifies col of first letter of word
+     *
+     * @return The direction of the word that is being played
+     */
     private String getDirectionOfWord(int row,int col){
         if(row!=0&&boardProperty.get()[row-1][col]!='\u0000'){
             return "up";
@@ -154,6 +237,13 @@ public class ScrabbleViewModel implements Observer {
         }
         return "error";
     }
+    /**
+     * The getWord function is used to determine the word that was just submitted by the player.
+     * It does this by comparing the current board with a copy of it, and then determining which tiles were changed.
+     * The function then determines whether or not those tiles are part of a vertical or horizontal word, and returns that word as a string.
+     *
+     * @return A string in the form of &quot;word:row:col:orientation&quot;
+     */
     private String getWord(){
         Character[][] currentBoard;
         try {
@@ -216,6 +306,14 @@ public class ScrabbleViewModel implements Observer {
 
     }
 
+    /**
+     * The submitWord function is used to submit a word that the player has created.
+     * It takes in no parameters and returns a boolean value of true if the word was submitted successfully,
+     * or false if it wasn't. The function first gets the answer from getWord(), which is then split into an array of strings,
+     * where each string represents one part of the answer (the word itself, its starting row position on boardProperty, its starting column position on boardProperty and whether it's horizontal or vertical). Then we call model.submitWord() with these values as parameters to check whether this move is valid according to our game rules (
+     *
+     * @return A boolean value
+     */
     public boolean submitWord()throws IOException{
         // Example: "CAT:1:2:true"
         try {
@@ -259,11 +357,21 @@ public class ScrabbleViewModel implements Observer {
         }
         return false;
     }
+    /**
+     * The skipTurn function is used to skip the current player's turn.
+     *
+     * @return The next turn
+     */
     public void skipTurn() throws IOException, InterruptedException {
         model.nextTurn();
 
     }
 
+    /**
+     * The getScores function is a getter function that returns the scores list property.
+     *
+     * @return An observable list of strings
+     */
     public ListProperty<String> getScores()  {
         try {
             System.out.println("getScore invoked");
@@ -279,6 +387,11 @@ public class ScrabbleViewModel implements Observer {
         }
     }
 
+    /**
+     * The getGameStartedProperty function returns the gameStarted property.
+     *
+     * @return The gamestarted property
+     */
     public BooleanProperty getGameStartedProperty(){
         return this.gameStarted;
     }
