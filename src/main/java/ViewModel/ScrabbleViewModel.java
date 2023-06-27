@@ -463,16 +463,5 @@ public class ScrabbleViewModel implements Observer {
         }
     }
 
-    /**
-     * The setPrevBoard function sets the boardProperty to the previous board.
-     * This is used in conjunction with the undo function, which calls this function.
-     *
-     * @return Void
-     */
-    public void setPrevBoard() {
-        Platform.runLater(()->{
-            this.boardProperty.set(prevBoard);
-        });
-    }
 }
 
