@@ -1,3 +1,4 @@
+[Javadoc Documentation](doc/com.scrabble.bookscrabblegame/module-summary.html)
 
 ## Demo Video
 [Link to video](https://drive.google.com/file/d/1QPFmpmgjCSpsMmi07Chh2pD74y-pw2Lz/view)
