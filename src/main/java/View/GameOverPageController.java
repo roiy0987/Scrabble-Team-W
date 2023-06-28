@@ -18,8 +18,6 @@ public class GameOverPageController {
      * The GameOverPageController function is the controller for the GameOverPage.fxml file.
      * It allows for a user to return to the main menu, or exit out of the game entirely.
      *
-     * @return A gameoverpagecontroller object
-     *
      */
     public GameOverPageController() throws IOException {
         mp = MainPageController.getMainPage();

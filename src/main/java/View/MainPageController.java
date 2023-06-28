@@ -74,7 +74,6 @@ public class MainPageController {
      * It creates a new GuestModel object, which will attempt to connect to a server at
      * the IP address and port number specified by the user in their respective text fields.
      *
-     * @return The scrabbleviewmodel object
      */
     public void joinGame() throws IOException {
         System.out.println("Join clicked!");
@@ -98,7 +97,6 @@ public class MainPageController {
      * It creates a new HostModel object, which will be used to create a ScrabbleViewModel object.
      * The ScrabbleViewModel object will then be used to swap scenes and start the game.
      *
-     * @return A hostmodel object
      */
     public void hostGame() throws IOException {
         System.out.println("Host clicked!");

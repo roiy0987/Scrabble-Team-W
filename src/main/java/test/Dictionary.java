@@ -16,8 +16,6 @@ public class Dictionary {
      *
      * @param fileNames An array of String
      *
-     * @return A dictionary object
-     *
      */
     public Dictionary(String ... fileNames)  {
         try {

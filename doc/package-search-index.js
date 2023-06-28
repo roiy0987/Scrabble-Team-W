@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"com.scrabble.bookscrabblegame","l":"Model"},{"m":"com.scrabble.bookscrabblegame","l":"test"},{"m":"com.scrabble.bookscrabblegame","l":"View"},{"m":"com.scrabble.bookscrabblegame","l":"ViewModel"}];updateSearchResults();

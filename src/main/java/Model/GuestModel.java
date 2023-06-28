@@ -32,8 +32,6 @@ public class GuestModel extends Observable implements ScrabbleModelFacade {
                 bufferedreader br = new bufferedreader(new inputstreamreader(server
      * @param port An int -Connect to the server
      *
-     * @return A guestModel object
-     *
      */
     public GuestModel(String name, String ip, int port)throws IOException {
         this.playerName = name;

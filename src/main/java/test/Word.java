@@ -20,7 +20,6 @@ public class Word {
      * @param col Set the column of the first tile in a word
      * @param vertical Determine if the word is vertical or horizontal
      *
-     * @return A word object
      */
     public Word(Tile[] tiles, int row, int col, boolean vertical) {
         this.tiles = tiles;

@@ -12,8 +12,6 @@ public class CacheManager {
     * @param size int -Set the maxsize of the cache
     * @param crp CacheReplacementPolicy -Determine which cache replacement policy to use
     *
-    * @return A new CacheManager object
-    *
     */
     public CacheManager(int size, CacheReplacementPolicy crp){
         this.words =new HashSet<String>();

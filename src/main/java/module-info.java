@@ -4,4 +4,7 @@ module com.scrabble.bookscrabblegame {
 
     opens View to javafx.fxml;
     exports View;
+    exports test;
+    exports ViewModel;
+    exports Model;
 }

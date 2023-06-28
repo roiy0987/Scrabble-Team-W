@@ -370,7 +370,6 @@ public class BoardController {
      * It checks if it's the player's turn, and if so, calls vm.submitWord() to check whether or not a word has been submitted.
      * If a word has been submitted, then it resets all of the tiles in playerTiles to be blank tiles (i.e., no letter).
      *
-     * @return A boolean value
      */
     public void submitWord() {
         System.out.println("Submit Clicked!");

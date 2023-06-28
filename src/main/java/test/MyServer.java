@@ -26,8 +26,6 @@ public class MyServer {
      * @param port int -Set the port number that the server will listen to
      * @param ch ClientHandler -Handle the client's request
      *
-     * @return MyServer Object
-     *
      */
     public MyServer(int port, ClientHandler ch) {
         this.port = port;

@@ -17,7 +17,6 @@ public class BloomFilter {
      * @param size int -Set the size of the bitset
      * @param algo A String array -Pass a variable number of arguments to the function
      *
-     * @return A bloomfilter object
      *
      */
     public BloomFilter(int size, String ... algo) {
@@ -37,10 +36,6 @@ public class BloomFilter {
 
      *
      * @param word String -Get the bytes of the word and then to hash it
-     *
-     * @return Void
-     *
-     * @docauthor Trelent
      */
     public void add(String word) {
         for(MessageDigest md:this.algo){

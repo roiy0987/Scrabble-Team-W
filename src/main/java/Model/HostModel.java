@@ -28,7 +28,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
      *
      * @param name String -Set the name of the host
      *
-     * @return A hostModel object
      */
     public HostModel(String name) throws IOException {
         this.name = name;
@@ -78,8 +77,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
      * The addObserver function adds a new observer to the list of observers.
      *
      * @param vm An ScrabbleViewModel -Pass the view model to the super class
-     *
-     * @return A boolean value
      *
      */
     @Override
@@ -324,8 +321,6 @@ public class HostModel extends Observable implements ScrabbleModelFacade {
     /**
      * The nextTurn function is used to determine which player's turn it is.
      * It also determines when the game ends, and if so, call the endGame function.
-     *
-     * @return The player whose turn it is
      *
      */
     @Override

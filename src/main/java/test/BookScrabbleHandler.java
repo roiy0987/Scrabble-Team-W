@@ -16,8 +16,6 @@ public class BookScrabbleHandler implements ClientHandler{
      * The BookScrabbleHandler function is a constructor that initializes the DictionaryManager,
      * and creates an array of Strings to hold the names of books. It also sets stop to false.
      *
-     * @return A BookScrabbleHandler object
-     *
      */
     public BookScrabbleHandler(){ // Need to get names of books
         this.dm = DictionaryManager.get();
