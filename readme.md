@@ -4,6 +4,9 @@
 ## Demo Video
 [Link to video](https://drive.google.com/file/d/1QPFmpmgjCSpsMmi07Chh2pD74y-pw2Lz/view)
 
+## Project Video
+[link to video](https://drive.google.com/file/d/1Zv6gjqAnPR9ooKYZCCCKkOyArnCNnivY/view?usp=drive_link)
+
 ## Scrabble Game:
 ### _About the game:_
 
